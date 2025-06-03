@@ -14,13 +14,13 @@ def main():
 
         for sentence in file:
             for word in sentence['words']:
-                if ((word['form'].lower() in form_list and
-                     'subst' in word['morph_descr']) or
+                if ((word['form'] in form_list and
+                     compare_morph_descr(word, noun_forms)) or
                         'depr' in word['morph_descr']):
                     found = get_info(word, sentence, noun_forms)
-                    print(found)
                     found_words.append(found)
 
         # write_json(found_words)
+
 
 main()
