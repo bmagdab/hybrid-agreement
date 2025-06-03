@@ -1,10 +1,11 @@
-# for file managing functions mainly
-import re
+import regex as re
+import os
+import json
 
 starting_number = 0
 path = 'NKJP\\'
-# filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-filelist = ['NKJP_1M']
+filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+# filelist = ['NKJP_1M']
 
 
 def read_conllu(file):
@@ -62,6 +63,13 @@ def compare_morph_descr(found_word, reference_table):
     return same
 
 
-def write_json():
+def write_json(occurences, file_name):
     # create a folder called "occurences" if needed
-    pass
+    out_directory = 'occurences'
+    if not os.path.isdir(out_directory):
+        os.mkdir(out_directory)
+
+    out_path = out_directory + '\\' + file_name + '.json'
+
+    with open(out_path, mode='w', encoding='utf-8') as out_file:
+        json.dump(occurences, out_file, indent=2, ensure_ascii=False)
