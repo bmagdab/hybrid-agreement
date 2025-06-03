@@ -1,11 +1,10 @@
 # for file managing functions mainly
 import re
-import pandas as pd
 
 starting_number = 0
 path = 'NKJP\\'
-filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-
+# filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+filelist = ['NKJP_1M']
 
 def read_conllu(file):
     # reading the conllu file
@@ -33,19 +32,15 @@ def read_conllu(file):
             # saving each word as a dictionary of all the information I need
             if re.match(r'\d', line):
                 word = line.split('\t')
-                sent_dict['words'].append({'word_id': word[0],
+                sent_dict['words'].append({'id': int(word[0]),
                                            'form': word[1],
                                            'POS': word[3],
                                            'morph_descr': word[4],
-                                           'head': word[6],
+                                           'feats': word[5],
+                                           'head': int(word[6]),
                                            'label': word[7]})
         corpus.append(sent_dict)
     return corpus
-
-
-def get_forms():
-    word_forms = pd.read_csv('noun_forms.csv')
-    return word_forms.form.values
 
 
 def write_json():
