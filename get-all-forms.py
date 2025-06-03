@@ -10,13 +10,14 @@ with open('socially-gendered-nouns.txt', mode='r', encoding='utf-8') as gendered
     gendered = gendered_file.read()
     gendered = gendered.split('\n')
 
-out_dict = {'form': [], 'lexeme': [], 'category': []}
+out_dict = {'form': [], 'lexeme': [], 'morph_descr': [], 'category': []}
 
 for word in professions:
     for entry in morf.generate(word):
         if 'depr' not in entry[2] and 'brev' not in entry[2]:
             out_dict['form'].append(entry[0])
             out_dict['lexeme'].append(word)
+            out_dict['morph_descr'].append(entry[2])
             out_dict['category'].append('profession')
 
 for word in gendered:
@@ -24,6 +25,7 @@ for word in gendered:
         if 'depr' not in entry[2] and 'brev' not in entry[2]:
             out_dict['form'].append(entry[0])
             out_dict['lexeme'].append(word)
+            out_dict['morph_descr'].append(entry[2])
             out_dict['category'].append('gendered')
 
 df = pd.DataFrame(out_dict)
