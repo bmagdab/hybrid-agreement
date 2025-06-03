@@ -1,6 +1,14 @@
+import regex as re
+import morfeusz2
+morf = morfeusz2.Morfeusz()
+
+
 def get_info(word, sentence, nouns_table):
     # get lexeme
-    lexeme = nouns_table[nouns_table.form == word['form']].lexeme.values[0]
+    if word['form'] in nouns_table.form.values:
+        lexeme = nouns_table[nouns_table.form == word['form']].lexeme.values[0]
+    else:
+        lexeme = re.match(r'\w+', morf.analyse(word['form'])[0][2][1]).group()
 
     # get category from noun_list or from morph description
     if word['form'] in nouns_table.form.values:
@@ -33,7 +41,7 @@ def get_info(word, sentence, nouns_table):
     if not head:
         head = ['', '']
 
-    saved_word = {'form': word['form'].lower(),
+    saved_word = {'form': word['form'],
                   'lexeme': lexeme,
                   'file_name': sentence['file'],
                   'sent_id': sentence['id'],
