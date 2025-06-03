@@ -1,3 +1,4 @@
+import pandas as pd
 import morfeusz2
 morf = morfeusz2.Morfeusz()
 
@@ -9,11 +10,21 @@ with open('socially-gendered-nouns.txt', mode='r', encoding='utf-8') as gendered
     gendered = gendered_file.read()
     gendered = gendered.split('\n')
 
-for word in professions+gendered:
-    print(word)
-    of_interest = []
-    for form in morf.generate(word):
-        print(form)
-    #     if 'depr' not in form[2] and 'brev' not in form[2]:
-    #         of_interest.append(form)
-    # print(word + ': ' + str(len(of_interest)))
+out_dict = {'form': [], 'lexeme': [], 'category': []}
+
+for word in professions:
+    for entry in morf.generate(word):
+        if 'depr' not in entry[2] and 'brev' not in entry[2]:
+            out_dict['form'].append(entry[0])
+            out_dict['lexeme'].append(word)
+            out_dict['category'].append('profession')
+
+for word in gendered:
+    for entry in morf.generate(word):
+        if 'depr' not in entry[2] and 'brev' not in entry[2]:
+            out_dict['form'].append(entry[0])
+            out_dict['lexeme'].append(word)
+            out_dict['category'].append('gendered')
+
+df = pd.DataFrame(out_dict)
+df.to_csv('noun_forms.csv')
