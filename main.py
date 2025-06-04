@@ -20,8 +20,9 @@ def main():
                      compare_morph_descr(word, noun_forms)) or
                         'depr' in word['morph_descr']):
                     found = get_info(word, sentence, noun_forms)
-                    found_words.append(found)
-        print(f'{file}.conllu done, writing {file}.json')
+                    if found:
+                        found_words.append(found)
+        print(f'{file}.conllu done, writing {file}.json\n')
         write_json(found_words, file)
 
 

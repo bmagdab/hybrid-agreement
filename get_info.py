@@ -9,8 +9,11 @@ def get_info(word, sentence, nouns_table):
         lexeme = nouns_table[nouns_table.form == word['form']].lexeme.values[0]
         # in the table with listed nouns
     else:
-        lexeme = re.match(r'\w+', morf.analyse(word['form'])[0][2][1]).group()
-        # or using the morphological analyser Morfeusz if it's a depreciative form
+        try:
+            lexeme = re.match(r'\w+', morf.analyse(word['form'])[0][2][1]).group()
+            # or using the morphological analyser Morfeusz if it's a depreciative form
+        except AttributeError:
+            return False    # other cases are only when there was a parsing error in the conllu files, so ignore
 
     # finds the category from the table of listed nouns or from the morphological description
     if word['form'] in nouns_table.form.values:
