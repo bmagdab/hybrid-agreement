@@ -64,8 +64,8 @@ def compare_morph_descr(found_word, reference_table):
 
 
 def write_json(occurences, file_name):
-    # create a folder called "occurences" if needed
-    out_directory = 'occurences'
+    # create a folder called "occurrences" if needed
+    out_directory = 'occurrences'
     if not os.path.isdir(out_directory):
         os.mkdir(out_directory)
 
