@@ -8,12 +8,20 @@ def get_info(word, sentence, nouns_table):
     if word['form'] in nouns_table.form.values:
         lexeme = nouns_table[nouns_table.form == word['form']].lexeme.values[0]
         # in the table with listed nouns
-    else:
-        try:
-            lexeme = re.match(r'\w+', morf.analyse(word['form'])[0][2][1]).group()
-            # or using the morphological analyser Morfeusz if it's a depreciative form
-        except AttributeError:
-            return False    # other cases are only when there was a parsing error in the conllu files, so ignore
+    else:   # if it's not in the table it should be a depreciative form...
+        lexeme = ''
+        for analysis in morf.analyse(word['form']):
+            if re.search(r'depr|subst', analysis[2][2]) and analysis[2][3] != 'nazwisko':
+                # Morfeusz gives a number of analyses, some of them might be not in depreciative, but it doesn't matter
+                # because here I'm looking for the lexeme; also I won't look at surnames
+                lexeme = re.match(r'\w+', analysis[2][1]).group()
+        # try:
+        #     lexeme = re.match(r'\w+', morf.analyse(word['form'])[0][2][1]).group()
+        #     # or using the morphological analyser Morfeusz if it's a depreciative form
+        # except AttributeError:
+        #     return False    # other cases are only when there was a parsing error in the conllu files, so ignore
+        if not lexeme:
+            return False
 
     # finds the category from the table of listed nouns or from the morphological description
     if word['form'] in nouns_table.form.values:
@@ -34,7 +42,7 @@ def get_info(word, sentence, nouns_table):
 
     for other_word in sentence['words']:
         if other_word['id'] == word['head']:
-            head = [other_word['form'], other_word['morph_descr']]
+            head = [other_word['form'], other_word['morph_descr'], word['label']]
 
         # looks for the :relcl relation subtype
         elif other_word['head'] == word['id'] and ':relcl' in other_word['label']:
@@ -50,12 +58,13 @@ def get_info(word, sentence, nouns_table):
                                'relation': other_word['label'],
                                'morph_descr': other_word['morph_descr']})
     if not head:
-        head = ['', '']     # there may be no head above the noun
+        head = ['', '', '']     # there may be no head above the noun
 
     saved_word = {'form': word['form'],
                   'lexeme': lexeme,
                   'file_name': sentence['file'],
                   'sent_id': sentence['id'],
+                  'sent': sentence['sentence'],
                   'morph_descr': word['morph_descr'],
                   'category': category,
                   'head': head,

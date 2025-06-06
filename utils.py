@@ -4,8 +4,8 @@ import json
 
 starting_number = 0
 path = 'NKJP\\'
-filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-# filelist = ['NKJP_1M']
+# filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+filelist = ['NKJP_1M']
 
 
 def read_conllu(file):
@@ -23,6 +23,7 @@ def read_conllu(file):
         # for each sentence I want the ID of the sentence in the file, name of the file and list of words in th sentence
         sent_dict = {'id': 0,
                      'file': file,
+                     'sentence': '',
                      'words': []}
 
         for line in lines:
@@ -30,6 +31,11 @@ def read_conllu(file):
             sent_id = re.findall(r'# id = (\d+)', line)
             if sent_id:
                 sent_dict['id'] = int(sent_id[0])
+
+            # getting the text of the sentence
+            sent_text = re.findall(r'# sent = (.*)', line)
+            if sent_text:
+                sent_dict['sentence'] = sent_text[0]
 
             # saving each word as a dictionary of all the information I need
             if re.match(r'\d', line):
