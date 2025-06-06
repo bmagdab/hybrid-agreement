@@ -30,6 +30,8 @@ gendered_dict = {
     'pasztet': 'f',
     'wamp': 'f'
 }
+# list of symbols marking the verb flexemes that agree with the subject in gender
+verb_like = ['praet', 'pact', 'ppas']
 
 
 def file_into_dict(file_name):
@@ -46,6 +48,10 @@ def get_source_info(occurrence):
     else:
         other_gender = gendered_dict[occurrence['lexeme']]
 
+    if (re.search(r':n\b', entry['morph_descr']) and
+            re.search(r':pl\b', entry['morph_descr'])) and other_gender == 'f':
+        return False
+
     info = {
         'file_id': occurrence['file_name'],
         'sentence_id': occurrence['sent_id'],
@@ -53,7 +59,7 @@ def get_source_info(occurrence):
         'source_form': occurrence['form'],
         'source_lexeme': occurrence['lexeme'],
         'source_morph_descr': occurrence['morph_descr'],
-        'source_gram_gender': re.search(r':[mnf]\d?', occurrence['morph_descr']).group()[1:],
+        'source_gram_gender': re.search(r':[mnf]\d?\b', occurrence['morph_descr']).group()[1:],
         'source_other_gender': other_gender
     }
     return info
@@ -61,11 +67,7 @@ def get_source_info(occurrence):
 
 def get_target_info(target, info):
     if isinstance(target, list):
-        gender = re.search(r':[mnf]\d?', target[1])
-        if gender:
-            gender = gender.group()[1:]
-        else:
-            gender = 'unk'
+        gender = re.search(r':[mnf]\d?\b', target[1]).group()[1:]
         info['target_form'] = target[0]
         info['target_morph_descr'] = target[1]
         info['target_gender'] = gender
@@ -73,7 +75,7 @@ def get_target_info(target, info):
     else:
         info['target_form'] = target['form']
         info['target_morph_descr'] = target['morph_descr']
-        info['target_gender'] = re.search(r':[mnf]\d?', target['morph_descr']).group()[1:]
+        info['target_gender'] = re.search(r':[mnf]\d?\b', target['morph_descr']).group()[1:]
         info['type_of_agreement'] = 'relpron' if len(target) == 2 else 'attributive'
 
     for key in info.keys():
@@ -88,7 +90,7 @@ def write_csv(file_name, out_dict):
 
     out_path = out_directory + '\\' + file_name + '.csv'
     df = pd.DataFrame(out_dict)
-    df.to_csv(out_path)
+    df.to_csv(out_path, index=False)
 
 
 for file in files:
@@ -107,8 +109,12 @@ for file in files:
                 'type_of_agreement': []         # attributive, predicative or relative pronoun
                 }
     for entry in occurrences:
+        if not get_source_info(entry):
+            continue
         source_info = get_source_info(entry)
-        if entry['head'] != ['', '']:
+        if (entry['head'] != ['', ''] and
+                re.search(r'praet|pact|ppas', entry['head'][1]) and
+                not re.search(r':voc', entry['morph_descr'])):
             get_target_info(entry['head'], source_info)
         for dep in entry['dependents']:
             if 'adj:' in dep['morph_descr']:
@@ -117,5 +123,3 @@ for file in files:
             get_target_info(relpron, source_info)
 
     write_csv(file, out_dict)
-    # print(out_dict)
-
