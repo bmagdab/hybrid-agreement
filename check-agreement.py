@@ -55,6 +55,7 @@ def get_source_info(occurrence):
     info = {
         'file_id': occurrence['file_name'],
         'sentence_id': occurrence['sent_id'],
+        'sentence': occurrence['sent'],
         'source_cat': occurrence['category'],
         'source_form': occurrence['form'],
         'source_lexeme': occurrence['lexeme'],
@@ -97,6 +98,7 @@ for file in files:
     occurrences = file_into_dict(file)
     out_dict = {'file_id': [],
                 'sentence_id': [],
+                'sentence': [],
                 'source_cat': [],               # gendered, profession or depreciative
                 'source_form': [],
                 'source_lexeme': [],
@@ -112,9 +114,10 @@ for file in files:
         if not get_source_info(entry):
             continue
         source_info = get_source_info(entry)
-        if (entry['head'] != ['', ''] and
+        if (entry['head'] != ['', '', ''] and
                 re.search(r'praet|pact|ppas', entry['head'][1]) and
-                not re.search(r':voc', entry['morph_descr'])):
+                not re.search(r':voc', entry['morph_descr']) and
+                entry['head'][2] == 'nsubj'):
             get_target_info(entry['head'], source_info)
         for dep in entry['dependents']:
             if 'adj:' in dep['morph_descr']:
