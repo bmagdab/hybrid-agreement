@@ -4,8 +4,8 @@ import json
 
 starting_number = 0
 path = 'NKJP\\'
-# filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-filelist = ['NKJP_1M']
+filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+# filelist = ['NKJP_1M']
 
 
 def read_conllu(file):
@@ -20,11 +20,11 @@ def read_conllu(file):
     for sent in sentences:
         lines = sent.split('\n')
 
-        # for each sentence I want the ID of the sentence in the file, name of the file and list of words in th sentence
-        sent_dict = {'id': 0,
-                     'file': file,
-                     'sentence': '',
-                     'words': []}
+        # for each sentence I want:
+        sent_dict = {'id': 0,           # the ID of the sentence in the file
+                     'file': file,      # name of the file
+                     'sentence': '',    # text of the sentence
+                     'words': []}       # list of words in the sentence
 
         for line in lines:
             # getting the ID of the sentence in the file
@@ -42,9 +42,13 @@ def read_conllu(file):
                 word = line.split('\t')
                 sent_dict['words'].append({'id': int(word[0]),
                                            'form': word[1] if 'depr' in word[4] else word[1].lower(),
+                                           # ^ I only want lowercase words, because it later makes it easier to look
+                                           # them up anywhere, but if it's a depreciative form, it might be a surname
+                                           # and I can tell by the uppercase first letter -- I want to filter out
+                                           # the surnames later
                                            'POS': word[3],
-                                           'morph_descr': word[4],
-                                           'feats': word[5],
+                                           'morph_descr': word[4],  # in the Morfeusz convention
+                                           'feats': word[5],        # in the UD convention (there's additional info)
                                            'head': int(word[6]),
                                            'label': word[7]})
         corpus.append(sent_dict)
@@ -52,20 +56,38 @@ def read_conllu(file):
 
 
 def compare_morph_descr(found_word, reference_table):
+    # the morphological description found in the conllu file is split in the following way:
+    # 'subst:sg:nom:m1' -> [['subst'], ['sg'], ['nom'], ['m1']]
+    found_descr = [feature.split('.') for feature in found_word['morph_descr'].split(':')]
+
+    # looking up all possible morphological descriptions matching the given word form
     matching_entries = reference_table[reference_table.form == found_word['form'].lower()].morph_descr.values
-    same = False
+
+    same = False    # if there are no matching forms, it's not the word I was looking for and it returns False
     for entry in matching_entries:
         ref_descr_str = entry
-        found_descr = [feature.split('.') for feature in found_word['morph_descr'].split(':')]
+        # each matching morphological description is split similarly as the one found in the conllu file, but here
+        # there can be multiple options for one value of a feature, so it may look like this:
+        # 'subst:sg:nom.voc:m1' -> [['subst'], ['sg'], ['nom', 'voc'], ['m1']]
         ref_descr = [feature.split('.') for feature in ref_descr_str.split(':')]
+        # the descriptions in the conllu file cannot have multiple options per feature, but they are treated as though
+        # they can because it's possible with the descriptions from the reference table and I want to be able to compare
+        # them easily in the loop below
+
+        # I assume the reference description matches the found one and if it doesn't, the loop will mark it as not same
         same = True
         for i, feature in enumerate(found_descr):
+            # the loop goes through all features in [['subst'], ['sg'], ['nom'], ['m1']]
             for value in feature:
+                # for each value in the feature it checks the reference description
+                # for example if 'nom' is in ['nom', 'voc']
                 if value not in ref_descr[i]:
                     same = False
                     break
+                    # if the found value is not in the reference description, then this description doesn't work and
+                    # I should check the next one
             if not same:
-                break
+                break   # to check the next description I have to break out of the second loop
     return same
 
 
