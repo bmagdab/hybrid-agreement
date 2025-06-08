@@ -116,7 +116,7 @@ for file in files:
         source_info = get_source_info(entry)
         if (entry['head'] != ['', '', ''] and
                 re.search(r'praet|pact|ppas', entry['head'][1]) and
-                not re.search(r':voc', entry['morph_descr']) and
+                re.search(r':nom', entry['morph_descr']) and
                 entry['head'][2] == 'nsubj'):
             get_target_info(entry['head'], source_info)
         for dep in entry['dependents']:
