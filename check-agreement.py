@@ -104,6 +104,8 @@ def get_target_info(target, info):
         info['target_gender'] = gender
         info['type_of_agreement'] = 'predicative'
     else:
+        if not re.search(r':[mnf]\d?\b', target['morph_descr']):
+            return None
         info['target_form'] = target['form']
         info['target_morph_descr'] = target['morph_descr']
         info['target_gender'] = re.search(r':[mnf]\d?\b', target['morph_descr']).group()[1:]
