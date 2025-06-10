@@ -69,9 +69,12 @@ def get_source_info(occurrence):
 
     # if the noun is in plural and the hybrid agreement is between feminine and neuter, the occurrence is excluded
     # because the agreeing word has the same form for plural feminine and plural neuter
-    if (re.search(r':pl\b', entry['morph_descr']) and
-            re.search(r':n\b', entry['morph_descr']) and
+    if (re.search(r':pl\b', occurrence['morph_descr']) and
+            re.search(r':n\b', occurrence['morph_descr']) and
             other_gender == 'f'):
+        return False
+
+    if not re.search(r'subst|depr', occurrence['morph_descr']):
         return False
 
     info = {
