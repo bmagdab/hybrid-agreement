@@ -3,6 +3,35 @@ import morfeusz2
 morf = morfeusz2.Morfeusz()
 
 
+def count_distance(source, target, sentence):
+    """
+    counts the distance between the source of agreement and target of agreement; distance is measured in words and word
+    is understood as a string of (non-punctuation) characters
+    :param source: dictionary corresponding to the word that is the source of agreement
+    :param target: dictionary corresponding to the word that is the target of agreement
+    :param sentence: dictionary corresponding to the sentence, where the two words were found
+    :return: distance between words, can be negative, which means the target of agreement was first
+    """
+    start = min(source['id'], target['id'])
+    end = max(source['id'], target['id'])
+
+    middle_words = []
+    for word in sentence['words']:
+        if word['id'] in range(start+1, end):   # start+1 because I only want to count intervening words
+            middle_words.append(word)
+
+    count = 0
+    for word in middle_words:
+        if word['POS'] != 'PUNCT':
+            count += 1
+
+    if start == target['id']:
+        # make the number negative if the target was first
+        count = count * -1
+
+    return count
+
+
 def get_info(word, sentence, nouns_table):
     """
     for a given word in a sentence finds the information later required to check gender agreement with other words
@@ -49,7 +78,7 @@ def get_info(word, sentence, nouns_table):
                 'form': other_word['form'],
                 'relation': word['label'],
                 'morph_descr': other_word['morph_descr'],
-                'distance': word['id'] - other_word['id']
+                'distance': count_distance(word, other_word, sentence)
             }
 
         # for the relative pronouns looks for the :relcl relation subtype
@@ -60,15 +89,15 @@ def get_info(word, sentence, nouns_table):
                 if another_word['head'] == other_word['id'] and 'PronType=Rel' in another_word['feats']:
                     relprons.append({'form': another_word['form'],
                                      'morph_descr': another_word['morph_descr'],
-                                     'distance': word['id'] - another_word['id']})
+                                     'distance': count_distance(word, another_word, sentence)})
 
         elif other_word['head'] == word['id']:
             dependents.append({'form': other_word['form'],
                                'relation': other_word['label'],
                                'morph_descr': other_word['morph_descr'],
-                               'distance': word['id'] - other_word['id']})
+                               'distance': count_distance(word, other_word, sentence)})
     if not head:
-        head = ['', '', '']     # there may be no head above the noun
+        head = {}    # there may be no head above the noun
 
     saved_word = {'form': word['form'],
                   'lexeme': lexeme,

@@ -6,8 +6,8 @@ import os
 
 starting_number = 0
 json_path = 'occurrences\\'
-files = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-# files = ['NKJP_1M']
+# files = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+files = ['NKJP_1M']
 
 # a dictionary of social genders associated with each lexeme in the list of socially gendered nouns
 gendered_dict = {
@@ -81,6 +81,7 @@ def get_source_info(occurrence):
         'file_id': occurrence['file_name'],
         'sentence_id': occurrence['sent_id'],
         'sentence': occurrence['sent'],
+        'type_of_text': occurrence['type_of_text'],
         'source_cat': occurrence['category'],
         'source_form': occurrence['form'],
         'source_lexeme': occurrence['lexeme'],
@@ -97,19 +98,22 @@ def get_target_info(target, info):
     :param target: dictionary of information about the target of agreement
     :param info: dictionary of information about the source of agreement
     """
-    if isinstance(target, list):
-        gender = re.search(r':[mnf]\d?\b', target[1]).group()[1:]
-        info['target_form'] = target[0]
-        info['target_morph_descr'] = target[1]
-        info['target_gender'] = gender
-        info['type_of_agreement'] = 'predicative'
+    gender = re.search(r':[mnf]\d?\b', target['morph_descr']).group()[1:]
+    if not gender:
+        return None
+
+    if len(target) == 3:
+        agr_type = 'relpron'
+    elif 'adj:' in info['source_morph_descr']:
+        agr_type = 'attributive'
     else:
-        if not re.search(r':[mnf]\d?\b', target['morph_descr']):
-            return None
-        info['target_form'] = target['form']
-        info['target_morph_descr'] = target['morph_descr']
-        info['target_gender'] = re.search(r':[mnf]\d?\b', target['morph_descr']).group()[1:]
-        info['type_of_agreement'] = 'relpron' if len(target) == 2 else 'attributive'
+        agr_type = 'predicative'
+
+    info['target_form'] = target['form']
+    info['target_morph_descr'] = target['morph_descr']
+    info['target_gender'] = gender
+    info['type_of_agreement'] = agr_type
+    info['distance'] = target['distance']
 
     # all the information found for an occurrence of agreement is added to the dictionary that will be turned into
     # a DataFrame
@@ -134,6 +138,7 @@ for file in files:
     out_dict = {'file_id': [],
                 'sentence_id': [],
                 'sentence': [],
+                'type_of_text': [],
                 'source_cat': [],               # gendered, profession or depreciative
                 'source_form': [],
                 'source_lexeme': [],
@@ -143,7 +148,8 @@ for file in files:
                 'target_form': [],
                 'target_morph_descr': [],
                 'target_gender': [],
-                'type_of_agreement': []         # attributive, predicative or relative pronoun
+                'type_of_agreement': [],         # attributive, predicative or relative pronoun
+                'distance': []
                 }
 
     for entry in occurrences:
@@ -152,10 +158,10 @@ for file in files:
         source_info = get_source_info(entry)
 
         # there is predicative agreement only if...
-        if (entry['head'] != ['', '', ''] and                               # the word has a dependency head
-                re.search(r'praet|pact|ppas', entry['head'][1]) and  # the head is a verb inflected for gender
-                re.search(r':nom', entry['morph_descr']) and         # the word is in nominative case
-                entry['head'][2] == 'nsubj'):                               # the word is the subject
+        if (entry['head'] != {} and                                                     # the word has a dependency head
+                re.search(r'praet|pact|ppas', entry['head']['morph_descr']) and  # the head is a verb inflected for gender
+                re.search(r':nom', entry['morph_descr']) and                     # the word is in nominative case
+                entry['head']['relation'] == 'nsubj'):                                  # the word is the subject
             get_target_info(entry['head'], source_info)
 
         # iterates through the dependents, but saves them only if they are adjectives (attributive agreement)
