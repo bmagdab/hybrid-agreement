@@ -24,6 +24,7 @@ def read_conllu(file):
         sent_dict = {'id': 0,           # the ID of the sentence in the file
                      'file': file,      # name of the file
                      'sentence': '',    # text of the sentence
+                     'type': '',        # type of text
                      'words': []}       # list of words in the sentence
 
         for line in lines:
@@ -36,6 +37,11 @@ def read_conllu(file):
             sent_text = re.findall(r'# sent = (.*)', line)
             if sent_text:
                 sent_dict['sentence'] = sent_text[0]
+
+            # getting the type of text
+            sent_type = re.findall(r'# type = (.*)', line)
+            if sent_type:
+                sent_dict['type'] = sent_type[0]
 
             # saving each word as a dictionary of all the information I need
             if re.match(r'\d', line):
