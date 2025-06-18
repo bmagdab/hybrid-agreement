@@ -44,7 +44,13 @@ def get_info(word, sentence, nouns_table):
 
     for other_word in sentence['words']:
         if other_word['id'] == word['head']:
-            head = [other_word['form'], other_word['morph_descr'], word['label']]
+            # head = [other_word['form'], other_word['morph_descr'], word['label']]
+            head = {
+                'form': other_word['form'],
+                'relation': word['label'],
+                'morph_descr': other_word['morph_descr'],
+                'distance': word['id'] - other_word['id']
+            }
 
         # for the relative pronouns looks for the :relcl relation subtype
         elif other_word['head'] == word['id'] and ':relcl' in other_word['label']:
@@ -53,12 +59,14 @@ def get_info(word, sentence, nouns_table):
                 # the relative pronoun is marked with PronType=Rel in the FEATS column in conllu
                 if another_word['head'] == other_word['id'] and 'PronType=Rel' in another_word['feats']:
                     relprons.append({'form': another_word['form'],
-                                     'morph_descr': another_word['morph_descr']})
+                                     'morph_descr': another_word['morph_descr'],
+                                     'distance': word['id'] - another_word['id']})
 
         elif other_word['head'] == word['id']:
             dependents.append({'form': other_word['form'],
                                'relation': other_word['label'],
-                               'morph_descr': other_word['morph_descr']})
+                               'morph_descr': other_word['morph_descr'],
+                               'distance': word['id'] - other_word['id']})
     if not head:
         head = ['', '', '']     # there may be no head above the noun
 
@@ -67,6 +75,7 @@ def get_info(word, sentence, nouns_table):
                   'file_name': sentence['file'],
                   'sent_id': sentence['id'],
                   'sent': sentence['sentence'],
+                  'type_of_text': sentence['type'],
                   'morph_descr': word['morph_descr'],
                   'category': category,
                   'head': head,

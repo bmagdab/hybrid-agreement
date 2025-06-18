@@ -4,8 +4,8 @@ import json
 
 starting_number = 0
 path = 'NKJP\\'
-filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-# filelist = ['NKJP_1M']
+# filelist = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+filelist = ['NKJP_1M']
 
 
 def read_conllu(file):
