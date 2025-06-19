@@ -98,13 +98,15 @@ def get_target_info(target, info):
     :param target: dictionary of information about the target of agreement
     :param info: dictionary of information about the source of agreement
     """
-    gender = re.search(r':[mnf]\d?\b', target['morph_descr']).group()[1:]
+    gender = re.search(r':[mnf]\d?\b', target['morph_descr'])
     if not gender:
         return None
+    else:
+        gender = gender.group()[1:]
 
     if len(target) == 3:
         agr_type = 'relpron'
-    elif 'adj:' in info['source_morph_descr']:
+    elif 'adj:' in target['morph_descr']:
         agr_type = 'attributive'
     else:
         agr_type = 'predicative'
