@@ -10,7 +10,11 @@ data <- lapply(filepaths, read.csv) %>% bind_rows()
 
 data %>% 
   group_by(source_cat, type_of_agreement) %>% 
-  summarise(prop = sum(source_other_gender == target_gender)/n()) -> summary
+  summarise(prop = sum(source_other_gender == target_gender)/n())
+
+data %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(dist = mean(abs(distance)))
 
 data %>% filter(source_cat == 'gendered') -> gend
 gend %>% 
@@ -18,7 +22,8 @@ gend %>%
   summarise(
     condition = sum(source_other_gender == target_gender),
     total = n(),
-    prop = condition/total)
+    prop = condition/total
+    )
 
 data %>% filter(source_cat == 'depreciative') -> depr
 depr %>% 
@@ -26,4 +31,5 @@ depr %>%
   summarise(
     condition = sum(source_other_gender == target_gender),
     total = n(),
-    prop = condition/total)
+    prop = condition/total
+    )
