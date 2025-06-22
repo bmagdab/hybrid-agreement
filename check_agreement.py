@@ -2,6 +2,7 @@ import json
 import pandas as pd
 import regex as re
 import os
+from tqdm import tqdm
 
 
 starting_number = 0
@@ -104,7 +105,7 @@ def get_target_info(target, info):
     else:
         gender = gender.group()[1:]
 
-    if len(target) == 3:
+    if 'relation' not in target.keys():
         agr_type = 'relpron'
     elif 'adj:' in target['morph_descr']:
         agr_type = 'attributive'
@@ -136,7 +137,7 @@ def write_csv(file_name, out_dict):
 
 
 # iterated through the .json files and saves the occurrences of agreement
-for file in files:
+for file in tqdm(files):
     occurrences = file_into_dict(file)  # list of words found in the corpus with the words that agree gender with them
     out_dict = {'file_id': [],
                 'sentence_id': [],
