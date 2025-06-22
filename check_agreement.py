@@ -6,8 +6,8 @@ import os
 
 starting_number = 0
 json_path = 'occurrences\\'
-# files = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
-files = ['NKJP_1M']
+files = [f'NKJP_300M_{x:03d}' for x in range(starting_number, 191)]
+# files = ['NKJP_1M']
 
 # a dictionary of social genders associated with each lexeme in the list of socially gendered nouns
 gendered_dict = {
@@ -116,6 +116,7 @@ def get_target_info(target, info):
     info['target_gender'] = gender
     info['type_of_agreement'] = agr_type
     info['distance'] = target['distance']
+    info['target_first'] = target['target_first']
 
     # all the information found for an occurrence of agreement is added to the dictionary that will be turned into
     # a DataFrame
@@ -151,7 +152,8 @@ for file in files:
                 'target_morph_descr': [],
                 'target_gender': [],
                 'type_of_agreement': [],         # attributive, predicative or relative pronoun
-                'distance': []
+                'distance': [],
+                'target_first': []
                 }
 
     for entry in occurrences:
