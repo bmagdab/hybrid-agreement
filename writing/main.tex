@@ -16,8 +16,11 @@
 \usepackage{float}
 \usepackage{multirow}
 \usepackage{tikz}
+\usepackage{tikz-dependency}
 \usepackage{enumitem}
 \usepackage{epigraph}
+\usepackage{rotating} % for sideways figures
+\usepackage{verbatim} % for verbatim input
 
 \usepackage{lscape}
 \usepackage{titletoc}
@@ -97,6 +100,7 @@
 \usepackage{xunicode} % Unicode support for LaTeX character names (accents, European chars, etc)
 \usepackage{graphicx}
 \usepackage{xltxtra} % Extra customizations for XeLaTeX
+%% \usepackage{ascii} % normal monospace font
 
 %\setmainfont{professionalfonts}
 %\setmainfont{Charis SIL} 
@@ -154,71 +158,62 @@
 	%% \end{titlepage}		
 
 
-	%% \begin{titlepage}
-	%% 	\begin{center}
-	%% 	\includegraphics[height=2.2cm, width = 5cm]{images/PGSL.png}
-        %%         \includegraphics[height=1.7cm, width = 5cm]{images/SHS.jpg} 
-        %%         \hspace*{5pt}
-        %%         %\includegraphics[height=1.7cm, width = 5cm]{images/HTL.png}
-        %%         \includegraphics[height=1.7cm, width = 5cm]{images/LLF.jpg}
-	%% 	\end{center}
+	\begin{titlepage}
+		\begin{center}
+		%% \includegraphics[height=2.2cm, width = 5cm]{images/PGSL.png}
+                %% \includegraphics[height=1.7cm, width = 5cm]{images/SHS.jpg} 
+                %% \hspace*{5pt}
+                %% %\includegraphics[height=1.7cm, width = 5cm]{images/HTL.png}
+                  %% \includegraphics[height=1.7cm, width = 5cm]{images/LLF.jpg}
+                \includegraphics[width = 5cm]{images/PGSL.png}
+                \includegraphics[width = 5cm]{images/SHS.jpg} 
+                \hspace*{5pt}
+                %\includegraphics[height=1.7cm, width = 5cm]{images/HTL.png}
+                \includegraphics[width = 5cm]{images/LLF.jpg}
+		\end{center}
 			
-	%% 	\vspace*{10pt}
+		\vspace*{10pt}
                 
-	%% 	\begin{center}
-	%% 		{\Large \textbf{UNIVERSITÉ PARIS CITÉ}}\\
-	%% 					\vspace*{10pt}
-	%% 		{\large Faculté Sociétés et Humanités}\\
-	%% 					\vspace*{10pt}
-	%% 		{\large \textbf{UFR LINGUISTIQUE}}\\
-	%% 					\vspace*{10pt}
-	%% 					%replace by the name of the laboratory where you have done your research internship
-	%% 	\textbf{	{\large Laboratoire de linguistique formelle (LLF)}}
-	%% 	\end{center}
+		\begin{center}
+			{\Large \textbf{UNIVERSITÉ PARIS CITÉ}}\\
+						\vspace*{10pt}
+			{\large Faculté Sociétés et Humanités}\\
+						\vspace*{10pt}
+			{\large \textbf{UFR LINGUISTIQUE}}\\
+						\vspace*{10pt}
+						%replace by the name of the laboratory where you have done your research internship
+		\textbf{	{\large Laboratoire de linguistique formelle (LLF)}}
+		\end{center}
 		
-	%% 	\vfill
+		\vfill
 		
-	%% 	\begin{center}
-	%% 		\begin{tabular}{lr}
-	%% 			Year [To add in YYYY format] &  N° [To add or not according to usage]\\
-	%% 		\end{tabular}
+		\begin{center}
+			%% \begin{tabular}{lr}
+			%% 	Year [To add in YYYY format] &  N° [To add or not according to usage]\\
+			%% \end{tabular}
 			
-	%% 		Thesis for the diploma \textbf{[Add the title of the diploma [master 2 – mention + strand]]}
+			%% Thesis for the diploma \textbf{[Add the title of the diploma [master 2 – mention + strand]]}
 			
-	%% 		Presented and defended publicly on: \textbf{[Add the date in the format DD Month YYYY]}
+			%% Presented and defended publicly on: \textbf{[Add the date in the format DD Month YYYY]}
 			
-	%% 		\vspace*{20pt}
-	%% 		By\\
-	%% 		\vspace*{10pt}
-	%% 		\textbf{		First name SURNAME}
+			%% \vspace*{20pt}
+		  %% By\\
+                  \vfill
 			
-	%% 		\vfill
+			\textbf{Magdalena Borysiak}
+			\vspace*{10pt}
+			%% \vfill
 			
-	%% 		{ \Large \bfseries [Dissertation title: subtitle]}
-	%% 		\vspace*{20pt}
+			{ \Large \bfseries Hybrid gender agreement pattern in Polish}
+			\vspace*{20pt}
             
-	%% 		{ \large Under the supervision of Mr. [or Mrs] the Professor [or Doctor] [First-name Surname]}
+			{ \large Under the supervision of Professor Anne Abeillé}
 			
-	%% 		\vspace{1cm}
-	%% 	\end{center}
+			\vspace{1cm}
+		\end{center}
 		
-	%% 	\vspace{1cm}
-	%% 	\begin{center}
-	%% 		JURY
-	%% 	\end{center}
-					
-	%% 	\begin{center}
-	%% 		\begin{tabular}{lll}
-	%% 			Mr [or Mrs] the Professor [or Doctor] [First-name Surname] & \hspace*{40pt} & President  \\				
-	%% 			Mr [or Mrs] the Professor [or Doctor] [First-name Surname] & \hspace*{40pt} & [quality]  \\				
-	%% 			Mr [or Mrs] the Professor [or Doctor] [First-name Surname] & \hspace*{40pt} & [quality]  \\				
-	%% 			Mr [or Mrs] the Professor [or Doctor] [First-name Surname] & \hspace*{40pt} & [quality]  \\				
-	%% 			Mr [or Mrs] the Professor [or Doctor] [First-name Surname] & \hspace*{40pt} & [quality]  \\				
-	%% 		\end{tabular}\\[1cm]
-	%% 	\end{center}
-		
-	%% 	\newpage
-	%% \end{titlepage}
+		\newpage
+	\end{titlepage}
 	
 	\pagestyle{fancy}
 	\fancyhead{}
@@ -244,17 +239,17 @@
 	\fancyhead[RO]{\leftmark}
 	\fancyhead[LE]{\textsc{\chaptername~\thechapter}}
 	
-	%% \input{Chapters/01_0_introduction}
+	\input{Chapters/01_0_introduction}
 	
 	\input{Chapters/01_1_theoretical_background}
 	
 	\input{Chapters/01_2_methodology}
 
-	%% \input{Chapters/01_3_results}
+	\input{Chapters/01_3_results}
 
-	%% \input{Chapters/01_4_discussion}
+	\input{Chapters/01_4_discussion}
 
-        %% \input{Chapters/02_Conclusion}
+        \input{Chapters/02_Conclusion}
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  

@@ -1,0 +1,217 @@
+---
+title: 'Hybrid agreement: corpus results'
+author: "Magdalena Borysiak"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+# Loading data
+
+Necessary libraries:
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(lme4)
+```
+
+Loading data:
+
+```{r}
+numbers <- sprintf("%03d", 0:190)
+filenames <- paste0("NKJP_300M_", numbers, ".csv")
+filepaths <- file.path("C:/Users/magda/moje/hybrid-agreement-corpus/agreement-occurrences", filenames)
+data <- lapply(filepaths, read.csv) %>% bind_rows()
+rm(list=setdiff(ls(), "data"))
+```
+
+# Preparing data
+
+Mutating a boolean column for semantic agreement:
+```{r}
+data %>% 
+  mutate(semantic_agr = case_when(source_other_gender == target_gender ~ 1,
+                                  source_other_gender != target_gender ~ 0)) -> data
+```
+
+Giving the correct types of variables:
+```{r}
+data %>% 
+  mutate(type_of_text = as.factor(type_of_text),
+         source_cat = as.factor(source_cat),
+         source_gram_gender = as.factor(source_gram_gender),
+         source_other_gender = as.factor(source_other_gender),
+         target_gender = as.factor(target_gender),
+         type_of_agreement = as.factor(type_of_agreement)) -> data
+```
+
+Summary of the dataset:
+```{r}
+summary(data %>% filter((source_cat != "profession") | (target_gender == "f")))
+```
+
+Creating a separate table for each category of nouns. I got a lot of results with profession nouns and most of them didn't actually have a possibility of hybrid agreement, so I'm looking only at a subset of them. I will analyse them separately from the rest.
+```{r}
+data %>% 
+  filter(source_cat == 'profession') %>% 
+  filter(target_gender == 'f') -> prof
+
+data %>% 
+  filter(source_cat == 'gendered') -> gend
+
+data %>% 
+  filter(source_cat == 'depreciative') -> depr
+```
+
+# Descriptive statistics
+
+Proportions of semantic agreement with gendered nouns and depreciative forms in each type of agreement that was considered: attributive, predicative, relative pronoun.
+```{r}
+gend %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(prop = sum(semantic_agr)/n()) -> gend_summary
+
+depr %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(prop = sum(semantic_agr)/n()) -> depr_summary
+
+gend_summary
+depr_summary
+```
+
+Similar table for profession nouns. What percent of all instances of hybrid agreement is attributive, predicative and relative pronoun?
+```{r}
+prof %>% 
+  count(type_of_agreement) %>% 
+  mutate(percent = 100 * n / sum(n)) -> prof_summary
+prof_summary
+```
+
+For each agreement, is it more common to have target first or source first?
+```{r}
+data %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(prop = sum(target_first)/n())
+```
+
+Mean distance for each agreement and each type of noun:
+```{r}
+data %>% 
+  filter(source_cat != "profession") %>% 
+  group_by(type_of_agreement, source_cat) %>% 
+  summarise(avg = mean(distance)) -> dist_summary
+dist_summary
+```
+
+Based on the agreement source hierarchy, depreciatives should have less semantic agreement than gendered nouns. Is that so?
+```{r}
+data %>% 
+  filter(source_cat != "profession") %>% 
+  group_by(source_cat) %>% 
+  summarise(prop = sum(semantic_agr)/n())
+```
+
+Is there any noun among the profession nouns that doesn't have feminine agreement?
+```{r}
+data %>% 
+  filter(source_cat == "profession") %>% 
+  group_by(source_lexeme) %>% 
+  summarise(prop = sum(semantic_agr)/n())
+```
+
+# Plots
+```{r}
+ggplot(data %>% 
+         filter(source_cat != "profession") %>% 
+         group_by(type_of_agreement, source_cat) %>% 
+         summarise(prop = sum(semantic_agr)/n())) + 
+  geom_col(aes(x = type_of_agreement,
+               y = prop,
+               fill = source_cat),
+           position = "dodge") + 
+  labs(x = "Type of agreement",
+       y = "Proportion of semantic agreement",
+       fill = "Type of noun") + 
+  scale_x_discrete(labels = c("Attributive", "Predicate", "Relative pronoun")) + 
+  scale_fill_discrete(labels = c("Depreciative", "Socially gendered")) -> prop_plot
+prop_plot
+```
+
+```{r}
+ggplot(dist_summary) + 
+  geom_col(aes(x = type_of_agreement,
+               y = avg,
+               fill = source_cat),
+           position = "dodge") + 
+  labs(x = "Type of agreement",
+       y = "Average distance between the target and the controller",
+       fill = "Type of noun") + 
+  scale_x_discrete(labels = c("Attributive", "Predicate", "Relative pronoun")) + 
+  scale_fill_discrete(labels = c("Depreciative", "Socially gendered", "Profession")) -> dist_plot
+dist_plot
+```
+
+# Hypothesis testing
+
+I realized that maybe I should exclude the profession nouns from this model, since there is a lot of examples that aren't actually hybrid agreement. 
+
+First I get a separate dataframe for models:
+```{r}
+data -> data_for_model
+data_for_model %>% 
+  filter(source_cat != "profession") -> data_for_model
+```
+
+I will start with a multivariate model, then do a few singular:
+```{r}
+glm(semantic_agr ~ type_of_agreement + distance + target_first + source_cat,
+    family = binomial(link = "logit"), data = data_for_model) -> multi_model
+summary(multi_model)
+```
+
+Using a generalized linear model I want to see if type of agreement is a good predictor of whether the agreement will be semantic -- the dependent variable is binary, so I'm using logistic regression. First I need to code the categorical variable so that the reference level is not chosen alphabetically. I'm using forward difference coding for the type_of_agreement variable, because I want to compare each level to the next one, to test the hypothesis that there's more semantic agreement in predicative agreement than in attributive and more in relative pronoun than in predicative.
+```{r}
+forward.diff <- matrix(c(2/3, -1/3, -1/3, 1/3, 1/3, -2/3), ncol=2)
+data_for_model$type_of_agreement <- as.factor(data_for_model$type_of_agreement)
+contrasts(data_for_model$type_of_agreement) <- forward.diff
+
+glm(semantic_agr ~ type_of_agreement,
+    family = binomial(link = "logit"), data = data_for_model) -> model
+
+levels(data_for_model$type_of_agreement)
+
+summary(model)
+```
+
+I also tried computing a model predicting only based on the distance. Here I'm not coding the variable, since it's not categorical.
+```{r}
+glm(semantic_agr ~ distance, 
+    family = binomial(link = "logit"), data = data_for_model) -> dist_model
+summary(dist_model)
+```
+
+I also computed a model based on ordering of the target and source of agreement. The variable is equal to 1 when the target is before the source, 0 when it's not. Does this require any specific coding?
+```{r}
+glm(semantic_agr ~ target_first, 
+    family = binomial(link = "logit"), data = data_for_model) -> order_model
+summary(order_model)
+```
+
+A model based on the type of noun, to see if split hybrids are less likely to have semantic agreement.
+```{r}
+glm(semantic_agr ~ source_cat, 
+    family = binomial(link = "logit"), data = data_for_model) -> noun_type_model
+summary(noun_type_model)
+```
+
+
+
+
+
+
+
+
+
+
+

@@ -2,7 +2,37 @@
 \startcontents[chapters]
 
 \section{Previous work on hybrid agreement}
-Hybrid agreement is possible when there are agreement alternatives, but the controller remains the same. \cite{corbett_agreement_2023} provides a simple example of that in English: we can say both \textsl{The family have lost everything} and \textsl{The family has lost everything}. The controller of agreement here is the word \textsl{family}, the same in both sentences, and there are two agreement alternatives: \textsl{have} and \textsl{has}. One of them is available, which is known from the lexical semantics of the noun: it can refer to a group of people. The other alternative comes from the morphosyntactic specification: the noun is singular. This is an example of hybrid number agreement, but same is possible for any other feature that requires agreement in a given language. This study focuses on gender agreement in Polish. Before the system of genders in Polish is described, this section describes Corbett's work on agreement, as it is the main basis for the study conducted later.
+Agreement can be found  between a word with some inherent features (a controller) and another, related word (a target). We can see attributive agrrement between a demonstrative and a noun in (\ref{ex:attr-agr}), where the noun is plural, so the demonstrative has to be \textsl{these} to agree with the number of the noun. In (\ref{ex:pred-agr}) there is predicate agreement: the subject is the singular pronoun \textsl{she}, so the verb has to agree with the number and take the form \textsl{reads}. These are examples of agreement marking a syntactic dependency, but it can also be used to mark a discourse dependency. This can be found in (\ref{ex:pron-agr}), where the personal pronoun \textsl{she} has to be feminine to have the same referent as the earlier noun phrase \textsl{little sister}.
+
+\begin{exe}
+  \ex\label{ex:attr-agr}
+  \textbf{These dogs} belong to my neighbor.
+
+  \ex\label{ex:pred-agr}
+  \textbf{She reads} every morning.
+
+  \ex\label{ex:pron-agr}
+  I have a little sister, \textbf{she}'s 5 years old.
+\end{exe}
+
+There are cases where the justification for an agreement is rather semantic than syntactic. This can be found in (\ref{ex:sem-agr}): the copular \textsl{are} has to be plural, despite the nouns in the subject noun phrase being singular -- this is because there is a group reading of the coordinate phrase and there is plural agreement to show that. 
+
+\begin{exe}
+  \ex\label{ex:sem-agr}
+  John and Mary \textbf{are} rich.
+\end{exe}
+
+Hybrid agreement is possible when there are agreement alternatives, but the controller remains the same. \cite{corbett_agreement_2023} provides a simple example of that in English: both sentences in (\ref{ex:family}) are acceptable. The controller of agreement here is the word \textsl{family}, the same in both sentences, and there are two agreement alternatives: \textsl{have} in (\ref{ex:family-have}) and \textsl{has} in (\ref{ex:family-has}). One of them is available, which is known from the lexical semantics of the noun: it can refer to a group of people. The other alternative comes from the morphosyntactic specification: the noun is singular.
+
+\begin{exe}
+  \ex\label{ex:family}
+  \begin{xlist}
+    \ex{The family have lost everything.}\label{ex:family-have}
+    \ex{The family has lost everything.}\label{ex:family-has}
+  \end{xlist}
+\end{exe}
+
+This is an example of hybrid number agreement, but same is possible for any other feature that requires agreement in a given language. This study focuses on gender agreement in Polish. Before the system of genders in Polish is described, this section describes Corbett's work on agreement, as it is the main basis for the study conducted later.
 
 Corbett proposed the Agreement Hierarchy, which orders different types of agreement. This hierarchy is used to formulate the constraint visible in (\ref{const:agreement-hierarchy-old}).
 
@@ -20,16 +50,30 @@ Corbett proposed the Agreement Hierarchy, which orders different types of agreem
   For any controller that permits alternative agreements, as we move rightwards along the Agreement Hierarchy, the likelihood of agreement with greater semantic justification will increase monotonically (that is, with no intervening decrease).
 \end{exe}
 
+We can see this on the example of the word \textsl{family}. Starting with the leftmost element of the Agreement Hierarchy, (\ref{ex:this-family}) shows that singular (syntactic) agreement is acceptable, but (\ref{ex:these-family}) shows that plural (semantic) is not. However, with the next step of the hierarchy, predicate agreement, both options are possible, as (\ref{ex:family}) has shown. Plural agreement is also available with a personal pronoun, which can be found in (\ref{ex:family-pron}).
+
+\begin{exe}
+  \begin{xlist}
+    \ex{This family}\label{ex:this-family}
+    \ex[*]{These family}\label{ex:these-family}
+  \end{xlist}
+\end{exe}
+
+\begin{exe}
+  \ex\label{ex:family-pron}
+  I saw my family yesterday. They seemed to be tired.
+\end{exe}
+
 This constraint was created for the core instances of hybrid agreement, such as the one shown above (a lexical hybrid), and constructional mismatches, an example of which can be seen in (\ref{ex:complex-nominal-structure}).
 
 \begin{exe}
   \ex\label{ex:complex-nominal-structure}
-  The girl and boy have been on the playground.
+  The girl and the boy have been on the playground.
 \end{exe}
 
 Both nouns in the coordination are singular, but the number in the auxiliary verb \textsl{have} agrees with the plural number suggested by the whole construction, instead of the number of the nouns within the construction.
 
-The problem with the Agreement Hierarchy constraint in the form shown above is that it is based on ``semantic justification'', when hybrid agreement can occur without one of the agreement options having a clear semantic justification. This is clear when we expand the plane of possible hybrid agreements and look at what else can trigger agreement. Alternative sources of agreement information are visible on the left of Table \ref{tab:core-and-generalized}. The table also gives an idea of where hybrid agreement comes from: it happens whenever different sources give conflicting information about the value of a given feature.
+The problem with the Agreement Hierarchy constraint in the form shown above is that it is based on ``semantic justification'', when hybrid agreement can occur without one of the agreement options having a clear semantic justification. This is clear when we expand the plane of possible hybrid agreements and look at what else can trigger agreement. Alternative sources of agreement information are visible on the left of Table \ref{tab:core-and-generalized}. The table also gives an idea of where hybrid agreement comes from: it happens whenever different sources give conflicting information about the value of a given feature. This is represented by the thick line which separates the situations where the source suggests syntactic agreement (above the line) from the situations where it suggests semantic agreement (below the line).
 
 \begin{figure}[H]
   \centering
@@ -44,8 +88,6 @@ The problem with the Agreement Hierarchy constraint in the form shown above is t
     column{1} = {5mm},
     column{2} = {30mm, valign=m},
     cell{2-7}{4,5} = {lightgray},
-    cell{4}{5} = {c,font=\LARGE},
-    cell{6}{4} = {c,font=\LARGE},
     hline{4} = {3}{2pt,solid},
     hline{5} = {4}{2pt,solid},
     hline{6} = {5}{2pt,solid},
@@ -57,18 +99,27 @@ The problem with the Agreement Hierarchy constraint in the form shown above is t
   & & controller type & & & \\
   & & split hybrids & lexical hybrids & constructional mismatch & extraneous \\
   \rotatebox{90}{Hierarchy of Agreement Sources} & cell specification (1) & & & & \\
-  & morphosyntactic specification (2) & & & A & \\
+  & morphosyntactic specification (2) & & & & \\
   & lexical semantics (3) & & & & \\
-  & complex nominal constructions (4) & & B & & \\
+  & complex nominal constructions (4) & & & & \\
   & extraneous source (5) & & & & \\
 \end{tblr}
-\caption{Core and generalized semantic agreement}
+\caption{Core (in gray) and generalized semantic agreement.}
 \label{tab:core-and-generalized}
 \end{figure}
 
 This figure includes two more examples of hybrid agreement: the split hybrid \textsl{ręka} (meaning 'hand') in Polish and the Norwegian \textsl{pancake} sentences with extraneous agreement information.
 
-Polish number system used to have three possible values: singular, dual and plural. Dual is not used anymore, but the word \textsl{ręka} is one of few where the relics of dual number can be found: the form used historically as locative dual can now be used as locative singular. In modern Polish the form morphologically resembles masculine or neuter, while the noun itself is feminine. There are two conficting sources of agreement: the morphosyntactic specification of the noun is feminine, but the specification of the (singular locative cell) can be masculine/neuter. The question then is: which of the options can be considered ``semantic'' agreement? One could say the feminine is semantic, because it makes it possible to track the antecedent later in the discourse, but this explanation can be considered to stretch the notion of ``semantic'' agreement to cover a less-than-semantic example.
+Polish number system used to have three possible values: singular, dual and plural. Dual is not used anymore, but the word \textsl{ręka} (meaning 'hand') is one of few where the relics of dual number can be found: the form used historically as locative dual can now be used as locative singular. In modern Polish the form morphologically resembles masculine or neuter, while the noun itself is feminine. This leads to a situation, where attributive agreement with the locative singular form of the noun can be masculine, as shown in (\ref{ex:reka-attr}). \footnote{In this example the M1, M2 and M3 forms are syncretic; whenever that is the case, the M label will be used.}
+
+\begin{exe}
+  \ex\label{ex:reka-attr}
+  \gll w lewym ręku\\
+  in left-sg.loc.M hand-sg.loc\\
+  \trans in the left hand
+\end{exe}
+
+There are two conficting sources of agreement: the morphosyntactic specification of the noun is feminine, but the specification of the (singular locative cell) can be masculine/neuter. The question then is: which of the options can be considered ``semantic'' agreement? One could say the feminine is semantic, because it makes it possible to track the antecedent later in the discourse, but this explanation can be considered to stretch the notion of ``semantic'' agreement to cover a less-than-semantic example.
 
 On the other hand there is Norwegian ``default agreement'', that is triggered when there is no straightforward agreement controller, for instance when a sentence contains logical metonymy. As an example Corbett uses the sentence visible below.
 
@@ -90,40 +141,46 @@ Including split hybrids and examples with extraneous agreement information in th
   For any controller that permits alternative agreements, as we move rightwards along the Agreement Hierarchy, the likelihood of agreement with a greater degree of generalized semantic justification will increase monotonically (that is, with no intervening decrease).
 \end{exe}
 
-The aim of the current paper is to see whether the Polish gender agreement pattern really fits the revised constraint of the Agreement Hierarchy. First, it is necessary to understand the system of grammatical gender in Polish.
+The aim of the current paper is to see whether the Polish gender agreement pattern really is compatible with the Agreement Hierarchy and with the Hierarchy of Agreement Sources. Polish has a rich gender system, there is gender agreement with adjectives, some verbs and pronouns and it has large lexical and syntactic resources available. First, it is necessary to understand the system of grammatical gender in Polish.
 
 \section{Grammatical gender in Polish}
 There are multiple options of defining grammatical genders in Polish. The one chosen for this study was proposed by \cite{manczak_ile_1956}, where he differentiates between 5 genders: masculine personal, masculine animate, masculine inanimate, feminine and neuter. The difference between the genders is the easiest to observed when looking at appropriate forms of adjectives in the accusative case. Adjectives agree their gender with nouns and the accusative case provides the most diversity in terms of gender forms.
 
-The example presented here comes from \cite{manczak_ile_1956}. There are 5 nouns and one adjective for all of them used as an example: \textsl{mężczyzna} (meaning 'man'), \textsl{pies} (meaning 'dog'), \textsl{stół} (meaning 'table'), \textsl{kobieta} (meaning 'woman'), \textsl{dziecko} (meaning 'child') and \textsl{dobry} (meaning 'good').
+The example presented in Table \ref{tab:genders} comes from \cite{manczak_ile_1956}. There are 5 nouns and one adjective for all of them used as an example: \textsl{mężczyzna} (meaning 'man'), \textsl{pies} (meaning 'dog'), \textsl{stół} (meaning 'table'), \textsl{kobieta} (meaning 'woman'), \textsl{dziecko} (meaning 'child') and \textsl{dobry} (meaning 'good').
 
-\begin{figure}
+\begin{figure}[H]
   \centering
 \begin{tblr}
   {
     hlines, vlines,
-    cell{1}{1} = {r=2}{l},
-    cell{2}{3} = {r=4}{l},
+    cell{3}{1} = {r=2}{l},
+    cell{4}{3} = {r=4}{l},
+    cell{1}{1} = {c=2}{l},
+    cell{1}{3} = {c=2}{l},
+    cell{1}{5} = {r=2}{l},
+    row{1-2} = {gray9},
   }
+  singular & & plural & & gender of the noun\\
+  adjective & noun & adjective & noun & \\
   dobrego & mężczyznę & dobrych & mężczyzn & masculine personal \\
   dobrego & psa & dobre & psy & masculine animate \\
   dobry & stół & dobre & stoły & masculine inanimate \\
   dobrą & kobietę & dobre & kobiety & feminine \\
   dobre & dziecko & dobre & dzieci & neuter \\
 \end{tblr}
-\caption{Examples of nouns in 5 grammatical genders in Polish with their agreeing adjectives}
+\caption{Examples of nouns in accusative with 5 grammatical genders in Polish with their agreeing adjectives.}
 \label{tab:genders}
 \end{figure}
 
-The table shows that each of the nouns agrees with a different set of adjective forms in the accusative singular and plural: \textsl{-ego} and \textsl{-ych} form for masculine personal, \textsl{-ego} and \textsl{-e} for masculine animate, \textsl{-y} and \textsl{-e} for masculine inanimate, \textsl{-ą} and \textsl{-e} for feminine and \textsl{-e} in both numbers for neuter.
+The table shows that each of the nouns agrees with a different set of adjective forms in the accusative singular and plural: \textsl{-ego} and \textsl{-ych} form for masculine personal, \textsl{-ego} and \textsl{-e} for masculine animate, \textsl{-y} and \textsl{-e} for masculine inanimate, \textsl{-ą} and \textsl{-e} for feminine and \textsl{-e} in both numbers for neuter. There are 5 possible sets of agreements, which gives 5 possible grammatical genders.
 
 \cite{saloni_kategoria_1976} proposed an even more elaborate system, where he talked about 9 genders (instead of one neuter there were two and additionally there were three genders for plurale tantum nouns). Such a system is, however, not necessary for the current analysis, therefore for the sake of simplicity we will adopt the 5 genders proposed by Mańczak. For ease of reference we will use for them the names that Saloni used, which are: M1 (masculine personal), M2 (masculine animate), M3 (masculine inanimate), F (feminine) and N (neuter).
 
 \section{Polish nouns with possible hybrid gender agreement}
-\cite{corbett_agreement_2023} provides an example of gender agreement in Polish, though unfortunately that example cannot be explored further with the resources available for this study. The circumstances under which the split hybrid \textsl{ręka} 'hand' has developed to its current use are rare and there are no other nouns which can be analyzed in addition to this one. There are, however, three other categories of nouns which can be used to study hybrid gender agreement and these are described in the following subsections. This work focuses agreement with nouns and does not address complex nominal constructions, such as coordination.
+\cite{corbett_agreement_2023} provides the example of a split hybrid \textsl{ręka} (meaning 'hand') in Polish, though unfortunately that example cannot be explored further with the resources available for this study. The circumstances under which the noun has developed to its current use are rare and there are no other nouns which can be analyzed in addition to this one. There are, however, three other categories of nouns which can be used to study hybrid gender agreement and these are described in the following subsections. This work focuses agreement with nouns and does not address complex nominal constructions, such as coordination.
 
 \subsection{Socially gendered nouns}
-Here the socially gendered nouns are defined as the nouns that refer to people and semantically involve the gender or sex of the referent. \cite{corbett_agreement_2023} provides the German \textsl{das M{\"a}dchen} (meaning 'girl') as an example of lexical hybrids and the nouns in this group are similar to the German example. There is a number of words in Polish where the gender of the referent does not match the grammatical gender of the noun, which can lead to hybrid agreement. An example, very similar to the German one, can be found in (\ref{ex:gendered}). 
+Here the socially gendered nouns are defined as the nouns that refer to people and semantically involve the gender or sex of the referent. \cite{corbett_agreement_2023} provides the German \textsl{das M{\"a}dchen} (meaning 'girl') as an example of lexical hybrids -- the grammatical gender of the noun is neuter, but the semantics of the word include the feminine gender. The nouns in this group are similar to the German example. There is a number of words in Polish where the gender of the referent is incongruent with the grammatical gender of the noun, which can lead to hybrid agreement. An example, very similar to the German one, can be found in (\ref{ex:gendered}). 
 
 \begin{exe}
   \ex\label{ex:gendered}
@@ -136,31 +193,38 @@ Here the lexical hybrid is essentially the same as the German \textsl{das M{\"a}
 
 The socially gendered nouns are an instance of lexical hybrids: the conflicting sources of agreement are between the lexical semantics and the morphosyntactic specification of the noun. Most of those nouns refer primarly to women or girls in an expressive (often derogative) manner, but there are different combinations of conflicting values of gender. The process of choosing the nouns for this category and the combinations of conflicting genders are described in the Methodology chapter.
 
-\subsection{Profession nouns}
+\subsection{Incongruent profession nouns}
 In Polish some nouns referring to people holding certain job titles and functions or practising certain professions have masculine gender and there are no feminine nouns with the same meanings. These nouns are likely to be understood to only refer to men, but for a lack of better term they can be also used to refer to women. This can be seen in the examples (\ref{ex:profession-fem}) and (\ref{ex:profession-masc}).
 
 \begin{exe}
   \ex\label{ex:profession-fem}
-  \gll Psychiatra przepisała mi nowe leki.\\
-  Psychiatrist prescribed-F me new medicine\\
+  \gll Nowa psychiatra przepisała mi nowe leki.\\
+  new-F psychiatrist prescribed-F me new medicine\\
 
   \ex\label{ex:profession-masc}
-  \gll Psychiatra przepisał mi nowe leki.\\
-  Psychiatrist prescribed-M me new medicine\\
+  \gll Nowy psychiatra przepisał mi nowe leki.\\
+  new-M psychiatrist prescribed-M me new medicine\\
 \end{exe}
 
-The same noun \textsl{psychiatra} is used in both sentences and the only way to tell whether the referent is female or not is by looking at the predicate agreement: feminine in (\ref{ex:profession-fem}) and masculine in (\ref{ex:profession-masc}).\footnote{In this example the M1, M2 and M3 forms are syncretic; whenever that is the case, the M label will be used.}
+The same noun \textsl{psychiatra} is used in both sentences and the only way to tell whether the referent is female or not is by looking at the agreement: feminine in (\ref{ex:profession-fem}) and masculine in (\ref{ex:profession-masc}).
 
 Another option to mark the referent as female is to precede the masculine noun by the word \textsl{pani}, which can be translated as 'lady' or 'madam'. It is however possible to omit it.
 
-With recent initiatives to ensure that women are linguistically represented in all fields, there is more discussion about those masculine nouns, specifically for which of them it is difficult to create the feminine counterpart and why is it so. The current study takes advantage of this area of linguistic research by using some examples of those masculine nouns as opportunities to find hybrid gender agreement.
+With recent initiatives to ensure that women are linguistically represented in all fields, there is more discussion about those masculine nouns, specifically for which of them it is difficult to create the feminine counterpart and why is it so \citep{szpyra-kozlowska_premiera_2019, szpyra-kozlowska_czy_2022}. The current study takes advantage of this area of linguistic research by using some examples of those masculine nouns as opportunities to find hybrid gender agreement.
 
 \subsection{Depreciative forms of M1 nouns}
-In his paper Saloni points out that for all M1 nouns in plural nominative and vocative case it is possible to create an alternative form, which he calls ``depreciative'' \citep{saloni_o_1988}. This form is created very systematically, specifically by inflecting the noun the same way a noun of a different gender would be inflected. The M1 noun \textsl{profesor} (meaning 'professor') will serve as an example here. \textsl{Profesor} represents the nominative singular form of the noun. There are two options for the nominative plural form of this noun: \textsl{profesorzy} and \textsl{profesorowie}, both of these are non-depreciative. To create the depreciative form, it is necessary to look for a noun of a different gender with the same ending. For this example we can use the M3 noun \textsl{procesor} (meaning 'processor'), which in plural nominative takes the form \textsl{procesory}. Therefore the depreciative form of the noun \textsl{profesor} is \textsl{profesory}.\footnote{In plural nominative and vocative forms are syncretic, therefore the same goes for the vocative form.}
+In his paper Saloni points out that for all M1 nouns in plural nominative and vocative case it is possible to create an alternative form, which he calls ``depreciative'' \citep{saloni_o_1988}. This form is created very systematically, specifically by inflecting the noun the same way a noun of a different gender would be inflected. The M1 noun \textsl{profesor} (meaning 'professor') will serve as an example here. \textsl{Profesor} represents the nominative singular form of the noun. There are two options for the nominative plural form of this noun: \textsl{profesorzy} and \textsl{profesorowie}, both of these are non-depreciative. To create the depreciative form, it is necessary to look for a noun of a different gender with the same ending. For this example we can use the M3 noun \textsl{procesor} (meaning 'processor'), which in plural nominative takes the form \textsl{procesory}. Therefore the depreciative form of the noun \textsl{profesor} is \textsl{profesory}.\footnote{In plural nominative and vocative forms are syncretic, therefore the same goes for the vocative form.} The example (\ref{ex:profesory}) shows the depreciative form used in a sentence, where both attributive agreements and the predicative agreement is non-M1, therefore agreeing with the gender in the specification of the cell.
+
+\begin{exe}
+  \ex\label{ex:profesory}
+  \gll Te stare profesory przyszły w zabłoconych butach.\\
+  these-M2/M3/N/F old-M2/M3/N/F professor-M1 came-M2/M3/N/F in muddy shoes.\\
+  \trans These old professors came in with muddy shoes.
+\end{exe}
 
 Despite the name, the purpose of using a depreciative form is not necessarily to deprecate the referent, although it has been found to be a common function of the form. Based on a corpus study, \cite{siuda_funkcje_2010} reports that the purpose of 66\% depreciative forms is to express negative feelings towards the referent, 24\% of the forms are used as a stylistic device, 6\% are supposed to reduce the distance to the referent and 4\% have a different function.
 
 Depreciative forms can be created only for M1 nouns, but they are created by inflecting them as if they were of any other gender. The conflicting sources of agreement are the following: the morphosyntactic specification of the nominative (and vocative) plural is M2, M3, N or F, while the morphosyntactic specification of the noun is M1. This makes depreciatives the only form used in this study that represents a different controller type: a split hybrid.
 
 \section{Hypothesis}
-The aim of this study is to investigate the extent to which Corbett's constraints of the agreement hierachy hold on Polish data with hybrid gender agreement. The hypothesis is the following: Polish examples of hybrid gender agreement (socially gendered nouns, profession nouns and depreciative nouns) fit the simple constraint of the agreement hierarchy: there is a monotonous shift from one value of gender to another when going from attributive, through predicate to relative pronoun agreement for all kinds of nouns tested.
+The aim of this study is to investigate the extent to which Corbett's constraints of the agreement hierachy hold on Polish data with hybrid gender agreement. The hypothesis is the following: Polish examples of hybrid gender agreement (socially gendered nouns, profession nouns and depreciative nouns) fit the simple constraint of the agreement hierarchy: there is a monotonous shift from one value of gender to another when going from attributive, through predicate to relative pronoun agreement for all kinds of nouns tested. More semantic agreement is expected in predicate agreement than in attributive and even more in relative pronoun agreement. Furthermore, according to the Hierarchy of Agreement Sources, there should be more semantic agreement with the lexical hybrids (so the socially gendered and profession nouns) than with the split hybrids (depreciative forms).
