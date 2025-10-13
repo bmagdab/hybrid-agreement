@@ -9,7 +9,7 @@ filenames <- paste0("NKJP_300M_", numbers, ".csv")
 filepaths <- file.path(path, filenames)
 
 data <- lapply(filepaths, read.csv) %>% bind_rows()
-
+  
 # summaries
 data %>% 
   group_by(source_cat, type_of_agreement) %>% 
