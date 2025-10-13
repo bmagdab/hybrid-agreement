@@ -1,0 +1,22 @@
+Call:
+glm(formula = semantic_agr ~ type_of_agreement + distance + target_first + 
+    source_cat, family = binomial(link = "logit"), data = data_for_model)
+
+Coefficients:
+                             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                  -1.35979    0.21481  -6.330 2.45e-10 ***
+type_of_agreementpredicative  0.45490    0.21518   2.114   0.0345 *  
+type_of_agreementrelpron     -0.21101    0.39788  -0.530   0.5959    
+distance                      0.03983    0.03242   1.229   0.2191    
+target_first                 -0.99116    0.20649  -4.800 1.59e-06 ***
+source_catgendered           -1.73335    0.23864  -7.263 3.77e-13 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1407.8  on 1846  degrees of freedom
+Residual deviance: 1187.5  on 1841  degrees of freedom
+AIC: 1199.5
+
+Number of Fisher Scoring iterations: 6

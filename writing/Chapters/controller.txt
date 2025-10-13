@@ -1,0 +1,18 @@
+Call:
+glm(formula = semantic_agr ~ source_cat, family = binomial(link = "logit"), 
+    data = data_for_model)
+
+Coefficients:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)        -1.36243    0.07697 -17.700   <2e-16 ***
+source_catgendered -2.16649    0.22512  -9.624   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1407.8  on 1846  degrees of freedom
+Residual deviance: 1260.8  on 1845  degrees of freedom
+AIC: 1264.8
+
+Number of Fisher Scoring iterations: 6
