@@ -46,6 +46,11 @@ data %>%
          type_of_agreement = as.factor(type_of_agreement)) -> data
 ```
 
+Useless lexeme:
+```{r}
+data %>% filter(source_lexeme != "pasztet") -> data
+```
+
 Summary of the dataset:
 ```{r}
 summary(data %>% filter((source_cat != "profession") | (target_gender == "f")))
