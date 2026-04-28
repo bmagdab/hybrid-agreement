@@ -1,0 +1,712 @@
+---
+title: "profession nouns"
+author: "Magdalena Borysiak"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Loading data
+
+Necessary libraries:
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(lme4)
+```
+
+Loading data:
+
+```{r}
+numbers <- sprintf("%03d", 0:190)
+filenames <- paste0("NKJP_300M_", numbers, ".csv")
+filepaths <- file.path("C:/Users/magda/moje/hybrid-agreement-corpus/agreement-occurrences", filenames)
+data <- lapply(filepaths, read.csv) %>% bind_rows()
+rm(list=setdiff(ls(), "data"))
+```
+
+# Preparing data
+
+Mutating a boolean column for semantic agreement:
+```{r}
+data %>% 
+  mutate(semantic_agr = case_when(source_other_gender == target_gender ~ 1,
+                                  source_other_gender != target_gender ~ 0)) -> data
+```
+
+Setting the correct types of variables:
+```{r}
+data %>% 
+  mutate(type_of_text = as.factor(type_of_text),
+         source_cat = as.factor(source_cat),
+         source_gram_gender = as.factor(source_gram_gender),
+         source_other_gender = as.factor(source_other_gender),
+         target_gender = as.factor(target_gender),
+         type_of_agreement = as.factor(type_of_agreement)) -> data
+```
+
+Here I want to focus on profession nouns:
+```{r}
+data %>% 
+  filter(source_cat == 'profession') -> prof
+```
+
+# Exploring
+
+```{r}
+summary(prof)
+```
+
+## Large distances
+The maximum distance in the dataset is very large, how many are there?
+```{r}
+prof %>% 
+  arrange(desc(distance)) %>% 
+  select(distance, source_form, target_form, sentence)
+```
+
+I will remove the occurrences with distances larger than mean + 2 SDs of the distance.
+```{r}
+c(mean(prof$distance) - 2*sd(prof$distance), mean(prof$distance) + 2*sd(prof$distance))
+
+prof %>% 
+  filter(distance > mean(distance) - 2*sd(distance)) %>% 
+  filter(distance < mean(distance) + 2*sd(distance)) -> prof
+```
+
+## Relative pronouns preceding the noun
+That shouldn't happen but it did a couple of times!
+```{r}
+prof %>% 
+  filter(target_first == 1 & type_of_agreement == "relpron")
+```
+I am removing these occurrences because they are parsing mistakes.
+```{r}
+prof %>% 
+  filter(!(target_first == 1 & type_of_agreement == "relpron")) -> prof
+```
+
+
+## Non-m1 nouns
+Sometimes the grammatical gender of the controller was marked not as m1, but as m2 and m3, why is that?
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  select(sentence, source_form, target_form)
+```
+A lot of these seem to be two specific lexemes, I want a list of all nouns that were marked as non-m1 and how many occurrences were there of each one.
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  group_by(source_lexeme) %>% 
+  count() %>% 
+  arrange(desc(n))
+```
+The occurrences for the "zbieg" lexeme are probably not a parsing mistake; this word can be also used in the colocation "zbieg okoliczności" meaning "coincidence". I can filter out the non-m1 occurrences of "zbieg" and I will look into the rest.
+```{r}
+prof %>% 
+  filter(!(source_lexeme == "zbieg" & source_gram_gender != "m1")) -> prof
+```
+
+### Upiór
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "upiór") %>% 
+  select(sentence, source_form, target_form)
+```
+This word can be also used to mean a haunting memory, so this is a more metaphorical meaning. I can filter these occurrences out.
+```{r}
+prof %>% 
+  filter(!(source_lexeme == "upiór" & source_gram_gender != "m1")) -> prof
+```
+
+### Subiekt
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "subiekt") %>% 
+  select(sentence, source_form, target_form)
+```
+These seem to be a parsing mistake, those sentences mostly mention a person referred to as "subiekt". I wonder if maybe the parser just thought this is non-m1, are there any m1 occurrences of this?
+```{r}
+prof %>% 
+  filter(source_lexeme == "subiekt") %>% 
+  group_by(source_gram_gender) %>% 
+  count()
+```
+There are some, still I will assume this is a parsing mistake and later recode these as m1.
+
+### Lump
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "lump") %>% 
+  select(sentence, sentence_id, source_form, target_form)
+```
+It's obvious that the referent is a person (and not "old clothes", which is also possible with this lexeme) only for 5 out of these 12 occurrences. With this few examples I will filter them out manually.
+```{r}
+prof %>% 
+  filter(!(source_lexeme == "lump" & sentence_id %in% c(160140, 6230810, 15886602, 15886611, 16004601, 17948390))) -> prof
+```
+
+### Dureń
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "dureń") %>% 
+  select(sentence, source_form, target_form)
+```
+All of these are usages referring to a person, therefore I will later recode them to m1.
+
+### Pajac
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "pajac") %>% 
+  select(sentence, sentence_id, source_form, target_form)
+```
+Only of 3 these 10 clearly refer to a person, so the rest of the occurrences will be removed.
+```{r}
+prof %>% 
+  filter(source_lexeme != "pajac" | (source_gram_gender == "m1" | sentence_id == 15054693)) -> prof
+```
+
+### Nurek
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "nurek") %>% 
+  select(sentence, sentence_id, source_form, target_form)
+```
+Both of those occurrences have the noun refer to something else than a person, so I will filter them out.
+```{r}
+prof %>% 
+  filter(!(source_lexeme == "nurek" & source_gram_gender != "m1")) -> prof
+```
+
+### Finishing
+Let's see how many of the "non-m1" nouns are there left.
+```{r}
+prof %>% 
+  filter(source_gram_gender != "m1") %>% 
+  group_by(source_lexeme) %>% 
+  count()
+```
+All of these will be recoded to m1.
+```{r}
+prof %>% 
+  mutate(source_gram_gender = "m1") -> prof
+```
+
+## Too many agreements found
+```{r}
+prof %>% 
+  group_by(sentence_id) %>% 
+  count() %>% 
+  filter(n > 2) %>% 
+  arrange(desc(n))
+```
+This many occurrences of agreement might be a parsing mistake, I will look into the ones above 7 (because there's a lot of the others, I don't have time for them)
+
+```{r}
+prof %>% 
+  filter(sentence_id == 7708943)
+```
+This sentence is actually a paragraph not really formatted like a sentence, more like a list, I'm removing this.
+```{r}
+prof %>% 
+  filter(sentence_id == 7708935)
+```
+Same as before.
+```{r}
+prof %>% 
+  filter(sentence_id == 7708933)
+```
+Same as before.
+```{r}
+prof %>% 
+  filter(sentence_id == 7708932)
+```
+Same as before.
+```{r}
+prof %>% 
+  filter(sentence_id == 2517756)
+```
+Here all of the agreements are with the same word, they are supposedly attributes but actually this is a list of streets, the first of which is a street named after a burmistrz. There is actually no agreement with this word in the sentence, so I will remove it.
+```{r}
+prof %>% 
+  filter(sentence_id == 4819930)
+```
+A few of these supposed agreements are digits agreeing with a word, I should filter this out in general in the whole dataset because there is actually no agreement marking on these. "Który" is an actual agreeing word, but I'm not sure if "wpadali" should be counted; something to look into later too. Not removing this one, this will be taken care of in other sections.
+```{r}
+prof %>% 
+  filter(sentence_id == 7708936)
+```
+Same as the first 4 examples.
+```{r}
+prof %>% 
+  filter(sentence_id == 7708941)
+```
+Same as above.
+```{r}
+prof %>% 
+  filter(sentence_id == 14168165)
+```
+Sounds strangely but this is a sentence, I'm leaving this. The rest are probably also weird sentences, but still sentences that should be included in the analysis.
+
+I'm removing the few sentences that should be excluded.
+```{r}
+prof %>% 
+  filter(!(sentence_id %in% c(7708943, 7708935, 7708933, 7708932, 2517756, 7708936, 7708941))) -> prof
+```
+
+## Digits agreeing with words
+How many occurrences are there where the noun is "in agreement" with a string of digits?
+```{r}
+prof %>% 
+  filter(!is.na(as.numeric(target_form)))
+```
+A little less than a 1000, I'm filtering them out.
+```{r}
+prof %>% 
+  filter(is.na(as.numeric(target_form))) -> prof
+
+prof %>% 
+  filter(is.na(target_form))
+```
+
+## Plural agreements with singular nouns
+Should I exclude these? This is probably only when there is a coordination of multiple singular nouns, there are other factors affecting the gender agreement in those cases and maybe its safer to exclude them for now.
+```{r}
+prof %>% 
+  filter(grepl("sg", source_morph_descr) & grepl("pl", target_morph_descr))
+```
+I will exclude these because even if the referent of the noun is female, in a coordination with other masculine nouns the agreement will be masculine. If I want to investigate gender agreement in coordinate structures this should be a separate study, because it's more complicated and lies elsewhere on Corbett's agreement hierarchy.
+
+I want to see how many of these mismatching number agreements are there in the general dataset, not just profession nouns.
+```{r}
+data %>% 
+  filter(grepl("sg", source_morph_descr) & grepl("pl", target_morph_descr)) %>% 
+  filter(source_cat != "profession")
+```
+Besides the profession noun agreements there's only 5 occurrences like that.
+
+Here, since I'm working only on the profession noun I will only exclude these occurrences in the profession nouns dataset.
+```{r}
+prof %>% 
+  filter(!(grepl("sg", source_morph_descr) & grepl("pl", target_morph_descr))) -> prof
+```
+
+## Cooccurring attribute/predicate agreements
+Which one of these is preferred in the corpus?
+- Af N Vf
+- Am N Vf
+- Af N Vm
+- Am N Vm
+
+The next few chunks are commented out because they generate a table that I have saved locally.
+
+For now I'm only looking at situations where there are 2 agreements, not more.
+```{r}
+# prof %>%
+#   group_by(sentence_id) %>%
+#   count() %>%
+#   filter(n == 2) %>%
+#   select(sentence_id) -> multiples
+# multiples <- multiples$sentence_id
+```
+Iterating over this list to make a dataset.
+```{r}
+# doubles <- data.frame()
+# for (id in multiples) {
+#   prof %>% filter(sentence_id == id) -> current_sentence
+#   if (current_sentence[1,]$type_of_agreement == "predicative"
+#       & current_sentence[2,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#   }
+#   if (current_sentence[2,]$type_of_agreement == "predicative"
+#       & current_sentence[1,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#   }
+#   doubles <- rbind(doubles, newrow)
+# }
+```
+Some rows are duplicated so I will remove them.
+```{r}
+# doubles[!duplicated(doubles),] -> doubles
+```
+
+Saving this because (1) it took a long time to generate this dataset and (2) reading this table from a file fixes the issue with repeating column names.
+```{r}
+# write.csv(doubles, "AV-doubles.csv", row.names = F)
+```
+
+Removing some useless variables from the environment.
+```{r}
+# rm(current_sentence, newrow, id, multiples, doubles)
+```
+
+Reading the table from file.
+```{r}
+read.csv("AV-doubles.csv") -> AVdoubles
+```
+
+I'm recoding all masculine genders to m and discarding the neuter agreements (which shouldn't happen) and mutating a column to see all of the combinations I'm interested in: AfVf, AmVf, AfVm, AmVm. Later grouping will be based on this one instead of grouping based on three different variables.
+```{r}
+AVdoubles %>% 
+  filter(target_gender != "n" & target_gender.1 != "n") %>% 
+  mutate(target_gender = ifelse(target_gender != "f", "m", "f"),
+         target_gender.1 = ifelse(target_gender.1 != "f", "m", "f")) %>%
+  mutate(condition = case_when(type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f" 
+                               ~ "AfVf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f" 
+                               ~ "AmVf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m" 
+                               ~ "AfVm",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m" 
+                               ~ "AmVm",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "f"
+                               & type_of_agreement == "predicative"
+                               & target_gender == "f" 
+                               ~ "AfVf",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "m"
+                               & type_of_agreement == "predicative"
+                               & target_gender == "f" 
+                               ~ "AmVf",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "f" 
+                               & type_of_agreement == "predicative" 
+                               & target_gender == "m" 
+                               ~ "AfVm",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "m" 
+                               & type_of_agreement == "predicative" 
+                               & target_gender == "m" 
+                               ~ "AmVm")) -> AVdoubles
+```
+
+Getting counts for each Af/m and Vf/m combination, also grouping by ordering and showing the mean distance between each target and controller in each group. The AmVm condition is not actually relevant for me because if there is no feminine agreement then it's likely that the referent was male.
+```{r}
+AVdoubles %>% 
+  filter(condition != "AmVm") %>% 
+  group_by(condition, target_first, target_first.1) %>% 
+  summarise(n = n(), distance = mean(distance), distance.1 = mean(distance)) -> AVdouble_counts
+AVdouble_counts
+```
+
+## Cooccurring attribute/relative pronoun agreements
+Which one of these is preferred in the corpus?
+- Af N RPf
+- Am N RPf
+- Af N RPm
+- Am N RPm
+
+The next few chunks are commented out because they generate a table that I have saved locally.
+
+For now I'm only looking at situations where there are 2 agreements, not more.
+```{r}
+# prof %>%
+#   group_by(sentence_id) %>%
+#   count() %>%
+#   filter(n == 2) %>%
+#   select(sentence_id) -> multiples
+# multiples <- multiples$sentence_id
+```
+Iterating over this list to make a dataset.
+```{r}
+# ARPdoubles <- data.frame()
+# for (id in multiples) {
+#   prof %>% filter(sentence_id == id) -> current_sentence
+#   if (current_sentence[1,]$type_of_agreement == "relpron"
+#       & current_sentence[2,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     ARPdoubles <- rbind(ARPdoubles, newrow)
+#   }
+#   if (current_sentence[2,]$type_of_agreement == "relpron"
+#       & current_sentence[1,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     ARPdoubles <- rbind(ARPdoubles, newrow)
+#   }
+# }
+```
+Some rows are duplicated so I will remove them.
+```{r}
+# ARPdoubles[!duplicated(ARPdoubles),] -> ARPdoubles
+```
+
+Saving this because (1) it took a long time to generate this dataset and (2) reading this table from a file fixes the issue with repeating column names.
+```{r}
+# write.csv(ARPdoubles, "ARP-doubles.csv", row.names = F)
+```
+
+Removing some useless variables from the environment.
+```{r}
+# rm(current_sentence, newrow, id, multiples)
+```
+
+Reading the table from file.
+```{r}
+read.csv("ARP-doubles.csv") -> ARPdoubles
+```
+
+I'm recoding all masculine genders to m and discarding the neuter agreements (which shouldn't happen) and mutating a column to see all of the combinations I'm interested in: AfVf, AmVf, AfVm, AmVm. Later grouping will be based on this one instead of grouping based on three different variables.
+```{r}
+ARPdoubles %>% 
+  filter(target_gender != "n" & target_gender.1 != "n") %>% 
+  mutate(target_gender = ifelse(target_gender != "f", "m", "f"),
+         target_gender.1 = ifelse(target_gender.1 != "f", "m", "f")) %>%
+  mutate(condition = case_when(type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "f" 
+                               ~ "AfRPf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "f" 
+                               ~ "AmRPf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "m" 
+                               ~ "AfRPm",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "m" 
+                               ~ "AmRPm",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "f"
+                               & type_of_agreement == "relpron"
+                               & target_gender == "f" 
+                               ~ "AfRPf",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "m"
+                               & type_of_agreement == "relpron"
+                               & target_gender == "f" 
+                               ~ "AmRPf",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "f" 
+                               & type_of_agreement == "relpron" 
+                               & target_gender == "m" 
+                               ~ "AfRPm",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "m" 
+                               & type_of_agreement == "relpron" 
+                               & target_gender == "m" 
+                               ~ "AmRPm")) -> ARPdoubles
+```
+
+Getting counts for each Af/m and Vf/m combination, also grouping by ordering and showing the mean distance between each target and controller in each group. The AmVm condition is not actually relevant for me because if there is no feminine agreement then it's likely that the referent was male.
+```{r}
+ARPdoubles %>% 
+  filter(condition != "AmRPm") %>% 
+  group_by(condition, target_first, target_first.1) %>% 
+  summarise(n = n(), distance = mean(distance), distance.1 = mean(distance)) -> ARPdouble_counts
+ARPdouble_counts
+```
+
+```{r}
+ARPdoubles %>% 
+  filter(condition == "AmRPf" & target_first == 1) %>% 
+  select(sentence, target_form, target_form.1, target_morph_descr)
+```
+
+
+## Cooccurring relative pronoun/predicate agreements
+Which one of these is preferred in the corpus?
+- Pf N RPf
+- Pm N RPf
+- Pf N RPm
+- Pm N RPm
+
+The next few chunks are commented out because they generate a table that I have saved locally.
+
+For now I'm only looking at situations where there are 2 agreements, not more.
+```{r}
+# prof %>%
+#   group_by(sentence_id) %>%
+#   count() %>%
+#   filter(n == 2) %>%
+#   select(sentence_id) -> multiples
+# multiples <- multiples$sentence_id
+```
+Iterating over this list to make a dataset.
+```{r}
+# VRPdoubles <- data.frame()
+# for (id in multiples) {
+#   prof %>% filter(sentence_id == id) -> current_sentence
+#   if (current_sentence[1,]$type_of_agreement == "relpron"
+#       & current_sentence[2,]$type_of_agreement == "predicative"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     VRPdoubles <- rbind(VRPdoubles, newrow)
+#   }
+#   if (current_sentence[2,]$type_of_agreement == "relpron"
+#       & current_sentence[1,]$type_of_agreement == "predicative"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     VRPdoubles <- rbind(VRPdoubles, newrow)
+#   }
+# }
+```
+Some rows are duplicated so I will remove them.
+```{r}
+# VRPdoubles[!duplicated(VRPdoubles),] -> VRPdoubles
+```
+
+Saving this because (1) it took a long time to generate this dataset and (2) reading this table from a file fixes the issue with repeating column names.
+```{r}
+# write.csv(VRPdoubles, "VRP-doubles.csv", row.names = F)
+```
+
+Removing some useless variables from the environment.
+```{r}
+# rm(current_sentence, newrow, id, multiples)
+```
+
+Reading the table from file.
+```{r}
+read.csv("VRP-doubles.csv") -> VRPdoubles
+```
+
+I'm recoding all masculine genders to m and discarding the neuter agreements (which shouldn't happen) and mutating a column to see all of the combinations I'm interested in: AfVf, AmVf, AfVm, AmVm. Later grouping will be based on this one instead of grouping based on three different variables.
+
+```{r}
+VRPdoubles %>% 
+  mutate(target_gender = ifelse(target_gender != "f", "m", "f"),
+         target_gender.1 = ifelse(target_gender.1 != "f", "m", "f")) %>%
+  mutate(condition = case_when(type_of_agreement == "predicative"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "f" 
+                               ~ "VfRPf",
+                               type_of_agreement == "predicative"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "f" 
+                               ~ "VmRPf",
+                               type_of_agreement == "predicative"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "m" 
+                               ~ "VfRPm",
+                               type_of_agreement == "predicative"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "relpron"
+                               & target_gender.1 == "m" 
+                               ~ "VmRPm",
+                               type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f"
+                               & type_of_agreement == "relpron"
+                               & target_gender == "f" 
+                               ~ "VfRPf",
+                               type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m"
+                               & type_of_agreement == "relpron"
+                               & target_gender == "f" 
+                               ~ "VmRPf",
+                               type_of_agreement.1 == "predicative" 
+                               & target_gender.1 == "f" 
+                               & type_of_agreement == "relpron" 
+                               & target_gender == "m" 
+                               ~ "VfRPm",
+                               type_of_agreement.1 == "predicative" 
+                               & target_gender.1 == "m" 
+                               & type_of_agreement == "relpron" 
+                               & target_gender == "m" 
+                               ~ "VmRPm")) -> VRPdoubles
+```
+
+Getting counts for each Af/m and Vf/m combination, also grouping by ordering and showing the mean distance between each target and controller in each group. The AmVm condition is not actually relevant for me because if there is no feminine agreement then it's likely that the referent was male.
+```{r}
+VRPdoubles %>% 
+  filter(condition != "VmRPm") %>% 
+  group_by(condition, target_first, target_first.1) %>% 
+  summarise(n = n(), distance = mean(distance), distance.1 = mean(distance)) -> VRPdouble_counts
+VRPdouble_counts
+```
+
+```{r}
+VRPdoubles %>% 
+  filter(condition == "VmRPf") %>% 
+  select(sentence, target_form, target_form.1)
+```
+In all of these the relative pronoun refers to a different noun.
+
+# Occurrences to analyse
+- 100 with relative pronouns
+- matching samples with other agreements
+- all of the double agreements
+
+I want to look only at occurrences with feminine agreement, because I can't be sure that it is hybrid agreement if there is no feminine agreement (no way to check who is the referent of the noun). There is ~100 occurrences of agreements with relative pronouns so I will take all of them, then I will randomize attribute and predicate agreements and take the same number of occurrences (I will go from the top and exclude all that are parsing mistakes making notes of which ones were those and how many were there). I will also look at all of the double agreements. I will make sure that my attribute and predicate samples do not overlap with the double agreement samples (this is impossible for relative pronouns).
+
+Once I look through all of them and make sure none of them are parsing mistakes I will look at the average distance, ordering and maybe other noteworthy parameters.
+
+Selecting the minimum number of columns, filtering the fully masculine conditions and saving the double agreement occurrences to a csv file.
+```{r}
+AVdoubles %>% 
+  select(file_id, sentence_id, sentence, type_of_text, source_cat, source_form, source_lexeme, source_morph_descr, source_gram_gender, source_other_gender, target_form, target_morph_descr, target_gender, type_of_agreement, distance, target_first, semantic_agr, target_form.1, target_morph_descr.1, target_gender.1, type_of_agreement.1, distance.1, target_first.1, semantic_agr.1, condition) %>% 
+  filter(condition != "AmVm")-> doubles
+
+rbind(doubles, ARPdoubles %>% 
+    select(file_id, sentence_id, sentence, type_of_text, source_cat, source_form, source_lexeme, source_morph_descr, source_gram_gender, source_other_gender, target_form, target_morph_descr, target_gender, type_of_agreement, distance, target_first, semantic_agr, target_form.1, target_morph_descr.1, target_gender.1, type_of_agreement.1, distance.1, target_first.1, semantic_agr.1, condition) %>% 
+    filter(condition != "AmRPm")) -> doubles
+
+rbind(doubles, VRPdoubles %>% 
+    select(file_id, sentence_id, sentence, type_of_text, source_cat, source_form, source_lexeme, source_morph_descr, source_gram_gender, source_other_gender, target_form, target_morph_descr, target_gender, type_of_agreement, distance, target_first, semantic_agr, target_form.1, target_morph_descr.1, target_gender.1, type_of_agreement.1, distance.1, target_first.1, semantic_agr.1, condition) %>% 
+    filter(condition != "VmRPm")) -> doubles
+
+write.csv(doubles, "doubles.csv", row.names = F)
+```
+
+Getting a table of relative pronoun agreements
+```{r}
+prof %>% 
+  filter(target_gender == "f" & type_of_agreement == "relpron") -> prof_relpron
+prof_relpron
+```
+There are 98 occurrences so I will get random 98 occurrences from attributive and predicate agreement too. I filter out any sentences that appear in the doubles dataframes.
+```{r}
+prof %>% 
+  filter(target_gender == "f" & type_of_agreement == "attributive") %>% 
+  filter(!(sentence_id %in% AVdoubles$sentence_id)) %>% 
+  filter(!(sentence_id %in% ARPdoubles$sentence_id)) -> prof_attr
+
+prof_attr[sample(nrow(prof_attr), 98), ] -> prof_attr
+
+prof %>% 
+  filter(target_gender == "f" & type_of_agreement == "predicative") %>% 
+  filter(!(sentence_id %in% AVdoubles$sentence_id)) %>% 
+  filter(!(sentence_id %in% VRPdoubles$sentence_id)) -> prof_pred
+
+prof_pred[sample(nrow(prof_pred), 98), ] -> prof_pred
+```
+
+Saving these dataframes so I can review them, I will make note of the sentences with parsing mistakes and later remove them and sample more occurrences to have 98 for each type of agreement.
+```{r}
+write.csv(prof_attr, "prof_attr.csv", row.names = F)
+write.csv(prof_pred, "prof_pred.csv", row.names = F)
+write.csv(prof_relpron, "prof_relpron.csv", row.names = F)
+```
+
