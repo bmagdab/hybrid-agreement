@@ -53,19 +53,19 @@ def decode(target, occurrence):
     return target_first, distance
 
 
-for file in files:
-    occurrences = file_into_dict(file)
-    for occ in occurrences:
-        if occ['head'] != {}:
-            targ_first, dist = decode(occ['head'], occ)
-            occ['head']['distance'] = dist
-            occ['head']['target_first'] = targ_first
-        for dep in occ['dependents']:
-            targ_first, dist = decode(dep, occ)
-            dep['distance'] = dist
-            dep['target_first'] = targ_first
-        for relpron in occ['rel_prons']:
-            targ_first, dist = decode(relpron, occ)
-            relpron['distance'] = dist
-            relpron['target_first'] = targ_first
-    write_json(occurrences, file)
+# for file in files:
+#     occurrences = file_into_dict(file)
+#     for occ in occurrences:
+#         if occ['head'] != {}:
+#             targ_first, dist = decode(occ['head'], occ)
+#             occ['head']['distance'] = dist
+#             occ['head']['target_first'] = targ_first
+#         for dep in occ['dependents']:
+#             targ_first, dist = decode(dep, occ)
+#             dep['distance'] = dist
+#             dep['target_first'] = targ_first
+#         for relpron in occ['rel_prons']:
+#             targ_first, dist = decode(relpron, occ)
+#             relpron['distance'] = dist
+#             relpron['target_first'] = targ_first
+#     write_json(occurrences, file)
