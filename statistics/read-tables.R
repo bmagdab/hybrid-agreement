@@ -103,3 +103,23 @@ data %>%
   filter(type_of_agreement == "predicative") %>% 
   group_by(distance) %>% 
   summarise(mean(semantic_agr))
+
+# other
+# i dont think this plot below makes sense but lets leave it here for now
+ggplot(
+  data %>% 
+    filter(source_cat != "profession") %>% 
+    group_by(type_of_agreement) %>% 
+    mutate(agr = (source_other_gender == target_gender),
+           prop = sum(agr)/n())
+) + 
+  geom_col(aes(x = type_of_agreement,
+               y = prop,
+               fill = source_cat))
+
+# proportions of semantic agreement with different targets and ordering
+data %>% 
+  filter(source_cat == "depreciative") %>% 
+  group_by(type_of_agreement, target_first) %>% 
+  mutate(agr = (source_other_gender == target_gender)) %>% 
+  summarise(prop = sum(agr)/n())
