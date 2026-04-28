@@ -1,0 +1,204 @@
+---
+title: "appos-prof-nouns"
+author: "Magdalena Borysiak"
+date: "`r Sys.Date()`"
+output: html_document
+---
+# Loading data
+
+Necessary libraries:
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(lme4)
+```
+
+Loading data:
+```{r}
+numbers <- sprintf("%03d", 0:190)
+filenames <- paste0("NKJP_300M_", numbers, ".csv")
+filepaths <- file.path("C:/Users/magda/moje/hybrid-agreement-corpus/agreement-occurrences/new-profession-nouns", filenames)
+data <- lapply(filepaths, read.csv) %>% bind_rows()
+rm(list=setdiff(ls(), "data"))
+```
+
+# Preparing data
+
+Mutating a boolean column for semantic agreement:
+```{r}
+data %>% 
+  mutate(semantic_agr = case_when(source_other_gender == target_gender ~ 1,
+                                  source_other_gender != target_gender ~ 0)) -> data
+# make it a factor!!!
+```
+
+Setting the correct types of variables:
+```{r}
+data %>% 
+  mutate(type_of_text = as.factor(type_of_text),
+         source_cat = as.factor(source_cat),
+         source_gram_gender = as.factor(source_gram_gender),
+         source_other_gender = as.factor(source_other_gender),
+         target_gender = as.factor(target_gender),
+         type_of_agreement = as.factor(type_of_agreement)) -> data
+```
+
+Mutating NAs for appositions:
+```{r}
+data[data==""] <- NA
+```
+
+
+Removing occurrences with large distances:
+```{r}
+c(mean(data$distance) - 2*sd(data$distance), mean(data$distance) + 2*sd(data$distance))
+
+data %>% 
+  filter(distance > mean(distance) - 2*sd(distance)) %>% 
+  filter(distance < mean(distance) + 2*sd(distance)) -> data
+```
+
+Removing occurrences with relative pronouns preceding the controller of agreement:
+```{r}
+data %>% 
+  filter(!(target_first == 1 & type_of_agreement == "relpron")) -> data
+```
+
+Removing sentences with unusually many occurrences:
+```{r}
+data %>% 
+  filter(!(sentence_id %in% c(7708943, 7708935, 7708933, 7708932, 2517756, 7708936, 7708941))) -> data
+```
+
+Removing instances of digits agreeing with words:
+```{r}
+data %>% 
+  filter(is.na(as.numeric(target_form))) -> data
+```
+
+Removing all occurrences with plural nouns (there is a chance they are a part of coordination):
+```{r}
+data %>% 
+  filter(!grepl("pl", source_morph_descr)) -> data
+```
+
+# Descriptive statistics
+```{r}
+summary(data)
+```
+```{r}
+data %>% 
+  filter(!is.na(apposition)) %>% 
+  group_by(target_gender) %>% 
+  count()
+```
+
+Mutating a column with the gender of the apposition
+```{r}
+data %>% 
+  mutate(appos_gender = case_when(grepl(":m1", appos_morph_descr) ~ "m1",
+                                  grepl(":m2", appos_morph_descr) ~ "m2",
+                                  grepl(":m3", appos_morph_descr) ~ "m3",
+                                  grepl(":n", appos_morph_descr) ~ "n",
+                                  grepl(":f", appos_morph_descr) ~ "f")) -> data
+# make it a factor!
+```
+
+```{r}
+data %>% 
+  filter(!is.na(appos_gender)) %>% 
+  group_by(appos_gender, target_gender) %>% 
+  count()
+```
+
+```{r}
+data %>% 
+  filter(appos_gender == "f") -> f_data
+```
+
+```{r}
+f_data %>% 
+  group_by(type_of_agreement, target_gender) %>% 
+  count()
+```
+
+```{r}
+f_data %>% 
+  group_by(type_of_agreement, target_gender) %>% 
+  count() %>% 
+  ggplot(aes(x = type_of_agreement, y = n, fill = target_gender)) + geom_col(position = "dodge")
+```
+
+```{r}
+f_data
+```
+
+ORDERING OF NOUN AND APPOSITION (and target?)
+```{r}
+ordering <- function(sentence, target, source, apposition, target_first, distance) {
+  if(str_count(sentence, target) > 1 
+     | str_count(sentence, source) > 1 
+     | str_count(sentence, apposition) > 1) return (NA)
+  
+  t <- str_locate(sentence, target)
+  s <- str_locate(sentence, source)
+  if (target_first == 0) {
+    as <- str_count(substr(sentence, 0, s[1]), apposition)
+    if(as == 1) return("AST")
+    if(as > 1) return(NA)
+    if(as == 0) {
+      at <- str_count(substr(sentence, t[2], 2000), apposition)
+      if(at == 1) return("STA")
+      if(at > 1) return(NA)
+      if(at == 0 & distance != 0) return("SAT") else return(NA)
+    }
+  } else {
+    as <- str_count(substr(sentence, 0, t[1]), apposition)
+    # print(as)
+    # print(sentence)
+    if(as == 1) return("ATS")
+    if(as > 1) return(NA)
+    if(as == 0) {
+      at <- str_count(substr(sentence, s[2], 2000), apposition)
+      if(at == 1) return("TSA")
+      if(at > 1) return(NA)
+      if(at == 0 & distance != 0) return("TAS") else return(NA)
+    }
+  }
+}
+```
+
+```{r}
+new_col <- character(nrow(f_data))
+for (i in 1:nrow(f_data)) {
+  ordering(str_to_lower(f_data[i,]$sentence), 
+           f_data[i,]$target_form, 
+           f_data[i,]$source_form, 
+           f_data[i,]$apposition, 
+           f_data[i,]$target_first, 
+           f_data[i,]$distance) -> new_row
+  new_col[i] <- new_row
+}
+f_data %>% 
+  mutate(order = new_col) -> f_data
+rm(i, new_col, new_row)
+```
+
+```{r}
+f_data %>% 
+  select(sentence, target_form, source_form, apposition, target_first, distance, order, sentence_id) %>% 
+  filter(is.na(order))
+```
+i'm exporting this as a csv to annotate which ones are correctly parsed, some NA's will have an ordering assigned and others will be removed
+```{r}
+write.csv(f_data, file = "prof-appos.csv", row.names = F)
+```
+
+
+```{r}
+f_data %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(mean_dist = mean(distance))
+```
+provide examples in the writing!
