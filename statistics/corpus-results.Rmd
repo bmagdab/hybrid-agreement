@@ -1,0 +1,864 @@
+---
+title: "Full corpus results"
+author: "Magdalena Borysiak"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Loading data
+
+Importing necessary libraries:
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(lme4)
+```
+
+Loading data:
+```{r}
+numbers <- sprintf("%03d", 0:190)
+filenames <- paste0("NKJP_300M_", numbers, ".csv")
+
+filepaths <- file.path("../agreement-occurrences", filenames)
+agrs <- lapply(filepaths, read.csv) %>% bind_rows()
+
+filepaths <- file.path("../agreement-occurrences/new-profession-nouns", filenames)
+profs <- lapply(filepaths, read.csv) %>% bind_rows()
+rm(list=setdiff(ls(), c("agrs", "profs")))
+```
+`agrs` is the dataframe with all data that I extracted for my M1 and `profs` is the dataframe with data extracted when I wrote scripts to also extract information about appositions for profession nouns.
+
+I got some terminology mixed up when I was first preparing this dataset and I'm afraid changing it now will result in issues with code, so:
+- in this document words *source* and *controller* are used interchangeably, even though in the literature they mean different things
+- one type of agreement is called *predicative*, when I think it should be called *predicate*
+
+# Preparing data
+I will merge the dataframes for a moment to prepare all of the data for further work, then I will separate the profession nouns to do more specific work on them.
+```{r}
+agrs %>% filter(source_cat != "profession") -> agrs
+agrs <- bind_rows(agrs, profs)
+rm(profs)
+```
+
+Looking at the summary to change the types of variables:
+```{r}
+summary(agrs)
+```
+
+# Exploring, filtering
+Before I look at the summary again I know I should filter out one lexeme.
+```{r}
+agrs %>% filter(source_lexeme == "pasztet") %>% select(sentence)
+```
+Majority of these occurrences are not in the sense that was intended for the study, so I am excluding these.
+```{r}
+agrs %>% filter(source_lexeme != "pasztet") -> agrs
+```
+
+Looking again at the summary of data, based on this I will filter some things out.
+```{r}
+summary(agrs)
+```
+
+## Large distances
+The maximum distance can be large, I will look at the values from the highest.
+```{r}
+agrs %>% group_by(distance) %>% count() %>% arrange(desc(distance))
+```
+Large distances are most likely parsing mistakes, so I will remove them.
+```{r}
+c(mean(agrs$distance) - 2*sd(agrs$distance), mean(agrs$distance) + 2*sd(agrs$distance))
+
+agrs %>% 
+  filter(distance > mean(distance) - 2*sd(distance)) %>% 
+  filter(distance < mean(distance) + 2*sd(distance)) -> agrs
+```
+
+## Relative pronouns preceding the controller
+The relative pronoun shouldn't precede the controller of agreement, so I'm also removing the occurrences where this happened.
+```{r}
+agrs %>% 
+  filter(!(target_first == 1 & type_of_agreement == "relpron")) -> agrs
+```
+
+## Targets with digits
+Removing instances of digits agreeing with words:
+```{r}
+agrs %>% 
+  filter(is.na(as.numeric(target_form))) -> agrs
+```
+
+## Acronyms in depreciatives
+There are some acronyms which were tagged as depreciative forms.
+```{r}
+agrs %>% 
+  filter(source_cat == "depreciative") %>% 
+  filter(str_detect(source_lexeme, '[:upper:]') & !str_detect(source_lexeme, '[:lower:]')) %>% 
+  group_by(source_lexeme) %>% 
+  count()
+```
+Acronyms are outside the scope of this study, so I will remove these.
+```{r}
+agrs %>% 
+  filter(source_cat != "depreciative" | !(str_detect(source_lexeme, '[:upper:]') & !str_detect(source_lexeme, '[:lower:]'))) -> agrs
+```
+
+## Potential coordinations
+When I'm not looking at agreement with depreciative forms, target or controller shouldn't be plural because then they might be a part of a coordination (which I'm not considering here).
+```{r}
+agrs %>% 
+  filter((!grepl("pl", source_morph_descr)&!grepl("pl", target_morph_descr))|source_cat == "depreciative") -> agrs
+```
+
+## Lists in sentences
+I know that in the corpus sometimes there are sentences that are actually just lists of people with certain functions, which gives me a lot of results that aren't actually useful.
+```{r}
+agrs %>% group_by(sentence_id) %>% count() %>% arrange(desc(n))
+```
+I looked into the first two sentences here (`7708943` and `2517756`) and I found these are rather lists than regular sentences, so here is a list of sentences I found this way and I will remove them.
+```{r}
+agrs %>% 
+  filter(sentence_id %in% c(7708943, 7708935, 7708932, 2517756, 7708936, 7708941)) %>% 
+  group_by(sentence, sentence_id) %>% 
+  count()
+```
+Removing sentences which are not actually sentences:
+```{r}
+agrs %>% 
+  filter(!(sentence_id %in% c(7708943, 7708935, 7708932, 2517756, 7708936, 7708941))) -> agrs
+```
+
+## Non-m1 nouns
+Sometimes the grammatical gender of the controller was marked not as m1. This is expected for depreciative forms (the tagging system assumes m2 instead of m1 for them) and for some gendered nouns, but I want to make sure that it's correct in those categories and filter out the mistakes in the profession noun category.
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  group_by(source_cat) %>% 
+  count()
+
+agrs %>% 
+  filter(source_cat=="depreciative") %>% 
+  group_by(source_gram_gender) %>% 
+  count()
+
+agrs %>% 
+  filter(source_cat=="gendered") %>% 
+  group_by(source_lexeme, source_gram_gender) %>% 
+  count()
+```
+Depreciative forms are all m2, so I will just keep that in mind for when I mutate the variable for semantic/syntactic agreement.
+
+### Chłopaczysko
+In gendered nouns there is one that requires revision: "chłopaczysko" can be either m1 or n according to the dictionary, so I need to judge if these occurrences are n and can be kept or m1 and should be discarded.
+```{r}
+agrs %>% 
+  filter(source_lexeme == "chłopaczysko") %>% 
+  select(sentence, source_morph_descr)
+```
+All of the occurrences tagged as m1 are in nominative or vocative, for which there is no distinct m1 form, so I assume these are n.
+```{r}
+agrs %>% 
+  mutate(source_gram_gender = if_else(source_lexeme=="chłopaczysko", "n", source_gram_gender)) -> agrs
+```
+
+Now I will look into the profession nouns, because 1297 of them had non-m1 gender, when it should be m1 for all of them. I want a list of all nouns that were marked as non-m1 and how many occurrences were there of each one.
+```{r}
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  filter(source_gram_gender != "m1") %>% 
+  group_by(source_lexeme) %>% 
+  count() %>% 
+  arrange(desc(n))
+```
+
+### Zbieg
+```{r}
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "zbieg") %>% 
+  select(sentence, source_form, target_form)
+```
+The occurrences for the "zbieg" lexeme are probably not a parsing mistake; this word can be also used in the colocation "zbieg okoliczności" meaning "coincidence". 
+```{r}
+agrs %>% 
+  filter(source_cat == "profession" & source_lexeme == "zbieg") %>% 
+  group_by(source_gram_gender) %>% 
+  count()
+```
+I will assume all m3 occurrences talk about a coincidence and leave in the dataset only the m1 occurrences.
+```{r}
+agrs %>% 
+  filter(!(source_lexeme == "zbieg" & source_gram_gender == "m3")) -> agrs
+```
+
+### Upiór
+```{r}
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "upiór") %>% 
+  select(sentence, source_form, target_form)
+```
+This word can be also used to mean a haunting memory, so this is a more metaphorical meaning. I will filter out these occurrences.
+```{r}
+agrs %>% 
+  filter(!(source_lexeme == "upiór" & source_gram_gender != "m1")) -> agrs
+```
+
+### Subiekt
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "subiekt") %>% 
+  select(sentence, source_form, target_form)
+```
+These seem to be a parsing mistake, those sentences mostly mention a person referred to as "subiekt". I will recode these as m1.
+```{r}
+agrs %>% 
+  mutate(source_gram_gender = if_else(source_lexeme=="subiekt", "m1", source_gram_gender)) -> agrs
+```
+
+### Lump
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "lump") %>% 
+  select(sentence, sentence_id, source_form, target_form, file_id)
+```
+I can't say with certainty that all of these refer to a person (and not to "old clothes", which is also possible with this lexeme), so I will filter these out.
+```{r}
+agrs %>% 
+  filter(!(source_lexeme == "lump" & source_gram_gender != "m1")) -> agrs
+```
+
+### Dureń
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "dureń") %>% 
+  select(sentence, source_form, target_form, sentence_id, file_id)
+```
+All of these seem to be referring to a person, therefore I will recode them to m1.
+```{r}
+agrs %>% 
+  mutate(source_gram_gender = if_else(source_lexeme=="dureń", "m1", source_gram_gender)) -> agrs
+```
+
+### Pajac
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "pajac") %>% 
+  select(sentence, sentence_id, source_form, target_form)
+```
+Only of 3 these 10 clearly refer to a person, so these will be recoded to m1 and the rest will be removed.
+```{r}
+agrs %>% 
+  filter(source_lexeme != "pajac" | (source_gram_gender == "m1" | sentence_id == 15054693)) -> agrs
+
+agrs %>% 
+  mutate(source_gram_gender = if_else(source_lexeme=="pajac", "m1", source_gram_gender)) -> agrs
+```
+
+### Nurek
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  filter(source_lexeme == "nurek") %>% 
+  select(sentence, sentence_id, source_form, target_form)
+```
+Both of those occurrences have the noun refer to the activity of diving and not a person, so I will filter them out.
+```{r}
+agrs %>% 
+  filter(!(source_lexeme == "nurek" & source_gram_gender != "m1")) -> agrs
+```
+
+### Finishing
+```{r}
+agrs %>% 
+  filter(source_gram_gender != "m1") %>% 
+  group_by(source_cat) %>% 
+  count()
+```
+All of these should be non-m1, so I can move on.
+
+## Target gender
+With depreciative forms I expect to see any target gender, with gendered nouns the target gender depends on the noun and with profession nouns the target gender should always be m1 or f.
+```{r}
+agrs %>% 
+  filter(source_cat == "depreciative") %>% 
+  group_by(source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  group_by(source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  group_by(source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+```
+As for profession nouns, there are too many to look through manually, therefore I am removing from the dataset all that do not have one of the genders in the controller.
+```{r}
+agrs %>% 
+  filter(source_cat != "profession" | !(target_gender != source_gram_gender & target_gender != source_other_gender)) -> agrs
+```
+
+I want to look into the situations where the target gender with gendered is neither the grammatical not the other gender of the source.
+```{r}
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  filter(target_gender != source_gram_gender & target_gender != source_other_gender) %>% 
+  select(source_form, source_gram_gender, source_other_gender, target_form, target_gender, sentence, sentence_id)
+```
+After manually reviewing these I found parsing mistakes and I will remove a few occurrences and recode one.
+```{r}
+agrs %>% 
+  filter(!((sentence_id == 376931 & target_form == "tym")|
+         (sentence_id == 8977510 & target_form == "egzotycznego")|
+         (sentence_id == 11585730 & target_form == "super")|
+         (sentence_id == 15147190 & target_form == "sam")|
+         (sentence_id == 15267353 & target_form == "wniebogłosy")|
+         (sentence_id == 16638227 & target_form == "co"))) -> agrs
+
+agrs %>% 
+  mutate(target_gender = if_else(sentence_id == 778950 & target_form == "którego",
+                                 "n", target_gender)) -> agrs
+```
+
+Making sure that the target gender is cleared up now.
+```{r}
+agrs %>% 
+  filter(source_cat == "depreciative") %>% 
+  group_by(source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  group_by(source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  group_by(source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+```
+
+Finally, I will merge all masculine genders into m, because the distinction between them is not useful for the analysis from now on.
+```{r}
+agrs %>% 
+  mutate(source_gram_gender = case_when(source_cat == "depreciative" ~ "f",
+                                        grepl("m", source_gram_gender) ~ "m",
+                                        T ~ source_gram_gender),
+         source_other_gender = case_when(grepl("m", source_other_gender) ~ "m",
+                                         T ~ source_other_gender),
+         target_gender = case_when(source_cat == "depreciative"
+                                   & target_gender == "m1" ~ "m",
+                                   source_cat == "depreciative"
+                                   & target_gender != "m" ~ "f",
+                                   grepl("m", target_gender) ~ "m",
+                                   T ~ target_gender)) -> agrs
+```
+
+# Double agreements in profession nouns
+*SKIP THIS SECTION FOR NOW*
+
+In this study I look at attributive, predicate and relative pronoun agreements. In this part I want to see which genders are used when there are two types of agreement with one controller. With the example of attributive and predicate agreement, I want to know which one of the following is preferred in the corpus.
+- Af N Vf
+- Am N Vf
+- Af N Vm
+- Am N Vm
+More specifically I want to know if the first agreement being semantic makes it more likely that the second will be semantic too.
+
+In the following subsections I will look for double attributive/predicate, attributive/relative pronoun and predicate/relative pronoun agreements with profession nouns only. I will not include other nouns for this part, because there is a lot less of them and it would introduce another variable that can't be explored carefully enough.
+```{r}
+agrs %>% filter(source_cat == "profession") -> profs
+```
+
+## Preparing tables
+Chunks in this section are commented out because they generate a table that is saved locally and they take a lot of time.
+```{r}
+# profs %>%
+#   group_by(sentence_id) %>%
+#   count() %>%
+#   filter(n == 2) %>%
+#   select(sentence_id) -> multiples
+# multiples <- multiples$sentence_id
+```
+Iterating over this list to make a dataset.
+```{r}
+# AVdoubles <- data.frame()
+# for (id in multiples) {
+#   profs %>% filter(sentence_id == id) -> current_sentence
+#   if (current_sentence[1,]$type_of_agreement == "predicative"
+#       & current_sentence[2,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#   }
+#   if (current_sentence[2,]$type_of_agreement == "predicative"
+#       & current_sentence[1,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#   }
+#   AVdoubles <- rbind(AVdoubles, newrow)
+# }
+```
+Some rows are duplicated so I will remove them.
+```{r}
+# AVdoubles[!duplicated(AVdoubles),] -> AVdoubles
+```
+
+Saving this because (1) it took a long time to generate this dataset and (2) reading this table from a file fixes the issue with repeating column names.
+```{r}
+# write.csv(AVdoubles, "AV-doubles.csv", row.names = F)
+```
+
+Removing some useless variables from the environment.
+```{r}
+# rm(current_sentence, newrow, id, AVdoubles)
+```
+
+Now I will do the same for the attributive/relative pronoun agreements.
+```{r}
+# ARPdoubles <- data.frame()
+# for (id in multiples) {
+#   prof %>% filter(sentence_id == id) -> current_sentence
+#   if (current_sentence[1,]$type_of_agreement == "relpron"
+#       & current_sentence[2,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     ARPdoubles <- rbind(ARPdoubles, newrow)
+#   }
+#   if (current_sentence[2,]$type_of_agreement == "relpron"
+#       & current_sentence[1,]$type_of_agreement == "attributive"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     ARPdoubles <- rbind(ARPdoubles, newrow)
+#   }
+# }
+#
+# ARPdoubles[!duplicated(ARPdoubles),] -> ARPdoubles
+#
+# write.csv(ARPdoubles, "ARP-doubles.csv", row.names = F)
+#
+# rm(current_sentence, newrow, id, ARPdoubles)
+```
+
+And for predicate/relative pronoun agreements.
+```{r}
+# VRPdoubles <- data.frame()
+# for (id in multiples) {
+#   prof %>% filter(sentence_id == id) -> current_sentence
+#   if (current_sentence[1,]$type_of_agreement == "relpron"
+#       & current_sentence[2,]$type_of_agreement == "predicative"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     VRPdoubles <- rbind(VRPdoubles, newrow)
+#   }
+#   if (current_sentence[2,]$type_of_agreement == "relpron"
+#       & current_sentence[1,]$type_of_agreement == "predicative"
+#       & current_sentence[1,]$source_lexeme == current_sentence[2,]$source_lexeme) {
+#     cbind(current_sentence[1,], current_sentence[2,]) -> newrow
+#     VRPdoubles <- rbind(VRPdoubles, newrow)
+#   }
+# }
+#
+# VRPdoubles[!duplicated(VRPdoubles),] -> VRPdoubles
+#
+# write.csv(VRPdoubles, "VRP-doubles.csv", row.names = F)
+# 
+# rm(current_sentence, newrow, id, VRPdoubles, multiples)
+```
+
+## Attributive and predicate
+Reading the table from file.
+```{r}
+read.csv("AV-doubles.csv") -> AVdoubles
+```
+
+I'm mutating a column to see all of the combinations I'm interested in: AfVf, AmVf, AfVm, AmVm. Later grouping will be based on this one instead of grouping based on three different variables.
+```{r}
+AVdoubles %>% 
+  mutate(condition = case_when(type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f" 
+                               ~ "AfVf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f" 
+                               ~ "AmVf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m" 
+                               ~ "AfVm",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m" 
+                               ~ "AmVm",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "f"
+                               & type_of_agreement == "predicative"
+                               & target_gender == "f" 
+                               ~ "AfVf",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "m"
+                               & type_of_agreement == "predicative"
+                               & target_gender == "f" 
+                               ~ "AmVf",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "f" 
+                               & type_of_agreement == "predicative" 
+                               & target_gender == "m" 
+                               ~ "AfVm",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "m" 
+                               & type_of_agreement == "predicative" 
+                               & target_gender == "m" 
+                               ~ "AmVm")) -> AVdoubles
+```
+
+```{r}
+AVdoubles %>% 
+  filter(target_gender != "n" & target_gender.1 != "n") %>% 
+  mutate(target_gender = ifelse(target_gender != "f", "m", "f"),
+         target_gender.1 = ifelse(target_gender.1 != "f", "m", "f")) %>%
+  mutate(condition = case_when(type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f" 
+                               ~ "AfVf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "f" 
+                               ~ "AmVf",
+                               type_of_agreement == "attributive"
+                               & target_gender == "f"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m" 
+                               ~ "AfVm",
+                               type_of_agreement == "attributive"
+                               & target_gender == "m"
+                               & type_of_agreement.1 == "predicative"
+                               & target_gender.1 == "m" 
+                               ~ "AmVm",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "f"
+                               & type_of_agreement == "predicative"
+                               & target_gender == "f" 
+                               ~ "AfVf",
+                               type_of_agreement.1 == "attributive"
+                               & target_gender.1 == "m"
+                               & type_of_agreement == "predicative"
+                               & target_gender == "f" 
+                               ~ "AmVf",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "f" 
+                               & type_of_agreement == "predicative" 
+                               & target_gender == "m" 
+                               ~ "AfVm",
+                               type_of_agreement.1 == "attributive" 
+                               & target_gender.1 == "m" 
+                               & type_of_agreement == "predicative" 
+                               & target_gender == "m" 
+                               ~ "AmVm")) -> AVdoubles
+```
+
+
+Getting counts for each Af/m and Vf/m combination, also grouping by ordering and showing the mean distance between each target and controller in each group. The AmVm condition is not actually relevant for me because if there is no feminine agreement then it's likely that the referent was male.
+```{r}
+AVdoubles %>% 
+  filter(condition != "AmVm") %>% 
+  group_by(condition, target_first, target_first.1) %>% 
+  summarise(n = n(), distance = mean(distance), distance.1 = mean(distance.1))
+```
+
+```{r}
+AVdoubles %>% 
+  filter(condition == "AfVf" & target_first == 0 & target_first.1 == 0) %>% 
+  select(target_form, target_form.1, sentence)
+```
+
+
+
+
+
+
+
+# Filtering profession nouns
+Here I will filter the profession noun occurrences based on their appositions, so that I can add them to the dataset with gendered nouns and depreciative forms and compute models.
+
+I need to mark missing appositions as NAs.
+```{r}
+profs[profs==""] <- NA
+```
+
+I want to look at occurrences of plural appositions with singular controllers.
+```{r}
+profs %>% 
+  filter(grepl("pl", appos_morph_descr)) %>% 
+  select(source_form, target_form, apposition, sentence)
+```
+There are only 21 occurrences and they are either parsing mistakes or they signal that the controller was a part of coordination and the apposition actually refers to the whole coordination and not just the controller. Because of that the apposition is useless in this case and I will remove those occurrences.
+```{r}
+profs %>% 
+  filter(!grepl("pl", appos_morph_descr)) -> profs
+```
+
+I need to know the gender of the appositions.
+```{r}
+profs %>% 
+  filter(!is.na(apposition)) %>% 
+  mutate(appos_gender = case_when(grepl(":m1", appos_morph_descr) ~ "m1",
+                                  grepl(":m2", appos_morph_descr) ~ "m2",
+                                  grepl(":m3", appos_morph_descr) ~ "m3",
+                                  grepl(":n", appos_morph_descr) ~ "n",
+                                  grepl(":f", appos_morph_descr) ~ "f")) %>% 
+  filter(!is.na(appos_gender)) -> profs
+```
+
+I want to see how many occurrences were there with different genders of appositions.
+```{r}
+profs %>%
+  group_by(appos_gender) %>% 
+  count()
+```
+
+I want to use only the occurrences with feminine apositions.
+```{r}
+profs %>% 
+  filter(appos_gender == "f") %>% 
+  select(!appos_gender) -> profs
+```
+
+I also want to have a variable with the ordering of controller, target and apposition, so I have a function that detects that ordering in the occurrence (ideally it would have been done at the stage of extracting occurrences from dependency trees, but I didn't think about this at the time).
+```{r}
+ordering <- function(sentence, target, source, apposition, target_first, distance) {
+  if(str_count(sentence, target) > 1 
+     | str_count(sentence, source) > 1 
+     | str_count(sentence, apposition) > 1) return (NA)
+  
+  t <- str_locate(sentence, target)
+  s <- str_locate(sentence, source)
+  if (target_first == 0) {
+    as <- str_count(substr(sentence, 0, s[1]), apposition)
+    if(as == 1) return("AST")
+    if(as > 1) return(NA)
+    if(as == 0) {
+      at <- str_count(substr(sentence, t[2], 2000), apposition)
+      if(at == 1) return("STA")
+      if(at > 1) return(NA)
+      if(at == 0 & distance != 0) return("SAT") else return(NA)
+    }
+  } else {
+    as <- str_count(substr(sentence, 0, t[1]), apposition)
+    # print(as)
+    # print(sentence)
+    if(as == 1) return("ATS")
+    if(as > 1) return(NA)
+    if(as == 0) {
+      at <- str_count(substr(sentence, s[2], 2000), apposition)
+      if(at == 1) return("TSA")
+      if(at > 1) return(NA)
+      if(at == 0 & distance != 0) return("TAS") else return(NA)
+    }
+  }
+}
+```
+
+Here I apply the function to my data.
+```{r}
+new_col <- character(nrow(profs))
+for (i in 1:nrow(profs)) {
+  ordering(str_to_lower(profs[i,]$sentence), 
+           profs[i,]$target_form, 
+           profs[i,]$source_form, 
+           profs[i,]$apposition, 
+           profs[i,]$target_first, 
+           profs[i,]$distance) -> new_row
+  new_col[i] <- new_row
+}
+profs %>% 
+  mutate(order = new_col) -> profs
+rm(i, new_col, new_row)
+```
+
+I want to see if the function managed to assign an order to every occurrence.
+```{r}
+profs %>% filter(is.na(order))
+```
+
+If I have time I will look through them and assign the order manually but for now I will filter these out.
+```{r}
+profs %>% filter(!is.na(order)) -> profs
+```
+
+Finally I can merge these verified profession nouns occurrences with the rest of the dataset.
+```{r}
+agrs %>% 
+  filter(source_cat != "profession") -> agrs
+
+agrs <- bind_rows(agrs, profs)
+rm(list=setdiff(ls(), "agrs"))
+```
+
+
+# Descriptive stats
+After all of the changes to the dataset I want to ensure that variables have correct types.
+```{r}
+agrs %>% 
+  mutate(type_of_text = as.factor(type_of_text),
+         source_cat = as.factor(source_cat),
+         source_gram_gender = as.factor(source_gram_gender),
+         source_other_gender = as.factor(source_other_gender),
+         target_gender = as.factor(target_gender),
+         type_of_agreement = as.factor(type_of_agreement),
+         target_first = as.factor(target_first)) -> agrs
+```
+
+A table with values of possible genders for all categories of controllers.
+```{r}
+agrs %>% 
+  group_by(source_cat, source_gram_gender, source_other_gender, target_gender) %>% 
+  count()
+```
+For depreciative forms:
+- semantic agreement is when target=other (profesory przyszli)
+- syntactic agreement is when target=gram (profesory przyszły)
+
+For profession nouns:
+- semantic agreement is when target=other (wójt przyszła)
+- syntactic agreement is when target=gram (wójt przyszedł)
+
+For gendered nouns:
+- semantic agreement is when target=other (dziewczę przyszła)
+- syntactic agreement is when target=gram (dziewczę przyszło)
+
+```{r}
+# first should be semantic
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  filter(target_gender != source_gram_gender) %>% 
+  select(source_form, target_form)
+
+# second should be syntactic
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  filter(target_gender == source_gram_gender) %>% 
+  select(source_form, target_form)
+```
+
+Mutating a boolean column for semantic agreement:
+```{r}
+agrs %>%
+  mutate(semantic_agr = as.factor(case_when(target_gender != source_gram_gender ~ 1,
+                                            target_gender == source_gram_gender ~ 0))) -> agrs
+```
+
+The hypotheses are the following:
+
+1. There is more semantic agreement with relative pronouns than with predicates and more predicate semantic agreement than attributive.
+
+2. The larger the distance between the target and the source the more likely it is there will be semantic agreement.
+
+3. If the target is before the source it is less likely there will be semantic agreement.
+   
+   - reference level: 1, having 0 for target_first increases the probability of semantic agreement
+   
+4. Lexical hybrids have more semantic agreement than split hybrids.
+
+   - reference level: depreciative forms
+
+First look at how many semantic agreements are there with different values of relevant variables.
+```{r}
+table(agrs$type_of_agreement, agrs$semantic_agr)
+table(agrs$source_cat, agrs$semantic_agr)
+table(agrs$target_first, agrs$semantic_agr)
+table(agrs$distance, agrs$semantic_agr)
+table(agrs$order, agrs$semantic_agr)
+```
+plots!
+```{r}
+agrs %>% 
+  ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Target of agreement",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements in types of targets of agreement") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun"))
+
+agrs %>% 
+  ggplot(aes(x = source_cat, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Type of noun",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements in split and lexical hybrids") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = c("Depreciative", "Gendered", "Profession"))
+
+agrs %>% 
+  ggplot(aes(x = target_first, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Target-source order",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements possible target-source orderings") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = c("Target first", "Source first"))
+
+agrs %>% 
+  filter(distance < 28) %>% 
+  ggplot(aes(x = distance, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Agreement",
+       y = "Proportion",
+       title = "Counts of syntactic and semantic agreements in different distances between target and source") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic"))
+```
+
+It's interesting that for attribute and predicate agreement the proportion is almost the same, and much higher for relative pronouns and that there are such differences between different noun types. I want to look into that.
+```{r}
+agrs %>% 
+  ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  facet_grid(rows = vars(source_cat)) + 
+  labs(x = "Target of agreement",
+       y = "Proportion",
+       title = "Proportions of syntactic and semantic agreements depending on the type of agreement and type of noun") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun"))
+```
+There is actually a monotonous change in profession nouns! And in the more likely direction!
+
+There's barely anything happening with gendered nouns.
+```{r}
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  group_by(type_of_agreement, semantic_agr) %>% 
+  count()
+```
+
+
+# Statistical modelling
+
+I need to relevel the factors for statistical modelling later.
+```{r}
+agrs %>% 
+  mutate(type_of_agreement = relevel(type_of_agreement, ref = "predicative"),
+         target_first = relevel(target_first, ref = "1"),
+         source_cat = relevel(source_cat, ref = "depreciative"),
+         semantic_agr = relevel(semantic_agr, ref = "0")) -> agrs
+```
