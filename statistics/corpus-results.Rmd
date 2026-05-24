@@ -16,6 +16,7 @@ library(stringr)
 library(patchwork)
 library(xtable)
 library(data.table)
+library(modeest)
 library(ordinal)
 ```
 
@@ -1467,39 +1468,115 @@ Average acceptability ratings per experiment and per condition.
 exper %>%
   filter(trial_type == "experimental") %>% 
   group_by(condition, noun, agreement) %>% 
-  summarise(rating = mean(rating))
+  summarise("mean rating" = mean(rating),
+            sd = sd(rating),
+            first = quantile(rating, .25),
+            median = median(rating),
+            third = quantile(rating, .75),
+            mode = mlv(rating, method="mfv"))
 
 exper %>%
   filter(trial_type == "experimental") %>% 
   group_by(condition, noun, agreement) %>% 
-  summarise(rating = mean(rating)) %>% 
+  summarise(sd = sd(rating),
+            rating = mean(rating)) %>% 
   ggplot(aes(x = condition, y = rating, fill = agreement)) +
   geom_col(position = "dodge") +
+  geom_errorbar(aes(ymin = rating - sd,
+                    ymax = rating + sd),
+                width=.5,
+                position=position_dodge(.9)) +
   facet_grid(cols = vars(noun))
 ```
 
-## Statistical modeling
+```{r}
+exper %>%
+  filter(trial_type == "experimental") %>% 
+  group_by(condition, noun, agreement) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(aes(color = as.factor(rating)), width = .2) +
+  scale_color_manual(values = c("1" = rgb(0, 255-51*0, 0, maxColorValue = 255),
+                                "2" = rgb(0, 255-51*1, 0, maxColorValue = 255),
+                                "3" = rgb(0, 255-51*2, 0, maxColorValue = 255),
+                                "4" = rgb(0, 255-51*3, 0, maxColorValue = 255),
+                                "5" = rgb(0, 255-51*4, 0, maxColorValue = 255))) +
+  facet_grid(cols = vars(noun))
+```
 
-Data for modeling: DOESNT WORK YET
+
+## Statistical modeling
+Data for modeling: 
 ```{r}
 exper %>% 
-  filter(type == "experimental") %>% 
-  select(id, trial_index, time_elapsed, item, condition, semantic, study, rating) %>% 
+  filter(trial_type == "experimental") %>% 
+  select(id, trial_index, time_elapsed, item, condition, agreement, noun, rating) %>% 
   mutate(condition = relevel(condition, ref = "pre"),
-         semantic = relevel(semantic, ref = "0"),
-         study = relevel(study, ref = "depr"),
-         rating = relevel(rating, ref = 1)) -> mod
+         agreement = relevel(agreement, ref = "syntactic"),
+         noun = relevel(noun, ref = "depr"),
+         rating = as.factor(rating)) -> mod
 ```
 
-I will try a model?
+First version of a model but I'm not sure if this is giving me what I want.
 ```{r}
 mod %>% 
-  clmm(rating ~ study + condition + (1|trial_index) + (1|item) + (1|id),
-       data = .) -> model
+  clm(rating ~ condition + noun + agreement, data = .) -> model
 summary(model)
 ```
+1. No significant difference between pre and post conditions: agreement target appearing after the controller does not make sentences significantly more acceptable
+2. Significant difference between pre and pron conditions (p<0.001): agreement with relative pronouns is significantly more acceptable than with predicates before controllers
+3. Significant difference between depr and prof conditions (p<0.001): sentences with profession nouns are significantly more acceptable than sentences with depreciative forms
+4. Significant difference between syntactic and semantic conditions (p<0.01): semantic agreement is significantly more acceptable than syntactic
 
+I will try to recode condition and then run the model
+```{r}
+mod %>% 
+  mutate(order = factor(case_when(condition == "pre" ~ "TargetFirst", 
+                                  condition == "post" ~ "ControllerFirst", 
+                                  condition == "pron" ~ "ControllerFirst"), 
+                        levels = c("TargetFirst", "ControllerFirst")),
+         target_type = factor(ifelse(condition == "pron", "RelPron", "Pred"), 
+                              levels = c("Pred", "RelPron"))) %>% 
+  clm(rating ~ order + target_type + noun + agreement, data = .) -> model2
+summary(model2)
+```
+1. No significant difference for order: agreement target appearing after the controller does not make sentences significantly more acceptable
+2. Significant difference between Pred and RelPron conditions (p<0.05): agreement with relative pronouns is significantly more acceptable than with predicates
+3. Significant difference between depr and prof conditions (p<0.001): sentences with profession nouns are significantly more acceptable than sentences with depreciative forms
+4. Significant difference between syntactic and semantic conditions (p<0.01): semantic agreement is significantly more acceptable than syntactic
 
+I think I want to look at interactions of all variables with semantic/syntactic agreement?
+```{r}
+mod %>% 
+  mutate(order = factor(case_when(condition == "pre" ~ "TargetFirst", 
+                                  condition == "post" ~ "ControllerFirst", 
+                                  condition == "pron" ~ "ControllerFirst"), 
+                        levels = c("TargetFirst", "ControllerFirst")),
+         target_type = factor(ifelse(condition == "pron", "RelPron", "Pred"), 
+                              levels = c("Pred", "RelPron"))) %>% 
+  clm(rating ~ order + order:agreement + target_type + target_type:agreement + noun + noun:agreement , data = .) -> model3
+summary(model3)
+```
+orderControllerFirst:agreementsemantic -- this means that semantic agreement with controller first is rated significantly (p<0.01) higher than syntactic agreement with target first???
+
+## ???
+```{r}
+exper %>% 
+  ggplot(aes(x = rating)) +
+  geom_histogram()
+```
+
+```{r}
+boxplot(exper$rating)
+boxplot.stats(exper$rating)$out
+exper[abs(normalize(exper$rating)) >= 2.5,]
+
+exper %>% 
+  group_by(id) %>% 
+  summarise(first = quantile(rating, .25),
+            third = quantile(rating, .75),
+            range = IQR(rating))
+```
 
 
 
