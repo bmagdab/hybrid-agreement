@@ -1,0 +1,288 @@
+\documentclass[12pt]{book}
+%Use apacite package for apa7 compatible reference style
+\usepackage[natbibapa]{apacite}
+
+\usepackage{colortbl}
+\setlength{\parindent}{0pt}
+
+\usepackage[a4paper,left=3cm,right=2.5cm,top=3cm,bottom=3cm, twoside]{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{stmaryrd}
+%%\usepackage{amssymb}
+%%\usepackage{amsmath}
+\usepackage{libertine}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage{tikz-dependency}
+\usepackage{enumitem}
+\usepackage{epigraph}
+\usepackage{rotating} % for sideways figures
+\usepackage{verbatim} % for verbatim input
+
+\usepackage{lscape}
+\usepackage{titletoc}
+
+\usepackage{booktabs}
+\usepackage{arydshln}
+\usepackage[nonumberlist]{glossaries}
+\usepackage{calc}
+\usepackage[]{titlesec} 
+\definecolor{linkColor}{HTML}{32a852}
+\usepackage[colorlinks=true,citecolor=linkColor,linkcolor=black]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lipsum}
+\usepackage[en-US]{datetime2}
+\usepackage{hyperref}
+
+%%\usepackage{url}
+\makeatletter
+\newcommand\footnoteref[1]{\protected@xdef\@thefnmark{\ref{#1}}\@footnotemark}
+\makeatother
+\usepackage{footmisc}
+\usepackage{doi}
+\renewcommand{\doitext}{}%removes double doi!!
+
+%\usepackage{zref-xr,zref-user}
+\usepackage{nameref}
+\usepackage{zref-xr}
+
+%% \usepackage{float} % this was already imported!
+\usepackage{longtable}
+\usepackage{tabularray} %MB: better package for tables <3
+
+% no hyphenation!!!
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=100000
+\hbadness=100000
+\usepackage{nicematrix}
+\usepackage{setspace}
+\usepackage{lipsum}
+\usepackage{gb4e} % for examples and glosses
+\noautomath % needed for gb4e to work with bibtex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{yourcolor}{HTML}{8a0e19}%{008bb2}
+
+\titleformat{\chapter}[display]
+{\normalfont\color{yourcolor}}
+{\filcenter\huge\color{black}\textsc\chaptertitlename\hspace*{2mm}%
+	\begin{tikzpicture}[baseline={([yshift=-.6ex]current bounding box.center)}]
+		\node[text=black] {\thechapter};
+	\end{tikzpicture}
+}
+{1ex}
+{\titlerule[1.5pt]\vspace*{1.5ex}\Huge\color{black}\textsc}
+[]
+
+\titleformat{name=\chapter,numberless}[display]
+{\normalfont\color{black}}
+{}
+{1ex}
+{\vspace*{-5cm}\Huge\textsc}
+[]
+
+\fancyhead{} % clear the headers
+\fancyhead[L]{\nouppercase{\leftmark}}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter\ -- #1}{}}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.7mm}}
+\newcommand{\Hrule}{\rule{\linewidth}{0.3mm}}
+
+%%%%%%%%%% Fonts!!
+
+\usepackage{fontspec}
+\defaultfontfeatures{Mapping=tex-text} % to support TeX conventions like ``---''
+\usepackage{xunicode} % Unicode support for LaTeX character names (accents, European chars, etc)
+\usepackage{graphicx}
+\usepackage{xltxtra} % Extra customizations for XeLaTeX
+
+%\setmainfont{professionalfonts}
+%\setmainfont{Charis SIL} 
+
+%\usepackage{libertinus}
+%\usepackage{ebgaramond}
+%\setmainfont{Garamond}
+
+\setmainfont{Libertinus Serif}
+\newfontfamily\IPA{Doulos SIL}
+
+\newfontfamily\typewriting{CMU Typewriter Text Regular}
+
+\makeatletter
+\renewcommand\tableofcontents{%
+	\@starttoc{toc}%
+}
+\makeatother
+\let\cleardoublepage=\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{secnumdepth}{3}
+
+\setcounter{tocdepth}{3}
+
+\begin{document}
+
+\newcommand{\mean}[2]{\textsl{#1} (meaning `#2')}
+
+	%% \begin{titlepage}
+	%% 	\begin{center}
+	%% 	  \includegraphics[height=2.2cm, width = 5cm]{images/PGSL.png}
+        %%           \includegraphics[height=1.7cm, width = 5cm]{images/SHS.jpg} 
+        %%           \hspace*{5pt}
+        %%           %\includegraphics[height=1.7cm, width = 5cm]{images/HTL.png}
+        %%           \includegraphics[height=1.7cm, width = 5cm]{images/LLF.jpg}
+	%% 	\end{center}
+		
+	%% 	\vspace*{10pt}
+		
+	%% 	\begin{center}
+	%% 		%this page reamins in French! Simply add the name of your discipline and strand.
+	%% 		% e.g., Sciences du langage, Parcours Linguistique Théorique et Expérimentale
+	%% 	  {\LARGE \textbf{AVERTISSEMENT}}
+	%% 	\end{center}
+		
+		
+	%% 	{\Large 
+	%% 	  Ce mémoire est le fruit d’un travail approuvé par le jury de soutenance et réalisé dans le but d’obtenir le diplôme de Master\textbf{ [Mention et Parcours à renseigner]}. Ce document est mis à disposition de l’ensemble de la communauté universitaire élargie.
+	%% 	  Il est soumis à la propriété intellectuelle de l’auteur. Ceci implique une obligation de citation et de référencement lors de l’utilisation de ce document.
+	%% 	  D’autre part, toute contrefaçon, plagiat, reproduction illicite encourt toute poursuite pénale.}
+	%% 	\vspace*{300pt}
+		
+	%% 	Code de la Propriété Intellectuelle. Articles L 122.4\\		
+	%% 	Code de la Propriété Intellectuelle. Articles L 335.2 - L 335.10
+	%% \end{titlepage}
+
+	\begin{titlepage}
+	  \begin{center}
+	    \includegraphics[width = 5cm]{images/PGSL.png}
+            \includegraphics[width = 5cm]{images/SHS.jpg} 
+            \hspace*{5pt}
+            \includegraphics[width = 5cm]{images/LLF.jpg}
+	  \end{center}
+	  \vspace*{10pt}
+	  \begin{center}
+	    {\Large \textbf{UNIVERSITÉ PARIS CITÉ}}\\
+	    \vspace*{10pt}
+		    {\large Faculté Sociétés et Humanités}\\
+		    \vspace*{10pt}
+			    {\large \textbf{UFR LINGUISTIQUE}}\\
+			    \vspace*{10pt}
+		            \textbf{	{\large Laboratoire de linguistique formelle (LLF)}}
+	  \end{center}
+	  \vfill
+	  \begin{center}
+	    \begin{tabular}{lr}
+	      Year 2026\\
+	    \end{tabular}		
+	    Thesis for the diploma \textbf{Master Sciences du langage: Theoretical and Experimental Linguistics and Phonetics}
+	    
+	    Presented and defended publicly on: \textbf{10 June 2026}
+	    
+	    \vspace*{20pt}
+	    By\\
+	    \vspace*{10pt}
+	    \textbf{		Magdalena BORYSIAK}
+	    \vfill
+		{ \Large \bfseries Hybrid gender agreement in Polish\\}
+		\vspace*{20pt}
+			{ \large Under the supervision of the Professor Anne Abeillé}
+			\vspace{1cm}
+	  \end{center}
+	  \vspace{1cm}
+	  \begin{center}
+	    JURY
+	  \end{center}
+	  \begin{center}
+	    \begin{tabular}{lll}
+	      Professor Lisa Brunetti & \hspace*{40pt} & President  \\				
+	      Professor Anne Abeillé  & \hspace*{40pt} & Supervisor  \\				
+	      Professor Olivier Bonami & \hspace*{40pt} & Expert  \\				
+	    \end{tabular}\\[1cm]
+	  \end{center}
+	  \newpage
+	\end{titlepage}
+	\pagestyle{fancy}
+	\fancyhead{}
+	\renewcommand{\chaptermark}[1]{\markboth{\textsc{#1}}{}}
+	\frontmatter
+
+	%% \input{Chapters/00_Acknowledgments.tex}
+        %% \input{Chapters/00_Abstract_FR.tex}
+	%% \input{Chapters/00_Abstract_EN.tex}
+	%% \input{Chapters/00_Abbreviations.tex}
+
+	\pagebreak
+
+	\tableofcontents{}
+	\addcontentsline{toc}{chapter}{Table of content}
+		
+	\mainmatter
+	
+	\setlength{\parskip}{.7em}
+	
+	\titlespacing*{\section}{0pt}{.9em}{.8em}
+	\renewcommand{\baselinestretch}{1.1}
+	
+	\fancyhead[RO]{\leftmark}
+	\fancyhead[LE]{\textsc{\chaptername~\thechapter}}
+	
+	% \input{Chapters/01_0_introduction.tex}
+
+	\input{Chapters/01_1_theoretical_background.tex}
+
+	\input{Chapters/01_2_corpus_study.tex}
+
+	\input{Chapters/01_3_experimental_study.tex}
+        
+	%% \input{Chapters/01_4_general_discussion.tex}
+
+        %% \input{Chapters/01_5_conclusions.tex}
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+	%% \part{References}
+        \phantomsection
+        \chapter*{Bibliography}
+        \addcontentsline{toc}{chapter}{Bibliography}
+        
+	\renewcommand{\bibsection}{}%to remove section in table of content
+	\makeatletter
+	\renewcommand\@biblabel[1]{}%to supress numbers
+	\makeatother
+	\vspace*{-40pt}
+	
+	%This is to supress URLs from the main bibliography!
+	\bibliographystyle{apacite}
+	\renewenvironment{APACrefURL}[1][]{}{}
+	\AtBeginEnvironment{APACrefURL}{\renewcommand{\url}[1]{}}
+	\renewcommand{\doiprefix}{doi:~\kern-1pt}
+	\def\bibfont{\scriptsize}
+	\bibliography{bibliography} % global bibliography
+
+	%% \renewcommand*\listfigurename{List of figures}
+	%% \listoffigures
+	%% \addcontentsline{toc}{chapter}{List of figures}
+	
+	%% \renewcommand*\listtablename{List of tables}
+	%% \listoftables
+	%% \addcontentsline{toc}{chapter}{List of tables}
+	
+	%% \input{Chapters/02_Annexes.tex}
+
+	%% \input{Chapters/02_Autorisations.tex}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% TeX-engine: xetex
+%%% End:
