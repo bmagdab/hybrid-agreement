@@ -9,10 +9,14 @@ output: html_document
 
 Importing necessary libraries:
 ```{r}
+library(lme4)
 library(dplyr)
 library(ggplot2)
 library(stringr)
-library(lme4)
+library(patchwork)
+library(xtable)
+library(data.table)
+library(ordinal)
 ```
 
 Loading data:
@@ -32,6 +36,8 @@ rm(list=setdiff(ls(), c("agrs", "profs")))
 I got some terminology mixed up when I was first preparing this dataset and I'm afraid changing it now will result in issues with code, so:
 - in this document words *source* and *controller* are used interchangeably, even though in the literature they mean different things
 - one type of agreement is called *predicative*, when I think it should be called *predicate*
+
+Up to here was saved as loaded.RData
 
 # Preparing data
 I will merge the dataframes for a moment to prepare all of the data for further work, then I will separate the profession nouns to do more specific work on them.
@@ -364,6 +370,8 @@ agrs %>%
                                    T ~ target_gender)) -> agrs
 ```
 
+Up to here was saved as cleared.RData
+
 # Double agreements in profession nouns
 *SKIP THIS SECTION FOR NOW*
 
@@ -598,6 +606,8 @@ Here I will filter the profession noun occurrences based on their appositions, s
 
 I need to mark missing appositions as NAs.
 ```{r}
+agrs %>% filter(source_cat == "profession") -> profs
+
 profs[profs==""] <- NA
 ```
 
@@ -710,9 +720,10 @@ agrs <- bind_rows(agrs, profs)
 rm(list=setdiff(ls(), "agrs"))
 ```
 
+Up to here was saved as filtered-prof.RData
 
 # Descriptive stats
-After all of the changes to the dataset I want to ensure that variables have correct types.
+Adjusting the types:
 ```{r}
 agrs %>% 
   mutate(type_of_text = as.factor(type_of_text),
@@ -763,6 +774,71 @@ agrs %>%
                                             target_gender == source_gram_gender ~ 0))) -> agrs
 ```
 
+```{r}
+agrs %>% 
+  group_by(semantic_agr) %>% 
+  count()
+```
+
+Some tables as an overview:
+```{r}
+# profession nouns
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "profession") %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr),
+            syn_n = n-sem_n) %>% 
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "")) %>% 
+  mutate(sem_prop = paste0(round(sem_n/n*100, 2), "%"),
+         syn_prop = paste0(round(syn_n/n*100, 2), "%")) %>% 
+  relocate(sem_prop, .after = sem_n) #%>% xtable()
+
+# gendered nouns
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "gendered") %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr),
+            syn_n = n-sem_n) %>% 
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "")) %>% 
+  mutate(sem_prop = paste0(round(sem_n/n*100, 2), "%"),
+         syn_prop = paste0(round(syn_n/n*100, 2), "%")) %>% 
+  relocate(sem_prop, .after = sem_n) #%>% xtable()
+
+# depreciative forms
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "depreciative") %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr),
+            syn_n = n-sem_n) %>% 
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "")) %>% 
+  mutate(sem_prop = paste0(round(sem_n/n*100, 2), "%"),
+         syn_prop = paste0(round(syn_n/n*100, 2), "%")) %>% 
+  relocate(sem_prop, .after = sem_n) #%>% xtable()
+
+# all nouns
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr),
+            syn_n = n-sem_n) %>% 
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "")) %>% 
+  mutate(sem_prop = paste0(round(sem_n/n*100, 2), "%"),
+         syn_prop = paste0(round(syn_n/n*100, 2), "%")) %>% 
+  relocate(sem_prop, .after = sem_n) #%>% xtable()
+```
+
+
 The hypotheses are the following:
 
 1. There is more semantic agreement with relative pronouns than with predicates and more predicate semantic agreement than attributive.
@@ -795,17 +871,17 @@ agrs %>%
        title = "Proportion of syntactic and semantic agreements in types of targets of agreement") +
   scale_fill_discrete(name = "Agreement",
                       labels = c("Syntactic", "Semantic")) + 
-  scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun"))
+  scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun")) -> semXtargets
+semXtargets
 
 agrs %>% 
-  ggplot(aes(x = source_cat, fill = semantic_agr)) + 
+  ggplot(aes(x = distance, fill = semantic_agr)) + 
   geom_bar(position = "fill") + 
-  labs(x = "Type of noun",
+  labs(x = "Agreement",
        y = "Proportion",
-       title = "Proportion of syntactic and semantic agreements in split and lexical hybrids") +
+       title = "Counts of syntactic and semantic agreements in different distances between target and source") +
   scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) + 
-  scale_x_discrete(labels = c("Depreciative", "Gendered", "Profession"))
+                      labels = c("Syntactic", "Semantic"))
 
 agrs %>% 
   ggplot(aes(x = target_first, fill = semantic_agr)) + 
@@ -814,11 +890,73 @@ agrs %>%
        y = "Proportion",
        title = "Proportion of syntactic and semantic agreements possible target-source orderings") +
   scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) + 
-  scale_x_discrete(labels = c("Target first", "Source first"))
+                      labels = c("Syntactic", "Semantic")) +
+  scale_x_discrete(labels = as_labeller(c(`0` = "Controller first", 
+                                          `1` = "Target first")))
 
 agrs %>% 
-  filter(distance < 28) %>% 
+  ggplot(aes(x = source_cat, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Type of noun",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements in split and lexical hybrids") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) +
+  scale_x_discrete(labels = as_labeller(c(`depreciative` = "Depreciative", 
+                                          `gendered` = "Gendered",
+                                          `profession` = "Profession")))
+
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  mutate(order = str_replace(order, "S", "C")) %>% 
+  ggplot(aes(x = order, fill = semantic_agr)) +
+  geom_bar(position = "fill") + 
+  labs(x = "Order of target-controller-apposition",
+       y = "Proportion", 
+       title = "Proportion of syntactic and semantic agreements with different orders") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) -> semXorder
+semXorder
+```
+The first plot references the first hypothesis, which is that the likelihood of semantic agreement follows the pattern attributive < predicate < relative pronoun. This tendency is not visible in the data, attributive and predicate agreement have almost the same proportion, but there is a jump in semantic agreement with relative pronouns.
+
+The second plot references the second hypothesis, which is that likelihood of semantic agreement increases with distance between the target and controller of agreement. This is somewhat visible in the plot, but maybe this should be modeled to see what is the tendency actually, because there are only `r (agrs %>% filter(distance == 9) %>% count())$n` occurrences with distance 9 and `r (agrs %>% filter(distance == 11) %>% count())$n` with distance 11.
+
+We also hypothesise that target before controller makes semantic agreement less likely and in the third plot there is a small difference in this direction.
+
+The fourth hypothesis is that lexical hybrids (here gendered nouns and profession nouns) have more semantic agreement than split hybrids (here depreciative forms). The fourth plot shows that one of the kinds of lexical hybrids, gendered nouns, have very little semantic agreement, then the split hybrids have some more and the other kind of lexical hybrids, profession nouns, have majority semantic agreement.
+
+There was no particular hypothesis about ordering of target-controller-apposition with profession nouns, but I suspected that apposition intervening between target and controller might make semantic agreement more likely. Here it looks like it might be about apposition appearing before controller. I think when this happens, speakers register the gender of the referent as the one from apposition and not from the hybrid noun and that's why semantic agreement is more likely there.
+
+```{r}
+png(file="../writing/M2/images/semXorder.png", 
+    width = 20,
+    height = 8,
+    units = "cm",
+    res = 500)
+
+semXorder & labs(title = NULL)
+
+dev.off()
+```
+
+Now I will filter out the profession nouns occurrences with orders where apposition appears before the controller and look at the same plots made from this subset of data.
+
+```{r}
+agrs %>% 
+  filter(!(order %in% c("AST", "ATS", "TAS"))) %>% 
+  ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Target of agreement",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements in types of targets of agreement") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun")) -> NOAPPsemXtargets
+NOAPPsemXtargets
+
+agrs %>% 
+  filter(!(order %in% c("AST", "ATS", "TAS"))) %>% 
   ggplot(aes(x = distance, fill = semantic_agr)) + 
   geom_bar(position = "fill") + 
   labs(x = "Agreement",
@@ -826,35 +964,222 @@ agrs %>%
        title = "Counts of syntactic and semantic agreements in different distances between target and source") +
   scale_fill_discrete(name = "Agreement",
                       labels = c("Syntactic", "Semantic"))
+
+agrs %>% 
+  filter(!(order %in% c("AST", "ATS", "TAS"))) %>% 
+  ggplot(aes(x = target_first, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Target-source order",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements possible target-source orderings") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) +
+  scale_x_discrete(labels = as_labeller(c(`0` = "Controller first", 
+                                          `1` = "Target first")))
+
+agrs %>% 
+  filter(!(order %in% c("AST", "ATS", "TAS"))) %>% 
+  ggplot(aes(x = source_cat, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  labs(x = "Type of noun",
+       y = "Proportion",
+       title = "Proportion of syntactic and semantic agreements in split and lexical hybrids") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) +
+  scale_x_discrete(labels = as_labeller(c(`depreciative` = "Depreciative", 
+                                          `gendered` = "Gendered",
+                                          `profession` = "Profession")))
+```
+Very different results, but I removed a the majority of profession noun occurrences, which I didn't have many anyways. I just need to remember to include order as a factor in my models.
+
+Facet grid just to better see how the order affects proportions for different targets.
+```{r}
+agrs %>% 
+  ggplot(aes(x = order, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  facet_grid(rows = vars(type_of_agreement)) + 
+  labs(x = "Order",
+       y = "Proportion",
+       title = "Proportions of syntactic and semantic agreements depending on the order and the target of agreement") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic"))
+```
+Some apparent differences for types of agreement can be explained by ordering with profession nouns.
+
+I will mutate a new factor that tells me if apposition appears before the controller.
+```{r}
+agrs %>% 
+  mutate(appos_first = as.factor(ifelse(order %in% c("AST", "ATS", "TAS"), 1, 0))) -> agrs
 ```
 
-It's interesting that for attribute and predicate agreement the proportion is almost the same, and much higher for relative pronouns and that there are such differences between different noun types. I want to look into that.
+I need a table of occurrences of semantic agreement with these excluded.
+```{r}
+agrs %>% 
+  filter(appos_first == 0) %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "profession") %>% 
+  group_by(type_of_agreement) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr),
+            syn_n = n-sem_n) %>% 
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "")) %>% 
+  mutate(sem_prop = paste0(round(sem_n/n*100, 2), "%"),
+         syn_prop = paste0(round(syn_n/n*100, 2), "%")) %>% 
+  relocate(sem_prop, .after = sem_n) %>% xtable()
+```
+
+
+
+I want to cross ordering of target and controller with types of agreement.
 ```{r}
 agrs %>% 
   ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
   geom_bar(position = "fill") + 
-  facet_grid(rows = vars(source_cat)) + 
+  facet_grid(rows = vars(target_first), 
+             labeller = as_labeller(c(`0` = "Controller first", 
+                                      `1` = "Target first"))) + 
   labs(x = "Target of agreement",
        y = "Proportion",
-       title = "Proportions of syntactic and semantic agreements depending on the type of agreement and type of noun") +
+       title = "Proportions of syntactic and semantic agreements depending on the type of agreement and ordering") +
   scale_fill_discrete(name = "Agreement",
                       labels = c("Syntactic", "Semantic")) + 
   scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun"))
 ```
-There is actually a monotonous change in profession nouns! And in the more likely direction!
+When the target follows the controller, the likelihood of semantic agreement increases along the Agreement Hierarchy. It's difficult to say what exactly happens when the target is first, because it's impossible to have the target first with relative pronouns, however it doesn't seem to be following Corbett's predictions.
 
-There's barely anything happening with gendered nouns.
+I want to also see proportions of semantic agreement with both types of nouns and ordering.
 ```{r}
 agrs %>% 
-  filter(source_cat == "gendered") %>% 
-  group_by(type_of_agreement, semantic_agr) %>% 
-  count()
+  ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  facet_grid(rows = vars(source_cat),
+             cols = vars(target_first), 
+             labeller = as_labeller(c(`0` = "Controller first", 
+                                      `1` = "Target first",
+                                      `depreciative` = "Depreciative forms",
+                                      `gendered` = "Gendered nouns",
+                                      `profession` = "Profession nouns"))) + 
+  labs(x = "Target of agreement",
+       y = "Proportion",
+       title = "Proportions of syntactic and semantic agreements") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = as_labeller(c(`attributive` = "Attributive", 
+                                          `predicative` = "Predicate", 
+                                          `relpron` = "Relative pronoun")))
+```
+Any monotonicity I could see in the plot for ordering is overshadowed by the effect of types of nouns.
+
+```{r}
+agrs %>% 
+  ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  facet_grid(rows = vars(source_cat),
+             labeller = as_labeller(c(`depreciative` = "Depreciative forms",
+                                      `gendered` = "Gendered nouns",
+                                      `profession` = "Profession nouns"))) + 
+  labs(x = "Target of agreement",
+       y = "Proportion",
+       title = "Proportions of syntactic and semantic agreements in noun types and in types of agreement") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(labels = as_labeller(c(`attributive` = "Attributive", 
+                                          `predicative` = "Predicate", 
+                                          `relpron` = "Relative pronoun"))) -> semXtargetsXnouns
+semXtargetsXnouns
 ```
 
+```{r}
+png(file="../writing/M2/images/semXtargetsXnouns.png", 
+    width = 20,
+    height = 12,
+    units = "cm",
+    res = 500)
+
+(semXtargets | semXtargetsXnouns) + plot_layout(guides = "collect", axes = "collect") & labs(title = NULL)
+
+dev.off()
+```
+
+```{r}
+agrs %>% 
+  filter(!(order %in% c("AST", "ATS", "TAS"))) %>% 
+  ggplot(aes(x = type_of_agreement, fill = semantic_agr)) + 
+  geom_bar(position = "fill") + 
+  facet_grid(rows = vars(source_cat),
+             labeller = as_labeller(c(`depreciative` = "Depreciative forms",
+                                      `gendered` = "Gendered nouns",
+                                      `profession` = "Profession nouns"))) + 
+  labs(x = "Target of agreement",
+       y = "Proportion",
+       title = "Proportions of syntactic and semantic agreements in noun types and in types of agreement") +
+  scale_fill_discrete(name = "Agreement",
+                      labels = c("Syntactic", "Semantic")) + 
+  scale_x_discrete(
+    labels = as_labeller(c(`attributive` = "Attributive", 
+                           `predicative` = "Predicate", 
+                           `relpron` = "Relative pronoun"))) -> NOAPPsemXtargetsXnouns
+NOAPPsemXtargetsXnouns
+```
+```{r}
+png(file="../writing/M2/images/NOAPPsemXtargetsXnouns.png", 
+    width = 20,
+    height = 12,
+    units = "cm",
+    res = 500)
+
+(NOAPPsemXtargets | NOAPPsemXtargetsXnouns) + plot_layout(guides = "collect", axes = "collect") & labs(title = NULL)
+
+dev.off()
+```
+
+What about distance with ordering? Below a plot with proportions of semantic agreement for different distances with target before and after the controller in different types of agreement.
+```{r}
+(
+# left column
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         target_first = as.numeric(levels(target_first))[target_first],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  group_by(target_first, type_of_agreement, distance) %>% 
+  summarise(prop = sum(semantic_agr)/n()) %>% 
+  ungroup() %>% 
+  mutate(synt_prop = 1-prop) %>% 
+  add_row(target_first = 1, type_of_agreement = "relpron", distance = 0:12, prop = 0) %>% 
+  mutate(target_first = as.factor(target_first),
+         type_of_agreement = as.factor(type_of_agreement)) %>% 
+  filter(target_first == 1) %>% 
+  ggplot(aes(x = distance)) +
+  geom_col(aes(y = synt_prop+prop, fill = "A")) +
+  geom_col(aes(y = prop, fill = "B")) +
+  facet_grid(rows = vars(type_of_agreement)) +
+  theme(strip.text = element_blank()) +
+  scale_x_reverse() + guides(fill = "none")
+|
+# right column
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         target_first = as.numeric(levels(target_first))[target_first],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  group_by(target_first, type_of_agreement, distance) %>% 
+  summarise(prop = sum(semantic_agr)/n()) %>% 
+  ungroup() %>% 
+  mutate(synt_prop = 1-prop) %>% 
+  add_row(target_first = 1, type_of_agreement = "relpron", distance = 0:12, prop = 0) %>% 
+  mutate(target_first = as.factor(target_first),
+         type_of_agreement = as.factor(type_of_agreement)) %>% 
+  filter(target_first == 0) %>% 
+  ggplot(aes(x = distance)) +
+  geom_col(aes(y = synt_prop+prop, fill = "A")) +
+  geom_col(aes(y = prop, fill = "B")) +
+  facet_grid(rows = vars(type_of_agreement)) + 
+  guides(fill = "none")
+) + plot_layout(axes = "collect")
+```
 
 # Statistical modelling
-
-I need to relevel the factors for statistical modelling later.
+I need to relevel the factors for statistical modelling.
 ```{r}
 agrs %>% 
   mutate(type_of_agreement = relevel(type_of_agreement, ref = "predicative"),
@@ -862,3 +1187,338 @@ agrs %>%
          source_cat = relevel(source_cat, ref = "depreciative"),
          semantic_agr = relevel(semantic_agr, ref = "0")) -> agrs
 ```
+
+Up to here was saved as for-modeling.RData
+
+## General model
+```{r}
+glmer(semantic_agr ~ type_of_agreement + distance + target_first + source_cat + appos_first + (1|type_of_text),
+    family = binomial(link = "logit"), 
+    data = agrs) -> gen.max.old.m
+summary(gen.max.old.m)
+```
+I realized I should recode appos_first, because it gives 0 to occurrences without any apposition and to occurrences with apposition after the controller, which are actually different.
+
+```{r}
+agrs %>% 
+  mutate(appos_first = as.numeric(ifelse(source_cat == "profession" & appos_first == 0, 0.5, appos_first))) %>% 
+  glmer(semantic_agr ~ type_of_agreement + distance + target_first + source_cat + appos_first + (1|type_of_text),
+    family = binomial(link = "logit"),
+    data = .) -> gen.max.m
+summary(gen.max.m)
+```
+Effect of variables:
+1. attributive agreement is less likely to be semantic than predicate; NOT significant
+2. relative pronoun agreement is less likely to be semantic than predicate; NOT significant
+3. larger distance increases likelihood of semantic agreement; NOT significant
+4. target being after controller increases likelihood of semantic agreement; signif. at p<0.001
+5. socially gendered nouns are less likely to have semantic agreement than depreciative forms; significant at p<0.001
+6. profession nouns are more likely to have semantic agreement than depreciative forms; significant at p<0.001
+7. apposition appearing before the controller of agreement increases the likelihood of semantic agreement; significant at p<0.001
+
+4 and 6 aligns with the literature
+5 doesn't align with the literature
+7 aligns with my personal predictions when I was coding this
+
+For the purpose of finding the smallest fitting model I need to compute a model without random effects.
+```{r}
+glm(semantic_agr ~ type_of_agreement + distance + target_first + source_cat + appos_first,
+    family = binomial(link = "logit"), 
+    data = agrs %>% 
+  mutate(appos_first = as.numeric(ifelse(source_cat == "profession" & appos_first == 0, 0.5, appos_first)))) -> gen.nore.m
+summary(gen.nore.m)
+```
+It's very similar to the model with random effects!
+
+Now I want to see what's the best model for this data.
+```{r}
+step(gen.nore.m, direction = "backward") -> gen.bw.m
+gen.bw.m
+```
+So the best model for this data should be the following:
+```{r}
+agrs %>% 
+  mutate(appos_first = as.numeric(ifelse(source_cat == "profession" & appos_first == 0, 0.5, appos_first))) %>% 
+glmer(semantic_agr ~ target_first + source_cat + appos_first + (1|type_of_text),
+    family = binomial(link = "logit"), 
+    data = .) -> gen.min.m
+summary(gen.min.m)
+```
+Let's just compare the maximum and minimum models.
+```{r}
+anova(gen.max.m, gen.min.m)
+```
+I suppose it's not too much better. For now I'm gonna only report the maximum model.
+
+Trying to plot the results of the model, but I don't understand this fully for now. (OR is odds ratio, so maybe I can figure this out!)
+```{r}
+ggstats::ggcoef_model(gen.max.m, exponentiate = T)
+```
+
+## Profession nouns model
+```{r}
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  glm(semantic_agr ~ type_of_agreement + distance + target_first + appos_first, 
+      family = binomial(link = "logit"), data = .) -> prof.m
+summary(prof.m)
+```
+Effect of variables:
+1. attributive agreement more likely to be semantic than predicate agreement; signif. at p<0.05
+2. relative pronoun agreement more likely to be semantic than predicate agreement; significant at p<0.05
+3. larger distance increases likelihood of semantic agreement; NOT significant
+4. target after controller increases likelihood of semantic agreement; NOT significant
+5. apposition before the controller increases likelihood of semantic agreement; signif. at p<0.001
+
+2 aligns with the literature
+1 doesn't align with the literature
+5 aligns with my personal predictions when I was coding this
+
+I should see if this model is better or the one based on order instead of appos_first.
+```{r}
+agrs %>% 
+  filter(source_cat == "profession") %>% 
+  glm(semantic_agr ~ type_of_agreement + distance + target_first + order, 
+      family = binomial(link = "logit"), data = .) -> prof.ord.m
+summary(prof.ord.m)
+```
+This one has one coefficient not defined because of singularities, so I assume this one is worse.
+
+## Gendered nouns model
+```{r}
+agrs %>% 
+  filter(source_cat == "gendered") %>% 
+  glm(semantic_agr ~ type_of_agreement + distance + target_first, 
+      family = binomial(link = "logit"), data = .) -> gend.m
+summary(gend.m)
+```
+Effect of variables:
+1. attributive agreement more likely to be semantic than predicate agreement; NOT significant
+2. relative pronoun agreement less likely to be semantic than predicate agreement; NOT significant
+3. larger distance increases likelihood of semantic agreement; significant at p<0.05
+4. target after controller increases likelihood of semantic agreement; NOT significant
+
+Kind of useless, the only significant predictor is the distance.
+
+## Depreciative forms model
+```{r}
+agrs %>% 
+  filter(source_cat == "depreciative") %>% 
+  glm(semantic_agr ~ type_of_agreement + distance + target_first, 
+      family = binomial(link = "logit"), data = .) -> depr.m
+summary(depr.m)
+```
+Effect of variables:
+1. attributive agreement less likely to be semantic than predicate agreement; NOT significant
+2. relative pronoun agreement less likely to be semantic than predicate agreement; NOT significant
+3. larger distance decreases likelihood of semantic agreement; NOT significant
+4. target after controller increases likelihood of semantic agreement; significant at p<0.001
+
+The only significant predictor is the target-controller ordering: target after controller increases likelihood of semantic agreement (significant at p<0.001).
+
+# Experimental results
+Loading data
+```{r}
+list.files("./results/depr/", pattern = "*.csv") -> filenames
+ldf <- lapply(paste0("./results/depr/", filenames), read.csv)
+rbindlist(ldf) -> depr
+depr %>% 
+  mutate(study = "depr") -> depr
+
+list.files("./results/prof/", pattern = "*.csv") -> filenames
+ldf <- lapply(paste0("./results/prof/", filenames), read.csv)
+rbindlist(ldf) -> prof
+prof %>% 
+  mutate(study = "prof") -> prof
+
+exper <- rbind(depr, prof)
+rm(filenames, ldf, depr, prof)
+exper %>% filter(condition != "") -> exper
+```
+
+Getting the demographic data in a separate dataframe
+COŚ NIETAK TUTAJ
+```{r}
+exper %>% 
+  filter(grepl("age", response)) %>% 
+  select(id, subject_id, study, response) %>% 
+  rowwise() %>% 
+  mutate(age = as.numeric(str_extract(response, '(?<=age\":\")\\d+')),
+         gender = str_extract(response, '(?<=gender\":\").+(?=\",\"languages)'),
+         languages = str_extract(response, '(?<=languages\":\").+(?=\",\")'),
+         country = str_extract(response, '(?<=country\":\").+(?=\")')) %>% 
+  mutate(gender = case_when(str_starts(gender, "m|M") ~ "m",
+                            str_starts(gender, "k|K|ż") ~ "f"),
+         languages = ifelse(str_detect(languages, "^\\w+$", negate = T), 
+                            languages,
+                            ifelse(str_detect(languages, "pol|Pol"), "PL", languages)),
+         country = ifelse(str_detect(country, "^\\w+$"), 
+                          ifelse(str_detect(country, "pol|Pol"), "PL", country),
+                          ifelse(str_detect(country, "W Pol"), "PL", country))) -> demo
+```
+
+How many participants didn't speak only Polish or grew up in places other than Poland?
+```{r}
+demo %>% 
+  filter(languages != "PL" | country != "PL")
+```
+Very few of them, I can filter them out.
+```{r}
+demo %>% 
+  filter(languages != "PL" | country != "PL") %>% 
+  select(id) -> to_rem
+
+exper %>% 
+  filter(!(id %in% to_rem$id)) -> exper
+
+# STH WRONG HERE
+demo %>% 
+  filter(!(id %in% to_rem$id)) -> demo
+rm(to_rem)
+```
+
+The demographic data looks fine now, I can remove some columns.
+```{r}
+demo %>% 
+  select(id, age, gender) -> demo
+```
+
+Recoding ages to have groups instead of exact numbers.
+```{r}
+demo %>% 
+  mutate(age = ifelse(age < 31, "18-30", ifelse(age > 50, "51+", "31-50"))) -> demo
+
+demo %>% group_by(age, gender) %>% count()
+```
+
+Percentage of correct answers to CQs per participant
+```{r}
+exper %>% 
+  mutate(response = ifelse(response == 0, 1, ifelse(response == 1, 0, response)),
+         correct = case_when(correct == "tak" ~ 1,
+                             correct == "nie" ~ 0),
+         pass = ifelse(response == correct, 1, 0)) %>% 
+  group_by(id) %>% 
+  summarise(QCscore = paste0(round(sum(pass, na.rm = T)/60*100, 2), "%"))
+```
+
+Average acceptability ratings per experiment and per condition.
+```{r}
+exper %>%
+  filter(!(condition %in% c("null", "incorrect", "correct", ""))) %>% 
+  filter(str_detect(response, "\\{")) %>%
+  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
+         semantic = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ 1,
+                                        str_starts(condition, "m") & study == "prof" ~ 0,
+                                        str_starts(condition, "f") & study == "depr" ~ 0,
+                                        str_starts(condition, "m") & study == "depr" ~ 1)),
+         condition = str_extract(condition, "(?<=-)\\w+")) %>% 
+  group_by(condition, study, semantic) %>% 
+  summarise(rating = mean(rating))
+
+exper %>%
+  filter(!(condition %in% c("null", "incorrect", "correct", ""))) %>% 
+  filter(str_detect(response, "\\{")) %>%
+  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
+         semantic = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ 1,
+                                        str_starts(condition, "m") & study == "prof" ~ 0,
+                                        str_starts(condition, "f") & study == "depr" ~ 0,
+                                        str_starts(condition, "m") & study == "depr" ~ 1)),
+         condition = str_extract(condition, "(?<=-)\\w+")) %>% 
+  group_by(condition, study, semantic) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = semantic)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(study))
+```
+
+Average acceptability ratings of control items.
+```{r}
+exper %>% 
+  filter(condition %in% c("correct", "incorrect")) %>% 
+  filter(str_detect(response, "\\{")) %>%
+  group_by(condition) %>% 
+  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1) %>% 
+  summarise(mean(rating))
+```
+
+This will be useful later:
+```{r}
+exper %>% 
+  filter(correct == "") %>% 
+  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
+         type = as.factor(ifelse(condition == "null", 
+                                 "distractor", 
+                                 ifelse(item == "null",
+                                        "control",
+                                        "experimental"))),
+         semantic = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ 1,
+                                        str_starts(condition, "m") & study == "prof" ~ 0,
+                                        str_starts(condition, "f") & study == "depr" ~ 0,
+                                        str_starts(condition, "m") & study == "depr" ~ 1)),
+         condition = as.factor(str_extract(condition, "(?<=-)\\w+"))) -> exper
+```
+
+
+Did any of the participants rate all of the sentences with depreciative forms 1, but other items higher?
+```{r}
+exper %>% 
+  group_by(id, type) %>% 
+  summarise(min = min(rating), avg = mean(rating), max = max(rating)) %>% 
+  filter(type == "experimental" & max == 1)
+```
+There were two participants who had the minimum, average and maximum rating equal to 1, I will look into their data.
+```{r}
+exper %>% 
+  filter(id == "wvb2ar") %>% 
+  group_by(type) %>% 
+  summarise(min = min(rating), avg = mean(rating), max = max(rating))
+```
+They rated all my depreciative forms 1!!! what do i do!?
+
+Data for modeling: DOESNT WORK YET
+```{r}
+exper %>% 
+  filter(type == "experimental") %>% 
+  select(id, trial_index, time_elapsed, item, condition, semantic, study, rating) %>% 
+  mutate(condition = relevel(condition, ref = "pre"),
+         semantic = relevel(semantic, ref = "0"),
+         study = relevel(study, ref = "depr"),
+         rating = relevel(rating, ref = 1)) -> mod
+```
+
+I will try a model?
+```{r}
+mod %>% 
+  clmm(rating ~ study + condition + (1|trial_index) + (1|item) + (1|id),
+       data = .) -> model
+summary(model)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
