@@ -1333,11 +1333,10 @@ prof %>%
 
 exper <- rbind(depr, prof)
 rm(filenames, ldf, depr, prof)
-exper %>% filter(condition != "") -> exper
 ```
 
-Getting the demographic data in a separate dataframe
-COŚ NIETAK TUTAJ
+## Demographic data
+Getting the demographic data in a separate dataframe.
 ```{r}
 exper %>% 
   filter(grepl("age", response)) %>% 
@@ -1371,7 +1370,6 @@ demo %>%
 exper %>% 
   filter(!(id %in% to_rem$id)) -> exper
 
-# STH WRONG HERE
 demo %>% 
   filter(!(id %in% to_rem$id)) -> demo
 rm(to_rem)
@@ -1387,94 +1385,100 @@ Recoding ages to have groups instead of exact numbers.
 ```{r}
 demo %>% 
   mutate(age = ifelse(age < 31, "18-30", ifelse(age > 50, "51+", "31-50"))) -> demo
-
-demo %>% group_by(age, gender) %>% count()
 ```
 
+## Cleaning the main dataframe
+Creating a separate dataframe for comprehension question responses, so that I can include them in the full dataframe later.
+```{r}
+exper %>% 
+  filter(condition != "" & trial_type == "html-button-response") %>% 
+  select(id, trial_index, response, correct) %>% 
+  mutate(CQid = id,
+         CQtrial_index = trial_index,
+         response = ifelse(response == 0, 1, ifelse(response == 1, 0, response)),
+         correct = case_when(correct == "tak" ~ 1,
+                             correct == "nie" ~ 0),
+         CQcorrect = ifelse(response == correct, 1, 0)) %>% 
+  select(!c(response, correct, id, trial_index)) -> CQresponses
+```
+
+Removing the rows without acceptability judgements, removing unnecessary columns, mutating new columns and rearranging them.
+```{r}
+exper %>% 
+  filter(condition != "" & trial_type == "survey-likert") %>% 
+  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
+         trial_type = as.factor(ifelse(condition == "null", 
+                                       "distractor", 
+                                       ifelse(item == "null",
+                                              "control",
+                                              "experimental"))),
+         agreement = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ "semantic",
+                                         str_starts(condition, "m") & study == "prof" ~ "syntactic",
+                                         str_starts(condition, "f") & study == "depr" ~ "syntactic",
+                                         str_starts(condition, "m") & study == "depr" ~ "semantic")),
+         condition = as.factor(ifelse(trial_type == "experimental", 
+                                      str_extract(condition, "(?<=-)\\w+"), 
+                                      condition)),
+         CQcorrect = (CQresponses %>% filter(CQid == id & CQtrial_index == trial_index+1))$CQcorrect,
+         noun = as.factor(study),
+         id = as.factor(id),
+         group = as.factor(group),
+         item = as.factor(item),
+         subject_id = as.factor(subject_id)) %>% 
+  select(time_elapsed, id, trial_index, trial_type, group, item, condition, 
+         agreement, noun, rating, rt, CQcorrect, stimulus, subject_id) -> exper
+rm(CQresponses)
+```
+
+## Descriptive stats
 Percentage of correct answers to CQs per participant
 ```{r}
 exper %>% 
-  mutate(response = ifelse(response == 0, 1, ifelse(response == 1, 0, response)),
-         correct = case_when(correct == "tak" ~ 1,
-                             correct == "nie" ~ 0),
-         pass = ifelse(response == correct, 1, 0)) %>% 
   group_by(id) %>% 
-  summarise(QCscore = paste0(round(sum(pass, na.rm = T)/60*100, 2), "%"))
-```
-
-Average acceptability ratings per experiment and per condition.
-```{r}
-exper %>%
-  filter(!(condition %in% c("null", "incorrect", "correct", ""))) %>% 
-  filter(str_detect(response, "\\{")) %>%
-  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
-         semantic = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ 1,
-                                        str_starts(condition, "m") & study == "prof" ~ 0,
-                                        str_starts(condition, "f") & study == "depr" ~ 0,
-                                        str_starts(condition, "m") & study == "depr" ~ 1)),
-         condition = str_extract(condition, "(?<=-)\\w+")) %>% 
-  group_by(condition, study, semantic) %>% 
-  summarise(rating = mean(rating))
-
-exper %>%
-  filter(!(condition %in% c("null", "incorrect", "correct", ""))) %>% 
-  filter(str_detect(response, "\\{")) %>%
-  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
-         semantic = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ 1,
-                                        str_starts(condition, "m") & study == "prof" ~ 0,
-                                        str_starts(condition, "f") & study == "depr" ~ 0,
-                                        str_starts(condition, "m") & study == "depr" ~ 1)),
-         condition = str_extract(condition, "(?<=-)\\w+")) %>% 
-  group_by(condition, study, semantic) %>% 
-  summarise(rating = mean(rating)) %>% 
-  ggplot(aes(x = condition, y = rating, fill = semantic)) +
-  geom_col(position = "dodge") +
-  facet_grid(cols = vars(study))
+  summarise(QCscore = paste0(round(sum(CQcorrect, na.rm = T)/60*100, 2), "%"))
 ```
 
 Average acceptability ratings of control items.
 ```{r}
 exper %>% 
-  filter(condition %in% c("correct", "incorrect")) %>% 
-  filter(str_detect(response, "\\{")) %>%
+  filter(trial_type == "control") %>% 
   group_by(condition) %>% 
-  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1) %>% 
   summarise(mean(rating))
 ```
-
-This will be useful later:
-```{r}
-exper %>% 
-  filter(correct == "") %>% 
-  mutate(rating = as.numeric(str_extract(response, "\\d(?=\\})"))+1,
-         type = as.factor(ifelse(condition == "null", 
-                                 "distractor", 
-                                 ifelse(item == "null",
-                                        "control",
-                                        "experimental"))),
-         semantic = as.factor(case_when(str_starts(condition, "f") & study == "prof" ~ 1,
-                                        str_starts(condition, "m") & study == "prof" ~ 0,
-                                        str_starts(condition, "f") & study == "depr" ~ 0,
-                                        str_starts(condition, "m") & study == "depr" ~ 1)),
-         condition = as.factor(str_extract(condition, "(?<=-)\\w+"))) -> exper
-```
-
 
 Did any of the participants rate all of the sentences with depreciative forms 1, but other items higher?
 ```{r}
 exper %>% 
-  group_by(id, type) %>% 
+  filter(noun == "depr") %>% 
+  group_by(id, trial_type) %>% 
   summarise(min = min(rating), avg = mean(rating), max = max(rating)) %>% 
-  filter(type == "experimental" & max == 1)
-```
-There were two participants who had the minimum, average and maximum rating equal to 1, I will look into their data.
-```{r}
+  filter(trial_type == "experimental" & max == 1)
+
 exper %>% 
-  filter(id == "wvb2ar") %>% 
-  group_by(type) %>% 
+  filter(noun == "depr") %>% 
+  filter(id == "6dly03" | id == "wvb2ar") %>% 
+  group_by(id, trial_type) %>% 
   summarise(min = min(rating), avg = mean(rating), max = max(rating))
 ```
 They rated all my depreciative forms 1!!! what do i do!?
+
+Average acceptability ratings per experiment and per condition.
+```{r}
+exper %>%
+  filter(trial_type == "experimental") %>% 
+  group_by(condition, noun, agreement) %>% 
+  summarise(rating = mean(rating))
+
+exper %>%
+  filter(trial_type == "experimental") %>% 
+  group_by(condition, noun, agreement) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(noun))
+```
+
+## Statistical modeling
 
 Data for modeling: DOESNT WORK YET
 ```{r}
