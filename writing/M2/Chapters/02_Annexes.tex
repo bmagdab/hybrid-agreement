@@ -1,0 +1,79 @@
+\phantomsection
+\chapter*{Appendices}\label{chap:Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
+
+\begin{table}[H]
+  \centering
+  \begin{tblr}
+    {vlines, hlines,
+    row{1} = {gray8},
+    column{1} = {gray8}}
+    & Estimate & Std. error & Z value & Pr(>|z|) \\
+    Intercept & -5.99309 & 0.49265 & -12.165 & < 2e-16 ***\\
+    Attributive agreement & -0.36675 & 0.22379 & -1.639 & 0.101\\
+    Rel. pronoun agreement & -0.34526 & 0.33058 & -1.044 & 0.296\\
+    Distance & 0.02303 & 0.03811 & 0.604 & 0.546\\
+    Controller before target & 0.97644 & 0.21494 & 4.543 & 5.55e-06 ***\\
+    Gendered noun & -1.90220 & 0.28967 & -6.567 & 5.14e-11 ***\\
+    Profession noun & 1.81877 & 0.32474 & 5.601 & 2.14e-08 ***\\
+    Appos. before controller & 4.22701 & 0.42209 & 10.015 & < 2e-16 ***\\
+  \end{tblr}
+  \caption{Coefficients of the mixed effects logistic regression model using occurrences with nouns of all types from the corpus study.\\
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
+  \label{tab:coef-all}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tblr}
+    {vlines, hlines,
+    row{1} = {gray8},
+    column{1} = {gray8}}
+    & Estimate & Std. error & Z value & Pr(>|z|) \\
+    Intercept & -5.1604 & 1.4187 & -3.638 & 0.000275 ***\\
+    Attributive agreement & 2.7827 & 1.2596 & 2.209 & 0.027158 *\\
+    Rel. pronoun agreement & 3.2520 & 1.3174 & 2.469 & 0.013566 *\\
+    Distance & 0.3212 & 0.2448 & 1.312 & 0.189503\\
+    Controller before target & 0.9457 & 0.9044 & 1.046 & 0.295722\\
+    Appos. before controller & 5.7027 & 0.7131 & 7.997 & 1.27e-15 ***\\
+  \end{tblr}
+  \caption{Coefficients of the mixed effects logistic regression model using occurrences with profession nouns from the corpus study.\\
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
+  \label{tab:coef-prof}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tblr}
+    {vlines, hlines,
+    row{1} = {gray8},
+    column{1} = {gray8}}
+    & Estimate & Std. error & Z value & Pr(>|z|) \\
+    Intercept & -4.6244 & 0.9319 & -4.962 & 6.97e-07 ***\\
+    Attributive agreement & 0.8582 & 0.8527 & 1.006 & 0.314223 \\
+    Rel. pronoun agreement & -14.7725 & 1124.8988 & -0.013 & 0.989522\\
+    Distance & 0.4417 & 0.1220 & 3.619 & 0.000295 ***\\
+    Controller before target & 0.2693 & 0.6813 & 0.395 & 0.692599\\
+  \end{tblr}
+  \caption{Coefficients of the mixed effects logistic regression model using occurrences with semantically gendered nouns from the corpus study.\\
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
+  \label{tab:coef-gend}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tblr}
+    {vlines, hlines,
+    row{1} = {gray8},
+    column{1} = {gray8}}
+    & Estimate & Std. error & Z value & Pr(>|z|) \\
+    Intercept & -1.85889 & 0.23869 & -7.788 & 6.82e-15 ***\\
+    Attributive agreement & -0.47954 & 0.24973 & -1.920 & 0.0548 .\\
+    Rel. pron agreement & -0.61260 & 0.38700 & -1.583 & 0.1134\\
+    Distance & -0.03910 & 0.04125 & -0.948 & 0.3432\\
+    Controller before target & 1.07946 & 0.24116 & 4.476 & 7.60e-06 ***\\
+  \end{tblr}
+  \caption{Coefficients of the mixed effects logistic regression model using occurrences with depreciative forms from the corpus study.\\
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
+  \label{tab:coef-depr}
+\end{table}
