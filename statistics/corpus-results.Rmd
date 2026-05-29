@@ -12,6 +12,7 @@ Importing necessary libraries:
 library(lme4)
 library(dplyr)
 library(ggplot2)
+library(wesanderson)
 library(stringr)
 library(patchwork)
 library(xtable)
@@ -1200,6 +1201,7 @@ summary(gen.max.old.m)
 ```
 I realized I should recode appos_first, because it gives 0 to occurrences without any apposition and to occurrences with apposition after the controller, which are actually different.
 
+-1 0 1 instead!
 ```{r}
 agrs %>% 
   mutate(appos_first = as.numeric(ifelse(source_cat == "profession" & appos_first == 0, 0.5, appos_first))) %>% 
@@ -1236,6 +1238,10 @@ Now I want to see what's the best model for this data.
 step(gen.nore.m, direction = "backward") -> gen.bw.m
 gen.bw.m
 ```
+
+try loo_compare for model comparisons
+
+glmercontrol optimex package for singulatrity
 So the best model for this data should be the following:
 ```{r}
 agrs %>% 
@@ -1379,7 +1385,7 @@ rm(to_rem)
 The demographic data looks fine now, I can remove some columns.
 ```{r}
 demo %>% 
-  select(id, age, gender) -> demo
+  select(id, study, age, gender) -> demo
 ```
 
 Recoding ages to have groups instead of exact numbers.
@@ -1431,6 +1437,14 @@ exper %>%
 rm(CQresponses)
 ```
 
+Add demo back to exper
+```{r}
+exper %>% 
+  rowwise() %>% 
+  mutate(age = demo[which(demo$id == id), ]$age,
+         gender = demo[which(demo$id == id), ]$gender) -> exper
+```
+
 ## Descriptive stats
 Percentage of correct answers to CQs per participant
 ```{r}
@@ -1447,6 +1461,21 @@ exper %>%
   summarise(mean(rating))
 ```
 
+Did all participants rate ungrammatical below grammatical?
+```{r}
+exper %>% 
+  filter(trial_type == "control") %>% 
+  group_by(id, condition) %>% 
+  summarise(m_rating = mean(rating)) %>% 
+  tidyr::spread(condition, m_rating) %>% 
+  mutate(gram_rating = correct,
+         ungram_rating = incorrect,
+         correct = ifelse(gram_rating > ungram_rating, 1, 0)) %>% 
+  select(!(incorrect)) %>% 
+  filter(correct == 0)
+```
+Yes!
+
 Did any of the participants rate all of the sentences with depreciative forms 1, but other items higher?
 ```{r}
 exper %>% 
@@ -1461,7 +1490,10 @@ exper %>%
   group_by(id, trial_type) %>% 
   summarise(min = min(rating), avg = mean(rating), max = max(rating))
 ```
-They rated all my depreciative forms 1!!! what do i do!?
+They rated all my depreciative forms 1!!! what do i do!? exclude!
+```{r}
+exper %>% filter(!(id == "6dly03" | id == "wvb2ar")) -> exper
+```
 
 Average acceptability ratings per experiment and per condition.
 ```{r}
@@ -1477,6 +1509,7 @@ exper %>%
 
 exper %>%
   filter(trial_type == "experimental") %>% 
+  mutate(condition == factor(condition)) %>% 
   group_by(condition, noun, agreement) %>% 
   summarise(sd = sd(rating),
             rating = mean(rating)) %>% 
@@ -1486,16 +1519,225 @@ exper %>%
                     ymax = rating + sd),
                 width=.5,
                 position=position_dodge(.9)) +
-  facet_grid(cols = vars(noun))
+  facet_grid(cols = vars(noun),
+             labeller = as_labeller(c(`depr` = "Depreciative forms", 
+                                      `prof` = "Profession nouns"))) +
+  scale_x_discrete(name = "Condition",
+                   limits = c("pre", "post", "pron"),
+                   labels = c("Prenominal predicate", "Postnominal predicate", "Relative pronoun")) +
+  scale_y_discrete(name = "Rating",
+                   limits = c("1", "2", "3", "4", "5")) +
+  scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
+                    values = wes_palette(n=2, name="AsteroidCity1")) -> main.plot
+main.plot
+```
+A plot with the ratings of control items, just to compare with the ratings of experimental items:
+```{r}
+exper %>%
+  filter(trial_type == "control") %>% 
+  mutate(condition == factor(condition)) %>% 
+  group_by(condition, agreement, trial_type) %>% 
+  summarise(sd = sd(rating),
+            rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = trial_type)) +
+  geom_col(position = "dodge") +
+  geom_errorbar(aes(ymin = rating - sd,
+                    ymax = rating + sd),
+                width=.5,
+                position=position_dodge(.9)) +
+  facet_grid(cols = vars(trial_type),
+             labeller = as_labeller(c(`control` = "Control"))) +
+  scale_x_discrete(name = "Condition",
+                   limits = c("incorrect", "correct"),
+                   labels = c("Ungrammatical", "Grammatical")) +
+  scale_y_discrete(name = "Rating",
+                   limits = c("1", "2", "3", "4", "5")) +
+  scale_fill_manual(values = wes_palette(n=3, name="AsteroidCity1")[3]) +
+  guides(fill = "none") -> contr.plot
+contr.plot
 ```
 
+Putting the plots together:
+```{r}
+png(file="../writing/M2/images/expmainplot.png", 
+    width = 30,
+    height = 9,
+    units = "cm",
+    res = 500)
+
+guide_area() + main.plot + contr.plot + plot_layout(guides = "collect",
+                                                    axes = "collect",
+                                                    widths = c(1,10,2))
+
+dev.off()
+```
+
+### Plots with demographic information
+Plot showing the between gender differences in judgements.
+```{r}
+exper %>%
+  filter(noun == "prof" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, gender) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = gender, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(factor(condition, levels = c("pre", "post", "pron"))), 
+             labeller = as_labeller(c(`pre` = "Prenominal predicate",
+                                      `post` = "Postnominal predicate",
+                                      `pron` = "Relative pronoun"))) +
+  scale_y_discrete(limits = c("1", "2", "3", "4", "5"))
+
+exper %>%
+  filter(noun == "depr" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, gender) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = gender, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(factor(condition, levels = c("pre", "post", "pron"))), 
+             labeller = as_labeller(c(`pre` = "Prenominal predicate",
+                                      `post` = "Postnominal predicate",
+                                      `pron` = "Relative pronoun"))) +
+  scale_y_discrete(limits = c("1", "2", "3", "4", "5"))
+```
+PROF NOUNS:
+1. For prenominal predicates (Zgromadzonych przywitał/a burmistrz) men preferred syntactic agreement (przywitał), while women slightly preferred semantic agreement (przywitała)
+2. For postnominal predicates (Burmistrz przywitał/a zgromadzonych) both genders prefered semantic agreement (przywitała), but for women there was a bigger difference.
+
+DEPR FORMS:
+1. Both genders preferred semantic agreement in all conditions, with the exception of women with relative pronoun agreement, where they gave higher ratings to syntactic agreement (Reżysery, które...)
+```{r}
+exper %>%
+  filter(noun == "depr" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, gender) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(gender)) +
+  scale_x_discrete(limits = c("pre", "post", "pron")) +
+  scale_y_discrete(limits = c("1", "2", "3", "4", "5"))
+```
+2. For men especially big difference between acceptability of postnominal predicates: semantic agreement a lot better.
+
+Plot with age groups
+```{r}
+demo %>% 
+  filter(study == "prof") %>% 
+  group_by(age) %>% 
+  count()
+
+exper %>%
+  filter(noun == "prof" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, age) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(age)) +
+  scale_x_discrete(limits = c("pre", "post", "pron")) +
+  scale_y_discrete(limits = c("1", "2", "3", "4", "5"))
+
+demo %>% 
+  filter(study == "depr") %>% 
+  group_by(age) %>% 
+  count()
+
+exper %>%
+  filter(noun == "depr" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, age) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(age)) +
+  scale_x_discrete(limits = c("pre", "post", "pron")) +
+  scale_y_discrete(limits = c("1", "2", "3", "4", "5"))
+```
+PROF NOUNS:
+1. For the youngest group syntactic agreement was only preferred with prenominal predicates (Zgromadzonych przywitał burmistrz).
+2. For the middle group semantic agreement was preferred in every condition
+3. The oldest group is just one person, but it seems she prefers the semantic agreement even more in every condition
+
+DEPR NOUNS:
+1. Youngest group prefers semantic agreement across conditions
+2. The middle group prefers syntactic agreement only for relative pronouns
+3. The oldest group really dislikes the depreciative forms, they only somewhat accept them for prenominal predicates, where they prefer syntactic agreement (Do Ameryki poleciały reżysery)
+
+A plot with both age and gender
+```{r}
+demo %>% 
+  filter(study == "prof") %>% 
+  group_by(age, gender) %>% 
+  count()
+
+exper %>%
+  filter(noun == "prof" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, age, gender) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(age),
+             rows = vars(gender),
+             labeller = as_labeller(c(`18-30` = "18-30",
+                                      `31-50` = "31-50",
+                                      `51+` = "51+",
+                                      `f` = "Women",
+                                      `m` = "Men"))) +
+  scale_x_discrete(name = "Condition",
+                   limits = c("pre", "post", "pron"),
+                   labels = c("Prenominal predicate", 
+                              "Postnominal predicate", 
+                              "Relative pronoun"),
+                   guide = guide_axis(angle = 20)) +
+  scale_y_discrete(name = "Rating",
+                   limits = c("1", "2", "3", "4", "5")) +
+  scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
+                    values = wes_palette(n=2, name="AsteroidCity1"))
+
+demo %>% 
+  filter(study == "depr") %>% 
+  group_by(age, gender) %>% 
+  count()
+
+exper %>%
+  filter(noun == "depr" & trial_type == "experimental") %>% 
+  group_by(condition, agreement, age, gender) %>% 
+  summarise(rating = mean(rating)) %>% 
+  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  geom_col(position = "dodge") +
+  facet_grid(cols = vars(age),
+             rows = vars(gender),
+             labeller = as_labeller(c(`18-30` = "18-30",
+                                      `31-50` = "31-50",
+                                      `51+` = "51+",
+                                      `f` = "Women",
+                                      `m` = "Men"))) +
+  scale_x_discrete(name = "Condition",
+                   limits = c("pre", "post", "pron"),
+                   labels = c("Prenominal predicate", 
+                              "Postnominal predicate", 
+                              "Relative pronoun"),
+                   guide = guide_axis(angle = 20)) +
+  scale_y_discrete(name = "Rating",
+                   limits = c("1", "2", "3", "4", "5")) +
+  scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
+                    values = wes_palette(n=2, name="AsteroidCity1"))
+```
+PROF NOUNS:
+1. The youngest women prefer syntactic agreement in every condition, but older always prefer semantic (could be that younger women would prefer to use feminitives, while older women dont care for them that much)
+2. For men syntactic prenominal predicate agreement is either the same or better than semantic, while for other conditions they prefer semantic agreement. This is in line with Corbett's prediction that target before controller is more likely to be syntactic.
+
+DEPR FORMS:
+1. For relative pronouns women in both groups prefer syntactic agreement, but for predicates always semantic.
+2. Men mostly prefer semantic agreement across age groups and conditions, with the exception of relative pronouns for men aged 31-50, where syntactic agreement is slightly more preferred. 
+3. The oldest is just one man.
+
+Boxplots, but I'm not sure if they are very interesting.
 ```{r}
 exper %>%
   filter(trial_type == "experimental") %>% 
   group_by(condition, noun, agreement) %>% 
   ggplot(aes(x = condition, y = rating, fill = agreement)) +
   geom_boxplot(outlier.shape = NA) +
-  geom_jitter(aes(color = as.factor(rating)), width = .2) +
+  # geom_jitter(aes(color = as.factor(rating)), width = .2) +
+  geom_point(position = position_jitter(height=0,width = .1),alpha=.4,size=1.5) + # from Emma
   scale_color_manual(values = c("1" = rgb(0, 255-51*0, 0, maxColorValue = 255),
                                 "2" = rgb(0, 255-51*1, 0, maxColorValue = 255),
                                 "3" = rgb(0, 255-51*2, 0, maxColorValue = 255),
@@ -1504,80 +1746,58 @@ exper %>%
   facet_grid(cols = vars(noun))
 ```
 
-
 ## Statistical modeling
 Data for modeling: 
 ```{r}
 exper %>% 
   filter(trial_type == "experimental") %>% 
-  select(id, trial_index, time_elapsed, item, condition, agreement, noun, rating) %>% 
-  mutate(condition = relevel(condition, ref = "pre"),
+  ungroup() %>% # I have no idea why this is necessary, but otherwise I can't have as.ordered(rating)
+  mutate(order = factor(case_when(condition == "pre" ~ "TargetFirst", 
+                                  condition == "post" ~ "ControllerFirst", 
+                                  condition == "pron" ~ "ControllerFirst"), 
+                        levels = c("TargetFirst", "ControllerFirst")),
+         target_type = factor(ifelse(condition == "pron", "RelPron", "Pred"), 
+                              levels = c("Pred", "RelPron"))) %>%
+  select(id, trial_index, time_elapsed, item, order, target_type, agreement, noun, rating, age, gender) %>% 
+  mutate(order = relevel(order, ref = "TargetFirst"),
+         target_type = relevel(target_type, ref = "Pred"),
          agreement = relevel(agreement, ref = "syntactic"),
          noun = relevel(noun, ref = "depr"),
-         rating = as.factor(rating)) -> mod
+         age = as.factor(age),
+         gender = as.factor(gender),
+         rating = as.ordered(rating)) -> mod
 ```
 
-First version of a model but I'm not sure if this is giving me what I want.
+A general model with data from both experiments:
 ```{r}
 mod %>% 
-  clm(rating ~ condition + noun + agreement, data = .) -> model
+  clmm(rating ~ noun*agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age)),
+       data = .) -> model
 summary(model)
 ```
-1. No significant difference between pre and post conditions: agreement target appearing after the controller does not make sentences significantly more acceptable
-2. Significant difference between pre and pron conditions (p<0.001): agreement with relative pronouns is significantly more acceptable than with predicates before controllers
-3. Significant difference between depr and prof conditions (p<0.001): sentences with profession nouns are significantly more acceptable than sentences with depreciative forms
-4. Significant difference between syntactic and semantic conditions (p<0.01): semantic agreement is significantly more acceptable than syntactic
+1. Profession noun sentences had significantly higher ratings than depreciative forms (duh, p<0.001)
 
-I will try to recode condition and then run the model
+### Profession nouns
+Model!
 ```{r}
 mod %>% 
-  mutate(order = factor(case_when(condition == "pre" ~ "TargetFirst", 
-                                  condition == "post" ~ "ControllerFirst", 
-                                  condition == "pron" ~ "ControllerFirst"), 
-                        levels = c("TargetFirst", "ControllerFirst")),
-         target_type = factor(ifelse(condition == "pron", "RelPron", "Pred"), 
-                              levels = c("Pred", "RelPron"))) %>% 
-  clm(rating ~ order + target_type + noun + agreement, data = .) -> model2
-summary(model2)
+  filter(noun == "prof") %>% 
+  clmm(rating ~ agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age)),
+       data = .) -> prof.mod
+summary(prof.mod)
 ```
-1. No significant difference for order: agreement target appearing after the controller does not make sentences significantly more acceptable
-2. Significant difference between Pred and RelPron conditions (p<0.05): agreement with relative pronouns is significantly more acceptable than with predicates
-3. Significant difference between depr and prof conditions (p<0.001): sentences with profession nouns are significantly more acceptable than sentences with depreciative forms
-4. Significant difference between syntactic and semantic conditions (p<0.01): semantic agreement is significantly more acceptable than syntactic
+1. Relative pronouns are significantly more acceptable than predicates (p<0.05)
 
-I think I want to look at interactions of all variables with semantic/syntactic agreement?
+### Depreciative forms
+Model!
 ```{r}
 mod %>% 
-  mutate(order = factor(case_when(condition == "pre" ~ "TargetFirst", 
-                                  condition == "post" ~ "ControllerFirst", 
-                                  condition == "pron" ~ "ControllerFirst"), 
-                        levels = c("TargetFirst", "ControllerFirst")),
-         target_type = factor(ifelse(condition == "pron", "RelPron", "Pred"), 
-                              levels = c("Pred", "RelPron"))) %>% 
-  clm(rating ~ order + order:agreement + target_type + target_type:agreement + noun + noun:agreement , data = .) -> model3
-summary(model3)
+  filter(noun == "depr") %>% 
+  clmm(rating ~ agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age)),
+       data = .) -> depr.mod
+summary(depr.mod)
 ```
-orderControllerFirst:agreementsemantic -- this means that semantic agreement with controller first is rated significantly (p<0.01) higher than syntactic agreement with target first???
-
-## ???
-```{r}
-exper %>% 
-  ggplot(aes(x = rating)) +
-  geom_histogram()
-```
-
-```{r}
-boxplot(exper$rating)
-boxplot.stats(exper$rating)$out
-exper[abs(normalize(exper$rating)) >= 2.5,]
-
-exper %>% 
-  group_by(id) %>% 
-  summarise(first = quantile(rating, .25),
-            third = quantile(rating, .75),
-            range = IQR(rating))
-```
-
+No significant terms <3
 
 
 
