@@ -1493,6 +1493,20 @@ exper %>%
 They rated all my depreciative forms 1!!! what do i do!? exclude!
 ```{r}
 exper %>% filter(!(id == "6dly03" | id == "wvb2ar")) -> exper
+demo %>% filter(!(id == "6dly03" | id == "wvb2ar")) -> demo
+```
+
+Final demographic profile of participants.
+```{r}
+demo %>% 
+  filter(study == "prof") %>% 
+  group_by(gender, age) %>% 
+  count() %>% tidyr::spread(age, n) %>% xtable()
+
+demo %>% 
+  filter(study == "depr") %>% 
+  group_by(gender, age) %>% 
+  count() %>% tidyr::spread(age, n) %>% xtable()
 ```
 
 Average acceptability ratings per experiment and per condition.
@@ -1524,7 +1538,7 @@ exper %>%
                                       `prof` = "Profession nouns"))) +
   scale_x_discrete(name = "Condition",
                    limits = c("pre", "post", "pron"),
-                   labels = c("Prenominal predicate", "Postnominal predicate", "Relative pronoun")) +
+                   labels = c("Prenominal\npredicate", "Postnominal\npredicate", "Relative\npronoun")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
   scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
@@ -1549,7 +1563,7 @@ exper %>%
              labeller = as_labeller(c(`control` = "Control"))) +
   scale_x_discrete(name = "Condition",
                    limits = c("incorrect", "correct"),
-                   labels = c("Ungrammatical", "Grammatical")) +
+                   labels = c("Ungram.", "Gram.")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
   scale_fill_manual(values = wes_palette(n=3, name="AsteroidCity1")[3]) +
@@ -1560,8 +1574,8 @@ contr.plot
 Putting the plots together:
 ```{r}
 png(file="../writing/M2/images/expmainplot.png", 
-    width = 30,
-    height = 9,
+    width = 22,
+    height = 8,
     units = "cm",
     res = 500)
 
@@ -1682,14 +1696,14 @@ exper %>%
                                       `m` = "Men"))) +
   scale_x_discrete(name = "Condition",
                    limits = c("pre", "post", "pron"),
-                   labels = c("Prenominal predicate", 
-                              "Postnominal predicate", 
-                              "Relative pronoun"),
-                   guide = guide_axis(angle = 20)) +
+                   labels = c("Prenominal\npredicate", 
+                              "Postnominal\npredicate", 
+                              "Relative\npronoun")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
   scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
-                    values = wes_palette(n=2, name="AsteroidCity1"))
+                    values = wes_palette(n=4, name="AsteroidCity1")[3:4]) -> demo.prof.plot
+demo.prof.plot
 
 demo %>% 
   filter(study == "depr") %>% 
@@ -1711,14 +1725,14 @@ exper %>%
                                       `m` = "Men"))) +
   scale_x_discrete(name = "Condition",
                    limits = c("pre", "post", "pron"),
-                   labels = c("Prenominal predicate", 
-                              "Postnominal predicate", 
-                              "Relative pronoun"),
-                   guide = guide_axis(angle = 20)) +
+                   labels = c("Prenominal\npredicate", 
+                              "Postnominal\npredicate", 
+                              "Relative\npronoun")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
   scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
-                    values = wes_palette(n=2, name="AsteroidCity1"))
+                    values = wes_palette(n=4, name="AsteroidCity1")[3:4]) -> demo.depr.plot
+demo.depr.plot
 ```
 PROF NOUNS:
 1. The youngest women prefer syntactic agreement in every condition, but older always prefer semantic (could be that younger women would prefer to use feminitives, while older women dont care for them that much)
@@ -1728,6 +1742,30 @@ DEPR FORMS:
 1. For relative pronouns women in both groups prefer syntactic agreement, but for predicates always semantic.
 2. Men mostly prefer semantic agreement across age groups and conditions, with the exception of relative pronouns for men aged 31-50, where syntactic agreement is slightly more preferred. 
 3. The oldest is just one man.
+
+Saving the 2 plots above.
+```{r}
+png(file="../writing/M2/images/expdemoprof.png", 
+    width = 22,
+    height = 9,
+    units = "cm",
+    res = 500)
+
+demo.prof.plot
+
+dev.off()
+
+png(file="../writing/M2/images/expdemodepr.png", 
+    width = 22,
+    height = 9,
+    units = "cm",
+    res = 500)
+
+demo.depr.plot
+
+dev.off()
+```
+
 
 Boxplots, but I'm not sure if they are very interesting.
 ```{r}
@@ -1757,8 +1795,9 @@ exper %>%
                                   condition == "pron" ~ "ControllerFirst"), 
                         levels = c("TargetFirst", "ControllerFirst")),
          target_type = factor(ifelse(condition == "pron", "RelPron", "Pred"), 
-                              levels = c("Pred", "RelPron"))) %>%
-  select(id, trial_index, time_elapsed, item, order, target_type, agreement, noun, rating, age, gender) %>% 
+                              levels = c("Pred", "RelPron")),
+         group = as.factor(group)) %>%
+  select(id, trial_index, time_elapsed, group, item, order, target_type, agreement, noun, rating, age, gender) %>% 
   mutate(order = relevel(order, ref = "TargetFirst"),
          target_type = relevel(target_type, ref = "Pred"),
          agreement = relevel(agreement, ref = "syntactic"),
@@ -1771,7 +1810,7 @@ exper %>%
 A general model with data from both experiments:
 ```{r}
 mod %>% 
-  clmm(rating ~ noun*agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age)),
+  clmm(rating ~ noun*agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age) + (1|group)),
        data = .) -> model
 summary(model)
 ```
