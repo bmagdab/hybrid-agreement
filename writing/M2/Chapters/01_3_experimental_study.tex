@@ -147,6 +147,49 @@ Based on the corpus study, one hypothesis is that syntactic agreement is preferr
 
 Additionally, according to the stronger constraint of Corbett's Agreement Hierarchy, the acceptability of semantic agreement should increase as we go rightwards along the hierarchy. Here this means that semantic predicate agreement has a lower average acceptability rating than semantic relative pronoun agreement. Another hypothesis concerns the Hierarchy of Agreement Sources, based on which semantic agreement with split hybrids is less acceptable than with lexical hybrids. For this study the split hybrids are depreciative forms and lexical hybrids are profession nouns, therefore semantic agreement in the the profession nouns experiment should have an overall higher acceptability than semantic agreement in the depreciatives experiment. Finally, according to Corbett the target of agreement preceding the controller decreases the likelihood of semantic agreement, so in the experiments the prenominal condition should have a lower acceptability than the postnomial condition.
 
-\section{Results of Experiment 1}
+\section{Results}
+There were 30 participants invited to participate in each study. Experiment 1 (with profession nouns) had 19 men and 11 women, Experiment 2 (with depreciative forms) had 25 men and 5 women. Participants were aged 18 to 55. Out of them, one responded that he was raised in England and Poland, three reported to speak both Polish and English as their first languages. These participants were excluded from analysis, to make sure the judgements were those of monolingual Polish speakers. All participants responded correctly to comprehension questions over 80\% of the time and all of them rated the ungrammatical control questions below the grammatical ones, therefore none of them were excluded based on those criteria. There were, however, two participants in Experiment 2 that rated all experimental items as completely unacceptable. This was presumably because the depreciative forms are highly colloquial and some speakers find those forms to be ungrammatical. Those judgements were therefore not informative for the purposes of this study and responses from those two speakers were excluded. Table ? shows the final number of participants for each gender, age group and experiment.
 
-\section{Results of Experiment 2}
+% latex table generated in R 4.5.2 by xtable 1.8-8 package
+% Sat May 30 13:45:02 2026
+\begin{table}[ht]
+\centering
+\begin{tblr}{rlrrr}
+  \hline
+ & gender & 18-30 & 31-50 & 51+ \\ 
+  \hline
+1 & f &   6 &   3 &   1 \\ 
+  2 & m &  15 &   4 &  \\ 
+   \hline
+\end{tblr}
+\end{table}
+% latex table generated in R 4.5.2 by xtable 1.8-8 package
+% Sat May 30 13:45:02 2026
+\begin{table}[ht]
+\centering
+\begin{tblr}{rlrrr}
+  \hline
+ & gender & 18-30 & 31-50 & 51+ \\ 
+  \hline
+1 & f &   2 &   2 &  \\ 
+  2 & m &  15 &   5 &   1 \\ 
+   \hline
+\end{tblr}
+\end{table}
+
+The results of both experiments with the control conditions for comparison can be found in Figure \ref{fig:exp-main}. 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=.7]{./images/expmainplot.png}
+  \caption{Average acceptability judgements for experimental and control conditions in both experiments.}
+  \label{fig:exp-main}
+\end{figure}
+
+We analyzed these results with a mixed-effects ordinal regression model using the clmm() function from the ordinal R package. In this model the fixed effects were the noun type (profession noun or depreciative form), agreement (semantic or syntactic), order of target and controller and the type of target (predicate or relative pronoun). The model also included interactions between the noun type and agreement and all other variables. The random effects were for participants, items, order in which items were presented, age and group from the latin square design. The full list of coefficients from this model can be found in Appendix ?.
+
+The only significant effect in this model was the effect of noun: items with profession nouns had significantly higher ratings than items with depreciative forms (p<0.001). The following subsections will describe the analyses for the two experiments separately.
+
+\subsection{Experiment 1}
+
+\subsection{Experiment 2}
