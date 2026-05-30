@@ -192,4 +192,111 @@ The only significant effect in this model was the effect of noun: items with pro
 
 \subsection{Experiment 1}
 
+
 \subsection{Experiment 2}
+
+% GENERAL MODEL
+% Cumulative Link Mixed Model fitted with the Laplace approximation
+
+% formula: rating ~ noun * agreement * (order + target_type + (1 | id) +  
+%     (1 | item) + (1 | trial_index) + (1 | age) + (1 | group))
+% data:    .
+
+
+% Random effects:
+%  Groups      Name        Variance  Std.Dev. 
+%  trial_index (Intercept) 8.026e-02 2.833e-01
+%  id          (Intercept) 1.023e+00 1.011e+00
+%  item        (Intercept) 6.151e-01 7.843e-01
+%  group       (Intercept) 5.074e-10 2.253e-05
+%  age         (Intercept) 0.000e+00 0.000e+00
+% Number of groups:  trial_index 60,  id 54,  item 45,  group 6,  age 3 
+
+% Coefficients:
+%                                                 Estimate Std. Error z value Pr(>|z|)    
+% nounprof                                          3.7672     0.4546   8.287   <2e-16 ***
+% agreementsemantic                                 0.5275     0.3156   1.671   0.0946 .  
+% orderControllerFirst                             -0.1432     0.3301  -0.434   0.6644    
+% target_typeRelPron                                0.5353     0.3190   1.678   0.0933 .  
+% nounprof:agreementsemantic                       -0.6341     0.4105  -1.545   0.1224    
+% nounprof:orderControllerFirst                     0.1067     0.4231   0.252   0.8009    
+% nounprof:target_typeRelPron                       0.1422     0.4161   0.342   0.7326    
+% agreementsemantic:orderControllerFirst            0.3750     0.4478   0.837   0.4023    
+% agreementsemantic:target_typeRelPron             -0.7160     0.4327  -1.655   0.0980 .  
+% nounprof:agreementsemantic:orderControllerFirst   0.2532     0.5841   0.433   0.6647    
+% nounprof:agreementsemantic:target_typeRelPron     0.4616     0.5768   0.800   0.4235    
+% ---
+% Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+% Threshold coefficients:
+%     Estimate Std. Error z value
+% 1|2   0.8873     0.3448   2.573
+% 2|3   2.4190     0.3546   6.821
+% 3|4   3.0815     0.3595   8.572
+% 4|5   4.3802     0.3698  11.843
+
+% PROF MODEL
+% Cumulative Link Mixed Model fitted with the Laplace approximation
+
+% formula: rating ~ agreement * (order + target_type + (1 | id) + (1 | item) +  
+%     (1 | trial_index) + (1 | age))
+% data:    .
+
+
+% Random effects:
+%  Groups      Name        Variance Std.Dev.
+%  trial_index (Intercept) 0.04385  0.2094  
+%  id          (Intercept) 0.62530  0.7908  
+%  item        (Intercept) 0.47543  0.6895  
+%  age         (Intercept) 0.00000  0.0000  
+% Number of groups:  trial_index 60,  id 29,  item 24,  age 3 
+
+% Coefficients:
+%                                        Estimate Std. Error z value Pr(>|z|)  
+% agreementsemantic                      -0.09523    0.25584  -0.372   0.7097  
+% orderControllerFirst                   -0.03821    0.25593  -0.149   0.8813  
+% target_typeRelPron                      0.63759    0.25970   2.455   0.0141 *
+% agreementsemantic:orderControllerFirst  0.60186    0.36529   1.648   0.0994 .
+% agreementsemantic:target_typeRelPron   -0.25599    0.37176  -0.689   0.4911  
+% ---
+% Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+% Threshold coefficients:
+%     Estimate Std. Error z value
+% 1|2  -2.4763     0.3027  -8.181
+% 2|3  -1.2517     0.2828  -4.425
+% 3|4  -0.7100     0.2791  -2.543
+% 4|5   0.5538     0.2788   1.986
+
+% DEPR MODEL
+% Cumulative Link Mixed Model fitted with the Laplace approximation
+
+% formula: rating ~ agreement * (order + target_type + (1 | id) + (1 | item) +  
+%     (1 | trial_index) + (1 | age))
+% data:    .
+
+
+% Random effects:
+%  Groups      Name        Variance Std.Dev.
+%  trial_index (Intercept) 0.0165   0.1284  
+%  id          (Intercept) 1.6869   1.2988  
+%  item        (Intercept) 0.7912   0.8895  
+%  age         (Intercept) 0.0000   0.0000  
+% Number of groups:  trial_index 60,  id 25,  item 24,  age 3 
+
+% Coefficients:
+%                                        Estimate Std. Error z value Pr(>|z|)  
+% agreementsemantic                        0.5478     0.3254   1.684   0.0923 .
+% orderControllerFirst                    -0.1938     0.3393  -0.571   0.5679  
+% target_typeRelPron                       0.6181     0.3283   1.883   0.0597 .
+% agreementsemantic:orderControllerFirst   0.4738     0.4643   1.020   0.3075  
+% agreementsemantic:target_typeRelPron    -0.8483     0.4503  -1.884   0.0596 .
+% ---
+% Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+% Threshold coefficients:
+%     Estimate Std. Error z value
+% 1|2   0.8255     0.3989   2.070
+% 2|3   2.6065     0.4186   6.226
+% 3|4   3.5033     0.4352   8.050
+% 4|5   4.9360     0.4889  10.096
