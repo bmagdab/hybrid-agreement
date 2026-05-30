@@ -4,22 +4,22 @@
 
 \section{Methodology}
 \subsection{Agreement sources}
-The corpus used for this study is the 300M subcorpus of the National Corpus of Polish \citep{przepiorkowski_narodowy_2012}, which was parsed using Trankit \citep{nguyen_trankit_2021}. The dependency trees (conforming to the Universal Dependency standard, henceforth UD) obtained this way were searched for words, which could trigger hybrid agreement: profession nouns, socially gendered nouns and depreciative forms of \textsc{m1} nouns. The dependencies of those words then made it possible to search for attributive agreements (adjectives), predicate agreements (verbs agreeing with their subjects) and relative pronoun agreement. A tagged corpus could have been sufficient for attributive and predicate agreement, but using a parsed corpus gave a better chance of finding the correct relations and agreements within them and made it possible to include relative pronouns in the analysis. The subsections below describe how I chose the nouns for analysis.
+The corpus used for this study is the 300M subcorpus of the National Corpus of Polish \citep{przepiorkowski_narodowy_2012}, which contains texts from various genres and sources, including fiction, journals, letters, Internet, spoken and educational texts, most of which were created after the year 1990. The corpus was parsed using Trankit \citep{nguyen_trankit_2021} to obtain dependency trees conforming to the Universal Dependency standard (UD). Those dependency trees were searched for words, which could trigger hybrid agreement: profession nouns, socially gendered nouns and depreciative forms of \textsc{m1} nouns. The dependencies of those words then made it possible to search for attributive agreements (adjectives), predicate agreements (verbs agreeing with their subjects) and relative pronoun agreement. A tagged corpus could have been sufficient for attributive and predicate agreement, but using a parsed corpus gave a better chance of finding the correct relations and agreements within them and made it possible to include relative pronouns in the analysis. The subsections below describe how I chose the nouns for analysis.
 
 \subsubsection{Profession nouns}
 Nouns in this category came from two studies about feminitives in Polish. The first was a survey reported by \cite{szpyra-kozlowska_premiera_2019}, where participants were asked to create feminitives from 50 masculine nouns, that in modern Polish do not have feminine counterparts at all or those counterparts are rarely used. For each noun participants had the option to give no answer. The second study was an experiment conducted by \cite{szpyra-kozlowska_czy_2022}, where they tested whether certain feminitives are less accessible by asking participants to try to pronounce them. They chose 20 feminitives, which are formed from masculine nouns that have consonant clusters such as /kt/ (e.g. \textsl{architekt}, meaning 'architect'), /tr/ (e.g. \textsl{geriatra}, meaning 'geriatrician') or /rg/ (e.g. \textsl{chirurg}, meaning 'surgeon'). According to \cite{klemensiewicz_tytuly_1957} adding the -ka suffix, the function of which can be to create the feminitve, makes the word difficult to pronounce. Those two studies give a list of 60 nouns in total, for which it is said to be difficult to form feminine counterparts. It is therefore likely that, if there was a female referent of a noun from this list, the masculine noun would be used, leading to hybrid agreement. 
 
 Both of the studies determine in some way which of the tested nouns have less available feminitives than others: in \cite{szpyra-kozlowska_czy_2022} those are the nouns for which there are the highest error rates in pronunciation, whereas in \cite{szpyra-kozlowska_premiera_2019} -- the nouns for which the most people refused to propose a feminitive. Taking this approach has, however, two downsides: first, it requires an arbitrary threshold that separates the nouns that have an easily formed feminitive from the nouns for which creating the feminine counterpart is more difficult. Second, this approach significantly limits the number of nouns for analysis. Considering this, the current study used all of the nouns from the two studies on Polish feminitves.
 
-For ease of reference, I call all of the nouns in this category \textsl{profession} nouns, despite not all of them actually referring to professions. Meanings of all nouns are presented in Table \ref{tab:profession}. An example of semantic agreement with a profession noun can be seen in (\ref{ex:prof-occurrence}).
+Initially, there were 213 070 occurrences of agreement with the 60 nouns in this group. For ease of reference, I call all of the nouns in this category \textsl{profession} nouns, despite not all of them actually referring to professions. Meanings of all nouns are presented in Table \ref{tab:profession}. An example of semantic agreement with a profession noun can be seen in (\ref{ex:prof-occurrence}), where the masculine noun \mean{starosta}{mayor} has a feminine adjective \mean{głogowska}{of Głogów}.
 
 \begin{exe}
   \ex\label{ex:prof-occurrence}
-  \gll Ojciec obecne-j prezydent został zastrzelony.\\
-  father current-\textsc{f} president.\textsc{m1} was shot\\
-  \glt ``Father of the current president was shot.''
+  \gll Na zaproszenie starost-y głogowsk-iej Elżbiet-y Urbanowicz - Przysiężn-ej Głogów odwiedziła s. Teresa Jakubowska z ukraińskiego Żytomierza.\\
+  on invitation mayor\textsc{(m1)-sg.gen} of.Głogów\textsc{-f.sg.gen} Elżbieta\textsc{-f.gen} Urbanowicz - Przysiężna\textsc{-f.gen} Głogów visited sister Teresa Jakubowska from Ukrainian Żytomierz\\
+  \glt ``Invited by the mayor of Głogów, Elżbieta Urbanowicz-Przysiężna, sister Teresa Jakubowska from Żytomierz in Ukraine visited Głogów.''\\
+  NCP 300M, sentence ID: 8203800
 \end{exe}
-\vspace{-1cm}
 
 \begin{table}[p]
   \centering
@@ -67,49 +67,52 @@ For ease of reference, I call all of the nouns in this category \textsl{professi
     wójt & highest administrative officer of a basic-level unit of local government, mayor & zbieg & fugitive\\
   \end{tblr}
   }
-  \caption{Profession nouns used in the study, with their translations or definitions in English.}
+  \caption{Profession nouns (\textsc{m1}) used in the study, with their translations or definitions in English.}
   \label{tab:profession}
 \end{table}
 
 \subsubsection{Socially gendered nouns}
-I chose the nouns for this category using the Polish Academy of Sciences Great Dictionary of Polish available online.\footnote{https://wsjp.pl/} With the advanced search option, I searched for nouns in the thematic category \textsc{human as a physical being: human physicality: sex}. This search yielded 586 results, which then I filtered manually to find the nouns that only refer to humans (and not, for example, abstract nouns or nouns referring to body parts) and that had incongruent grammatical and semantic gender. There were 19 nouns selected this way: 7 of them were grammatically masculine animate and referred to women (e.g. \textsl{babsztyl}, meaning 'woman' in a pejorative way), 1 was grammatically masculine inanimate and referred to women (\textsl{pasztet}, referring to a woman whom the speaker finds ugly or unattractive), 7 were grammatically neuter and referred to women (e.g. \textsl{pannisko}, meaning 'a young woman' in an expressive way), 2 were grammatically neuter and referred to men (e.g. \textsl{chłopaczysko}, meaning 'a tall or big young man') and 2 were grammatically feminine and referred to men (e.g. \textsl{ciota}, meaning 'a homosexual man' in a pejorative way). An example of semantic agreement with a socially gendered noun can be found in (\ref{ex:gend-occurrence}) and the full list of nouns in this category with their translations is in Table \ref{tab:gendered}.
+I chose the nouns for this category using the Polish Academy of Sciences Great Dictionary of Polish available online.\footnote{https://wsjp.pl/} With the advanced search option, I searched for nouns in the thematic category \textsc{human as a physical being: human physicality: sex}. This search yielded 586 results, which then I filtered manually to find the nouns that only refer to humans (and not, for example, abstract nouns or nouns referring to body parts) and that had incongruent grammatical and semantic gender. There were 19 nouns selected this way: 7 of them were grammatically masculine animate and referred to women (e.g. \textsl{babsztyl}, meaning 'woman' in a pejorative way), 1 was grammatically masculine inanimate and referred to women (\textsl{pasztet}, referring to a woman whom the speaker finds ugly or unattractive), 7 were grammatically neuter and referred to women (e.g. \textsl{pannisko}, meaning 'a young woman' in an expressive way), 2 were grammatically neuter and referred to men (e.g. \textsl{chłopaczysko}, meaning 'a tall or big young man') and 2 were grammatically feminine and referred to men (e.g. \textsl{ciota}, meaning 'a homosexual man' in a pejorative way). There were 807 occurrences of agreement with those nouns found in the corpus. The full list of nouns in this category with their translations is in Table \ref{tab:gendered}. In (\ref{ex:gend-occurrence}) there is an example of feminine agreement on the word \mean{ostatnia}{last} with the masculine word \textsl{babsztyl}.
 
 \begin{exe}
   \ex\label{ex:gend-occurrence}
-  \gll Ten ciota go straszy policją?\\
-  this.\textsc{m1} faggot.\textsc{f} him threatens police\\
-  \glt This faggot threatens him with the police?
+  \gll Ta ostatni-a jest groźn-ym i odrażając-ym babsztyl-em\\
+  this\textsc{(f.sg.nom)} last\textsc{-f.sg.nom} be\textsc{(prs.3sg)} dangerous\textsc{-m1.sg.ins} and offputting\textsc{-m1.sg.ins} woman\textsc{-m1.sg.ins}\\
+  \glt ``The last one is a dangerous and offputting woman.''\\
+  NCP 300M, sentence ID: 12331643
 \end{exe}
 
-\begin{table}[H]
+\begin{table}[p]
   \centering
   \begin{tblr}
     {
     vlines, hlines,
     row{1} = {gray9},
     column{1} = {.2\linewidth},
-    column{2} = {.6\linewidth},
+    column{2} = {.1\linewidth},
+    column{3} = {.1\linewidth},
+    column{4} = {.5\linewidth},
     }
-    Noun in Polish & Translation or definition in English\\
-    babochłop & a woman that resembles a man with her physicality, looks and behavior\\
-    babol & a woman that looks or behaves in a way that causes aversion in the speaker\\
-    babon & a woman, about whom the speaker feels negatively\\
-    babsko & a woman, about whom the speaker feels negatively\\
-    babsztyl & a woman, about whom the speaker feels negatively\\
-    babus & a woman, about whom the speaker feels negatively\\
-    chłopaczysko & a tall or big young man\\
-    chłopobaba & a man that resembles a woman with his physicality, looks and behavior (can also mean a woman that resembles a man)\\
-    ciota & a homosexual man (can also refer to a woman about whom the speaker feels negatively)\\
-    dziewczątko & a girl, whom the speaker likes or to whom they feel compassion\\
-    dziewczę & a young girl\\
-    dziewuszysko & a girl who causes aversion or contempt in the speaker\\
-    kobiecisko & expressively about a woman, augumentative, or to refer to a big woman\\
-    kobieciątko & expressively about a woman, diminutive\\
-    kobieton & a woman that resembles a man with her physicality, looks and behavior\\
-    pacholę & a boy\\
-    pannisko & expressively about a young woman, augumentative\\
-    pasztet & an ugly and unattractive woman\\
-    wamp & a confident, misterious, provocative and attractive woman who seduces men\\
+    Noun in Polish & Syntactic gender & Semantic gender & Translation or definition in English\\
+    babochłop & \textsc{m2} & \textsc{f} & a woman that resembles a man with her physicality, looks and behavior\\
+    babol & \textsc{m2} & \textsc{f} & a woman that looks or behaves in a way that causes aversion in the speaker\\
+    babon & \textsc{m2} & \textsc{f} & a woman, about whom the speaker feels negatively\\
+    babsko & \textsc{n} & \textsc{f} & a woman, about whom the speaker feels negatively\\
+    babsztyl & \textsc{m2} & \textsc{f} & a woman, about whom the speaker feels negatively\\
+    babus & \textsc{m2} & \textsc{f} & a woman, about whom the speaker feels negatively\\
+    chłopaczysko & \textsc{n} & \textsc{m1} & a tall or big young man\\
+    chłopobaba & \textsc{f} & \textsc{m1} & a man that resembles a woman with his physicality, looks and behavior (can also mean a woman that resembles a man)\\
+    ciota & \textsc{f} & \textsc{m1} & a homosexual man (can also refer to a woman about whom the speaker feels negatively)\\
+    dziewczątko & \textsc{n} & \textsc{f} & a girl, whom the speaker likes or to whom they feel compassion\\
+    dziewczę & \textsc{n} & \textsc{f} & a young girl\\
+    dziewuszysko & \textsc{n} & \textsc{f} & a girl who causes aversion or contempt in the speaker\\
+    kobiecisko & \textsc{n} & \textsc{f} & expressively about a woman, augumentative, or to refer to a big woman\\
+    kobieciątko & \textsc{n} & \textsc{f} & expressively about a woman, diminutive\\
+    kobieton & \textsc{m2} & \textsc{f} & a woman that resembles a man with her physicality, looks and behavior\\
+    pacholę & \textsc{n} & \textsc{m1} & a boy\\
+    pannisko & \textsc{n} & \textsc{f} & expressively about a young woman, augumentative\\
+    pasztet & \textsc{m3} & \textsc{f} & an ugly and unattractive woman\\
+    wamp & \textsc{m2} & \textsc{f} & a confident, misterious, provocative and attractive woman who seduces men\\
   \end{tblr}
   \caption{Socially gendered nouns used in the study, with their translations or definitions in English.}
   \label{tab:gendered}
@@ -123,21 +126,22 @@ For this category no list of nouns was created, since the corpus was annotated a
   \begin{xlist}
     \ex\label{ex:Machałowie}
     \gll Machał-owie kupi-li nowe auto.\\
-    Machała-pl.nom.m1.ndepr buy-3pl.m1.past new car\\
+    Machała\textsc{(m1)-pl.nom} buy\textsc{-pst.3pl.m1} new car\\
     \ex\label{ex:Machały}
     \gll Machał-y kupi-ły nowe auto.\\
-    Machała-pl.nom.m1.depr buy-3pl.f.past new car\\
+    Machała\textsc{-pl.nom} buy\textsc{-pst.3pl.nm1} new car\\
     \trans ``Machałas bought a new car.''
   \end{xlist}
 \end{exe}
 
-Morphological analyzer Morfeusz \citep{kieras_morfeusz_2017} can mark forms as surnames which made it easy to exclude them from the analysis. The rest of the forms marked as depreciative was kept, which gave 254 different lexemes being included as depreciative forms. An example of semantic agreement with a depreciative form can be found in ().
+Morphological analyzer Morfeusz \citep{kieras_morfeusz_2017} can mark forms as surnames which made it easy to exclude them from the analysis. The other forms marked as depreciative were kept, which gave 254 different lexemes being included as depreciative forms in 1040 agreement occurrences. An example of semantic agreement with a depreciative form can be found in (\ref{ex:depr-occurrence}), where the noun \mean{chłopy}{peasants} in depreciative form has a non-\textsc{m1} ending (\textsl{chłopy} in contrast to the non-depreciative and clearly masculine \textsl{chłopi}), yet still has \textsc{m1} agreement on the word \mean{pomagać}{help}.
 
 \begin{exe}
   \ex\label{ex:depr-occurrence}
-  \gll Chłopy ze wsi pomaga-li tutaj.\\
-  peasants.\textsc{m1} from countryside helped-\textsc{m1} here\\
-  \glt ``Peasants from the countryside helped here.''
+  \gll Chłop-y ze wsi pomaga-li tutaj.\\
+  peasants\textsc{-pl.nom.depr} from countryside helped\textsc{-pst.3pl.m1} here\\
+  \glt ``Peasants from the countryside helped here.''\\
+  NCP 300M, sentence ID: 9988833
 \end{exe}
 
 \subsection{Extracting agreement occurrences from the corpus}
@@ -148,7 +152,7 @@ After choosing the nouns to be searched in the corpus, it was necessary to find 
 
 Once the right noun was found, I searched the dependency tree for words that can agree their gender with that of the noun. This was the head of the noun (which could be an example of predicate agreement), adjectives attached to the noun (which could be examples of attributive agreement), and relative pronouns referring to the noun. Based on the Universal Dependencies (UD) annotation guidelines, I searched all dependents of the word for a dependency label with a subtype \textsc{:relcl}, which in the UD annotation scheme marks the head of the relative clause. Then I looked for the dependent of the head of the relative clause, that had a UD feature \textsc{PronType=Rel}, which had to be the relative pronoun.\footnote{https://universaldependencies.org/workgroups/newdoc/relative\_clauses.html}
 
-Each occurrence was additionally annotated for the distance between the controller and potential target of agreement (measured in intervening words) and the ordering: whether the target of agreement was the first or not. Once I found the possible agreement targets, I could use the data to look for occurrences of hybrid agreement.
+Each occurrence was additionally automatically annotated for the distance between the controller and potential target of agreement (measured in intervening words) and the ordering: whether the target of agreement was the first or not. Once I found the possible agreement targets, I could use the data to look for occurrences of hybrid agreement.
 
 \subsubsection{Extracting and listing agreement occurrences}
 To analyse hybrid gender agreement in the found examples, I marked the alternative to the grammatical gender of each agreement controller. For all profession nouns that alternative gender was \textsc{f}, because the only chance of hybrid agreement for those nouns is when the gender of the referent is a woman. For socially gendered nouns the alternative gender was assigned depending on the lexeme and for depreciative forms the alternative gender was always \textsc{m1}, because that is the gender of the lexemes that have depreciative forms.
@@ -159,15 +163,16 @@ Once I determined the alternative gender, I excluded plural nouns for which the 
   \ex\label{ex:plural-feminine-neuter}
   \begin{xlist}
     \ex\label{ex:sg.n}
-    \gll młod-e dziewczę\\
-    young-sg.n.nom girl.sg.n.nom\\
+    \gll młod-e dziewcz-ę\\
+    young\textsc{-n.sg.nom} girl\textsc{(n)-sg.nom}\\
     \ex\label{ex:sg.f}
-    \gll młod-a dziewczę\\
-    young-sg.f.nom girl.sg.n.nom\\
+    \gll młod-a dziewcz-ę\\
+    young\textsc{-f.sg.nom} girl\textsc{(n)-sg.nom}\\
+    \glt ``young girl''
     \ex\label{ex:pl}
-    \gll młod-e dziewczę-ta\\
-    young-pl.f/n/m2/m3.nom girl-pl.n.nom\\
-    \trans ``young girl''
+    \gll młod-e dziewcz-ęta\\
+    young\textsc{-nm1.pl.nom} girl\textsc{(n)-pl.nom}\\
+    \glt ``young girls''
   \end{xlist}
 \end{exe}
 
@@ -181,8 +186,8 @@ In (\ref{tree}) we can see a sentence from the National Corpus of Polish, which 
   \centering
   \begin{dependency}
     \begin{deptext}
-      Starosta \& konińsk-i \& swój \& puchar \& przyznał-a \& firmie \& Roof \& Reed.\\
-      mayor\textsc{(m1)} \& of.Konin-\textsc{m1} \& their \& cup \& awarded-\textsc{f} \& company \& Roof \& Reed\\
+      Starost-a \& konińsk-i \& swój \& puchar \& przyzna-ła \& firmie \& Roof \& Reed.\\
+      mayor\textsc{(m1)-sg.nom} \& of.Konin\textsc{-m1.sg.nom} \& their \& cup \& awarded\textsc{-pst.3sg.f} \& company \& Roof \& Reed\\
     \end{deptext}
     \deproot{5}{root}
     \depedge{5}{1}{nsubj}
@@ -194,7 +199,7 @@ In (\ref{tree}) we can see a sentence from the National Corpus of Polish, which 
     \depedge{7}{8}{flat}
   \end{dependency}
   \caption*{``The mayor of Konin awarded their cup to the company Roof Reed.''}
-  \caption{Dependency tree for the example sentence.}
+  \caption{Dependency tree for the sentence from NCP 300M, sentence ID: 10280659.}
   \label{tree}
 \end{figure}
 
@@ -232,12 +237,38 @@ In (\ref{tree}) we can see a sentence from the National Corpus of Polish, which 
 \end{figure}
 
 \subsubsection{Appositions with profession nouns}
-Initial analysis of agreement occurrences with profession nouns showed, that most occurrences cannot be used in this study, because there is no possibility of determining whether the referent of the profession noun is male or female without the context of the surrounding text (sentences were analysed one by one). Because of this I wrote an additional script to extract information about appositions appearing with profession nouns, because if there is a feminine apposition to the profession noun, it is clear that the referent of the noun is female.\footnote{The caveat to this approach is that it is not clear whether the feminine agreement with a profession noun is an occurrence of hybrid agreement, or if the agreement is not with the masculine profession noun but with the feminine apposition. This is addressed in the discussion section of this chapter.} 
+Initial analysis of agreement occurrences with profession nouns showed, that most occurrences cannot be used in this study, because there is no possibility of determining whether the referent of the profession noun is male or female without the context of the surrounding text (sentences were analysed one by one). Because of this I wrote an additional script to extract information about appositions appearing with profession nouns, because if there is a feminine apposition to the profession noun, it is clear that the referent of the noun is female.\footnote{The caveat to this approach is that it is not clear whether the feminine agreement with a profession noun is an occurrence of hybrid agreement, or if the agreement is not with the masculine profession noun but with the feminine apposition. This is further discussed in the results section.} This is illustrated by example (\ref{ex:prof-occurrence}) from a previous section, repeated here. We can be sure that the \textsc{m1} noun \textsl{starosta} is referring to a woman, because the noun phrase is followed by the full name of the mayor in the same case as the noun phrase.
 
-The process of extracting information about agreement occurrences is almost identical to what was previously described, only here it applied exclusively to profession noun occurrences and had additional steps to find information about appositions. Using the script I first checked if the dependency head of the profession noun found in the corpus was an apposition. If that was the case, all of the dependents and the head of this apposition were treated as the dependents and the head of the profession noun and I looked for gender agreement between them and the profession noun. I calculated the distance again to make sure it is between them and the profession noun and not the apposition and I saved the word form and the morphological description of the apposition. Those fields were left empty if no apposition was found and the rest of the process was unchanged. 
+\begin{exe}
+  \exr{ex:prof-occurrence}
+  \gll Na zaproszenie starost-y głogowsk-iej Elżbiet-y Urbanowicz - Przysiężn-ej Głogów odwiedziła s. Teresa Jakubowska z ukraińskiego Żytomierza.\\
+  on invitation mayor\textsc{(m1)-sg.gen} of.Głogów\textsc{-f.sg.gen} Elżbieta\textsc{-f.gen} Urbanowicz - Przysiężna\textsc{-f.gen} Głogów visited sister Teresa Jakubowska from Ukrainian Żytomierz\\
+  \glt ``Invited by the mayor of Głogów, Elżbieta Urbanowicz-Przysiężna, sister Teresa Jakubowska from Żytomierz in Ukraine visited Głogów.''\\
+  NCP 300M, sentence ID: 8203800
+\end{exe}
+
+The process of extracting information about agreement occurrences is almost identical to what was previously described, only here it applied exclusively to profession noun occurrences and had additional steps to find information about appositions. Using the script I first checked if the dependency head of the profession noun found in the corpus was an apposition. If that was the case, all of the dependents and the head of this apposition were treated as the dependents and the head of the profession noun and I looked for gender agreement between them and the profession noun. I calculated the distance again to make sure it is between them and the profession noun and not the apposition and I saved the word form and the morphological description of the apposition, those fields were left empty if no apposition was found. If the head of the noun was not an apposition, the noun's dependants were search to see if any of them was an apposition, in which case the procedure described above was performed. This happened in the sentence in (), and we can see the relevant part of the dependency tree in Figure (\ref{starosta-tree}).
+
+\begin{figure}[h]
+  \centering
+  \begin{dependency}
+    \begin{deptext}
+      starost-y \& głogowsk-iej \& Elżbiet-y \& Urbanowicz \& - \& Przysiężn-ej\\
+      mayor\textsc{(m1)-sg.gen} \& of.Głogów\textsc{-f.sg.gen} \& Elżbieta\textsc{-f.gen} \& Urbanowicz \& - \& Przysiężna\textsc{-f.gen}\\
+    \end{deptext}
+    \depedge{1}{3}{appos}
+    \depedge{1}{2}{amod}
+    \depedge{3}{4}{flat}
+    \depedge{6}{5}{punct}
+    \depedge{4}{6}{conj}
+  \end{dependency}
+  \caption*{``mayor of Głogów Elżbieta Urbanowicz-Przysiężna''}
+  \caption{Dependency tree for a fragment of the sentence in example (\ref{ex:prof-occurrence}).}
+  \label{starosta-tree}
+\end{figure}
 
 \subsection{Postprocessing of the agreement occurrences}
-The 214 917 initial observations were filtered to remove which was mistakenly included. There were 263 agreement observations with the gendered noun \textsl{pasztet}, which as a gendered noun means a girl or a woman whom the speaker finds unattractive, but it has another, much more common meaning: pâté, a kind of forcemeat. Most of the occurrences found in the corpus were in the second meaning, not useful for the study, therefore I removed this noun completely from the study.
+The 214 917 initial observations were filtered to remove those, which were mistakenly included. There were 263 agreement observations with the gendered \textsc {m3} noun \textsl{pasztet}, which as a gendered noun means a girl or a woman whom the speaker finds unattractive, but it has another, much more common meaning: pâté, a kind of forcemeat. Most of the occurrences found in the corpus were in the second meaning, not useful for the study, therefore I removed this noun completely from the study.
 
 Some of the occurrences found had to be parsing mistakes, such as large distances between target and controller, reaching up to 1124 intervening words, relative pronouns preceding the controller and targets of agreements being comprised only of digits, which cannot have any gender agreement marking. All of these were removed.
 
@@ -250,21 +281,61 @@ In some occurrences the controller was identified by the parser to have the wron
 The last part of filtering the data concerned the gender of the target of agreement. Possible values of gendered were predefined: \textsc{m1} or any other with depreciative forms, \textsc{m1} or \textsc{f} with profession nouns and with gendered nouns it depended on the lexeme. There were some occurrences for which the target of the gender was outside of the possible scope, which was most likely a result of parsing mistakes. For depreciative nouns there was no filtering done in this part, for profession nouns I assumed everything but the \textsc{m1} or \textsc{f} agreements was parsing mistakes and removed those occurrences, and for gendered nouns I reviewed the incorrectly marked occurrences manually. 
 
 \subsubsection{Additional processing of profession nouns}
-To figure out whether an occurrence of a profession noun referred to a man or a woman, I added information about appositions attached to the nouns. I removed occurrences with plural and non-\textsc{f} appositions and marked the ordering of the target, controller and apposition for each agreement, since it is possible that in some cases we agree the target with the gender of the apposition and not the gender of the controller. Only this selection of occurrences with profession nouns was saved for further analysis.
+To figure out whether an occurrence of a profession noun referred to a man or a woman, I added information about appositions attached to the nouns. I removed occurrences with plural and non-\textsc{f} appositions, because the plural appositions were mostly parsing mistakes and the non-\textsc{f} appositions show us that the referent of the noun is not a woman and there cannot be any hybrid agreement, as can be seen in ((\ref{ex:prof-appos-m1})). Since it is possible that in some cases we agree the target with the gender of the apposition and not the gender of the controller, I marked the ordering of the target, controller and apposition for each agreement to be able to look into the influence of the apposition. In (\ref{ex:prof-occurrence}) for example, the order was CTA. Only this selection of occurrences with profession nouns was saved for further analysis.
+
+\begin{exe}
+  \ex\label{ex:prof-appos-m1}
+  \gll Dom nasz projektowa-ł mało znany architekt-Ø Stanisław Gądzikiewicz.\\
+  house our design\textsc{-pst.3sg.m1} little known architect\textsc{(m1)-sg.nom} Stanisław Gądzikiewicz\\
+  \glt ``Our house was designed by a little known architect.''\\
+  NCP 300M, sentence ID: 24
+\end{exe}
 
 \section{Results}
-\subsection{Descriptive statistics}
+\subsection{Overall results}
 The first hypothesis this study aims to test is: there is a monotonous shift from one value of gender to another when going from attributive, through predicate to relative pronoun agreement. Additionally, the hypothesis proposed with the definition of generalized semantic agreement will be tested, which is that split hybrids (here the depreciative forms) are less likely to have generalized semantic agreement than lexical hybrids (here the socially gendered nouns and profession nouns). Before those hypotheses are addressed, we will look at the dataset extracted from the corpus. 
 
-After filtering the data which could not be used, there were 1722 observations, 443 of which were marked as semantic agreement. In Table \ref{tab:corpus-summary} we can see the number of occurrences of agreement for all types of nouns (profession nouns, gendered nouns and depreciative forms) and for all types of targets (attributes, predicates and relative pronouns) and the percentages of semantic agreement for all those groups. The differeces between types of targets are also visualised in Figure \ref{fig:semantic-in-targets}.
+After filtering the data which could not be used, there were 1722 observations, 443 of which were marked as semantic agreement. In Table \ref{tab:corpus-summary} we can see the number of occurrences of agreement for all types of targets (attributes, predicates and relative pronouns) and the percentages of semantic agreement for all those groups. 
 
-\begin{figure}[H]
+\begin{table}[h]
+  \centering
+  \begin{tblr}
+    {
+    hlines, vlines,
+    row{1,2} = {gray7},
+    cell{1}{1} = {r=2}{c},
+    cell{1}{2} = {r=2}{c},
+    cell{1}{3} = {c=2}{c},
+    cell{1}{5} = {c=2}{c},
+    hline{6} = {2pt,solid},
+    }
+    Target of agreement & N & Semantic agreement & & Syntactic agreement & \\
+                        & & N & \% & N & \% \\
+    Attribute & 891 & 209 & 23.46\% & 682 & 76.54\% \\ 
+    Predicate & 686 & 160 & 23.32\% & 526 & 76.68\% \\ 
+    Relative pronoun & 145 & 74 & 51.03\% & 71 & 48.97\% \\ 
+    Total & 1722 & 443 & 25.73\% & 1279 & 74.27\% \\ 
+  \end{tblr}
+  \caption{Numbers and percentages of occurrences of agreement with all nouns.}
+  \label{tab:corpus-summary}
+\end{table}
+
+For statistical modeling of the corpus data I used the \texttt{glmer} function from the \texttt{lme4} R package and the \texttt{glm} function from the \texttt{stats} package. I used binomial logistic regression, because the outcome was binary: whether semantic agreement was chosen or not. The first model used all of the 1722 observations. Fixed effects were the type of agreement target (attribute, predicate or relative pronoun), distance between the target and controller, target placement (preceding or following the controller), type of controller (gendered noun, profession noun or depreciative form) and apposition placement (preceding or following the controller). The corpus contains texts from 13 different types of sources -- this was included as the random effect in the model. The full list of coefficients in this and other models described in this chapter can be found in Appendix \ref{apsec:corpus-coefs}. 
+
+Types of targets and the distance were not significant as predictors of semantic agreement. Target being placed after the controller increased the likelihood of semantic agreement (\textsl{p}<0.001), as well as placing an apposition before the controller (\textsl{p}<0.001). Among the noun types the depreciative forms were the baseline, because the hypothesis was that as split hybrids semantic agreement would be less likely to occurr with them than with the lexical hybrids: gendered and profession nouns. Compared to depreciative forms then, socially gendered nouns turned out to be less likely to have semantic agreement (\textsl{p}<0.001), while profession noun were more likely to have semantic agreement (\textsl{p}<0.001).
+
+Figure \ref{fig:semantic-in-targets} visualises the proportions of semantic and syntactic agreement with different types of agreement, for all nouns combined and for each type of noun separately. The following subsections describe the results for each group of nouns in the study.
+
+\begin{figure}[h]
   \small
   \centering
-  \includegraphics[width=\linewidth]{images/semXtargetsXnouns.png}
+  \includegraphics[scale=.7]{images/semXtargetsXnouns.png}
   \caption{Proportions of semantic agreement for each type of target of agreement.}
   \label{fig:semantic-in-targets}
 \end{figure}
+
+\subsection{Depreciative forms}
+Table \ref{tab:depr-summary} shows the numbers of occurrences and percentages of semantic agreement with depreciative forms. Out of 958 occurrences of agreement with depreciative forms, 20.77\% had semantic agreement. The likelihood of semantic agreement was the lowest for attributes (10.79\%) and highest for predicates (26.89\%), leaving in between the relative pronouns (19.57\%). For this type of controller there is no monotonous change of preference for semantic agreement from attributive to relative pronoun agreement, contrary to Corbett's prediction from the Agreement Hierarchy. 
 
 \begin{table}[H]
   \centering
@@ -272,43 +343,24 @@ After filtering the data which could not be used, there were 1722 observations, 
     {
     hlines, vlines,
     row{1,2} = {gray7},
-    row{3,8,13,18} = {gray9},
     cell{1}{1} = {r=2}{c},
     cell{1}{2} = {r=2}{c},
     cell{1}{3} = {c=2}{c},
     cell{1}{5} = {c=2}{c},
-    cell{3,8,13,18}{1} = {c=6}{c},
-    hline{7,12,17,22} = {2pt,solid},
+    hline{6} = {2pt,solid},
     }
     Target of agreement & N & Semantic agreement & & Syntactic agreement & \\
                         & & N & \% & N & \% \\
-    All nouns & & & & & \\
-    Attribute & 891 & 209 & 23.46\% & 682 & 76.54\% \\ 
-    Predicate & 686 & 160 & 23.32\% & 526 & 76.68\% \\ 
-    Relative pronoun & 145 & 74 & 51.03\% & 71 & 48.97\% \\ 
-    Total & 1722 & 443 & 25.73\% & 1279 & 74.27\% \\ 
-    Depreciative forms & & & & & \\
     Attribute & 343 & 37 & 10.79\% & 306 & 89.21\% \\ 
     Predicate & 569 & 153 & 26.89\% & 416 & 73.11\% \\ 
     Relative pronoun &  46 & 9 & 19.57\% & 37 & 80.43\% \\ 
     Total & 958 & 199 & 20.77\% & 759 & 79.23\% \\
-    Gendered nouns & & & & & \\
-    Attribute & 343 & 11 & 3.21\% & 332 & 96.79\% \\ 
-    Predicate &  95 & 4 & 4.21\% & 91 & 95.79\% \\ 
-    Relative pronoun &  31 & 0 & 0\% & 31 & 100\% \\ 
-    Total & 469 & 15 & 3.2\% & 454 & 96.8\% \\
-    Profession nouns & & & & & \\
-    Attribute & 205 & 161 & 78.54\% & 44 & 21.46\% \\ 
-    Predicate &  22 & 3 & 13.64\% & 19 & 86.36\% \\ 
-    Relative pronoun &  68 & 65 & 95.59\% & 3 & 4.41\% \\ 
-    Total & 295 & 229 & 77.63\% & 66 & 22.37\% \\
-  \end{tblr}  
-  \caption{Numbers and percentages of occurrences of agreement.}
-  \label{tab:corpus-summary}
+  \end{tblr}
+  \caption{Numbers and percentages of occurrences of agreement with depreciative forms.}
+  \label{tab:depr-summary}
 \end{table}
 
-% deprs
-Out of 958 occurrences of agreement with depreciative forms, 20.77\% had semantic agreement. The likelihood of semantic agreement was the lowest for attributes (10.79\%) and highest for predicates (26.89\%), leaving in between the relative pronouns (19.57\%). For this type of controller there is no monotonous change of preference for semantic agreement from attributive to relative pronoun agreement, contrary to Corbett's prediction from the Agreement Hierarchy. In the following examples we can see depreciative forms with all targets of agreement in both possible forms, with the more likely form in bold. For all of them this was the form with syntactic agreement.
+In the following examples we can see depreciative forms with all targets of agreement in both possible forms, with the more likely form in bold. For all of them this was the form with syntactic agreement.
 
 % examples!
 % attr: Tutejsze wykształciuchy nie są polskimi inteligentami.
@@ -319,24 +371,54 @@ Out of 958 occurrences of agreement with depreciative forms, 20.77\% had semanti
   \ex
   \begin{xlist}
     \ex\label{ex:depr-attr}
-    \gll \textbf{Tutej-sze}/tutej-si wykształciuchy nie są polskimi inteligentami.\\
-    \textbf{local-\textsc{f}}/local-\textsc{m1} educated.people.\textsc{m1} \textsc{neg} are Polish intellectuals\\
+    \gll \textbf{Tutej-sze}/tutej-si wykształciuch-y nie są polskimi inteligentami.\\
+    \textbf{local\textsc{-nm1.pl.nom}}/local\textsc{-m1.pl.nom} educated.person\textsc{-pl.nom.depr} \textsc{neg} be\textsc{(prs.3pl)} Polish intellectuals\\
     \glt ``The local educated people are not the Polish intellectuals.''\\
+    NCP 300M, sentence ID: 12590744\\
 
     \ex\label{ex:depr-pred}
-    \gll Mieszczuchy \textbf{wol-ały-by}/wol-eli-by, żeby chichotał i mrugał porozumiewawczo.\\
-    city.dwellers.\textsc{m1} \textbf{prefer-\textsc{f}-\textsc{cond}}/prefer-\textsc{m1}-\textsc{cond} that giggle and wink knowingly\\
+    \gll Mieszczuch-y \textbf{wol-ały-by}/wol-eli-by, żeby chichotał i mrugał porozumiewawczo.\\
+    city.dwellers\textsc{-pl.nom.depr} \textbf{prefer\textsc{-3pl.nm1-cond}}/prefer\textsc{-3pl.m1-cond} that giggle and wink knowingly\\
     \glt ``The city dwellers would prefer him to giggle and wink knowingly.''\\
+    NCP 300M, sentence ID: 3883941\\
 
     \ex\label{ex:depr-relpron}
-    \gll Mnie najbardziej zbijają z nóg modnisie, \textbf{któ-re}/któ-rzy uważają się za orginalne.\\
-    me most knock from legs dandys.\textsc{m1} \textbf{which-\textsc{f}}/-\textsc{m1} consider \textsc{refl} as original\\
+    \gll Mnie najbardziej zbijają z nóg modnisi-e, \textbf{któ-re}/któ-rzy uważają się za orginalne.\\
+    me most knock off legs dandy\textsc{-pl.acc.depr} \textbf{which\textsc{-nm1.pl.nom}}/\textsc{-m1.pl.nom} consider \textsc{refl} as original\\
     \glt ``Dandys, who consider themselves original, surprise me the most.''\\
+    NCP 300M, sentence ID: 6767871\\
   \end{xlist}
 \end{exe}
 
-% gend
-According to one of the hypotheses, semantic agreement should be more acceptable with lexical hybrids than with split hybrids, which would mean that socially gendered nouns would have a higher percentage of semantic agreements than depreciative forms. This is not reflected in the collected corpus data, where only 3.2\% of occurrences with gendered nouns have semantic agreement. Here the percentages of semantic agreement change monotonously from attributive to relative pronoun agreement, although it is the syntactic agreement that becomes more likely as we go along the Agreement Hierarchy. Considering this, the data from socially gendered nouns fits only the simple constraint of the Agreement Hierarchy \citep{corbett_agreement_2023}. The following examples come from the corpus and show which of the possible agreements are preferred.
+Binomial logistic regression using only the agreement occurrences with depreciative forms with the type of agreement target, distance and target placement as predictors has shown that only target placement had a significant effect on the outcome -- target following the controller increased the likelihood of semantic agreement (\textsl{p}<0.001).
+
+\subsection{Socially gendered nouns}
+According to Corbett's Source Hierarchy, semantic agreement should be more acceptable with lexical hybrids than with split hybrids, which would mean that socially gendered nouns would have a higher percentage of semantic agreements than depreciative forms. As we can see in Table \ref{tab:gend-summary}, this is not reflected in the collected corpus data, where only 3.2\% of occurrences with gendered nouns have semantic agreement. Here the percentages of semantic agreement change monotonously from attributive to relative pronoun agreement, although it is the syntactic agreement that becomes more likely as we go along the Agreement Hierarchy. Considering this, the data from socially gendered nouns fits only the simple constraint of the Agreement Hierarchy \citep{corbett_agreement_2023}. 
+
+\begin{table}[H]
+  \centering
+  \begin{tblr}
+    {
+    hlines, vlines,
+    row{1,2} = {gray7},
+    cell{1}{1} = {r=2}{c},
+    cell{1}{2} = {r=2}{c},
+    cell{1}{3} = {c=2}{c},
+    cell{1}{5} = {c=2}{c},
+    hline{6} = {2pt,solid},
+    }
+    Target of agreement & N & Semantic agreement & & Syntactic agreement & \\
+                        & & N & \% & N & \% \\
+    Attribute & 343 & 11 & 3.21\% & 332 & 96.79\% \\ 
+    Predicate &  95 & 4 & 4.21\% & 91 & 95.79\% \\ 
+    Relative pronoun &  31 & 0 & 0\% & 31 & 100\% \\ 
+    Total & 469 & 15 & 3.2\% & 454 & 96.8\% \\
+  \end{tblr}
+  \caption{Numbers and percentages of occurrences of agreement with socially gendered nouns.}
+  \label{tab:gend-summary}
+\end{table}
+
+The following examples come from the corpus and show which of the possible agreements are preferred.
 
 % examples!
 % attr: Zachichotał jak stuprocentowa ciota.
@@ -346,24 +428,54 @@ According to one of the hypotheses, semantic agreement should be more acceptable
   \ex
   \begin{xlist}
     \ex\label{ex:gend-attr}
-    \gll Zachichotał jak \textbf{stuprocentow-a}/stuprocentow-y ciota.\\
-    giggled like \textbf{hundred.percent-\textsc{f}}/hundred.percent-\textsc{m1} faggot.\textsc{f}\\
+    \gll Zachichota-ł jak \textbf{stuprocentow-a}/stuprocentow-y ciot-a.\\
+    giggle\textsc{-pst.3sg.m1} like \textbf{hundred.percent\textsc{-f.sg.nom}}/hundred.percent\textsc{-m1.sg.nom} faggot\textsc{(f)-sg.nom}\\
     \glt ``He giggled like a 100\% faggot.''\\
+    NCP 300M, sentence ID: 18628964\\
 
     \ex\label{ex:gend-pred}
-    \gll Kobiecisko \textbf{przytulił-o}/przytulił-a się histerycznie do mnie.\\
-    woman.\textsc{n} \textbf{hugged-\textsc{n}}/hugged-\textsc{f} \textsc{refl} histerically to me\\
+    \gll Kobiecisk-o \textbf{przytulił-o}/przytulił-a się histerycznie do mnie.\\
+    woman\textsc{(n)-sg.nom} \textbf{hug\textsc{-pst.3sg.n}}/hug\textsc{-pst.3sg.f} \textsc{refl} histerically to me\\
     \glt ``The woman hugged me histerically.''\\
+    NCP 300M, sentence ID: 16919204\\
 
     \ex\label{ex:gend-relpron}
-    \gll Pamiętasz historię dziewczęcia, \textbf{któr-e}/któr-a uciekło z balu?\\
-    remember story girl.\textsc{n} \textbf{which-\textsc{n}}/which-\textsc{f} ran.away from dance\\
+    \gll Pamiętasz historię dziewczę-cia, \textbf{któr-e}/któr-a uciekło z balu?\\
+    remember story girl\textsc{(n)-sg.gen} \textbf{which\textsc{-n.sg.nom}}/which\textsc{-f.sg.nom} ran.away from dance\\
     \glt ``Do you remember the story of the girl, who ran away from the dance?''\\
+    NCP 300M, sentence ID: 18852664\\
   \end{xlist}
 \end{exe}
 
-% prof
-There were 295 occurrences of agreement with profession nouns, 77.63\% of which had semantic agreement. This percentage is larger than for other types of nouns, however this is most likely because all of the profession noun occurrences included in the analysis appeared with feminine appositions, which increase the likelihood of semantic agreement. I will explore this more later when considering the order in which the apposition, controller and target appear in the sentences. With profession nouns it was more likely that semantic agreement would be used in attributes (78.54\% of all attributive agreement occurrences) and in relative pronouns (95.59\% of all relative pronoun agreement occurrences), but not in predicates (13.64\% of all predicate agreement occurrences). This, again, does not follow the simple constraint of the Agreement Hierarchy proposed by Corbett (2023), according to which there should be a monotonic change from attributive to relative pronoun agreement. The preferences found in the corpus can be seen in the following examples.
+Binomial logistic regression using only the agreement occurrences with socially gendered nouns with the type of agreement target, distance and target placement as predictors has shown that distance was the only significant predictor of semantic agreement: larger distance increased the likelihood of semantic agreement with gendered nouns (\textsl{p}<0.05).
+
+\subsection{Profession nouns}
+As we can see in Table \ref{tab:prof-summary}, there were 295 occurrences of agreement with profession nouns, 77.63\% of which had semantic agreement. This percentage is larger than for other types of nouns, however this is most likely because all of the profession noun occurrences included in the analysis appeared with feminine appositions, which increase the likelihood of semantic agreement. I will explore this more later when considering the order in which the apposition, controller and target appear in the sentences. With profession nouns it was more likely that semantic agreement would be used in attributes (78.54\% of all attributive agreement occurrences) and in relative pronouns (95.59\% of all relative pronoun agreement occurrences), but not in predicates (13.64\% of all predicate agreement occurrences). This, again, does not follow the simple constraint of the Agreement Hierarchy proposed by Corbett (2023), according to which there should be a monotonic change from attributive to relative pronoun agreement. 
+
+\begin{table}[H]
+  \centering
+  \begin{tblr}
+    {
+    hlines, vlines,
+    row{1,2} = {gray7},
+    cell{1}{1} = {r=2}{c},
+    cell{1}{2} = {r=2}{c},
+    cell{1}{3} = {c=2}{c},
+    cell{1}{5} = {c=2}{c},
+    hline{6} = {2pt,solid},
+    }
+    Target of agreement & N & Semantic agreement & & Syntactic agreement & \\
+                        & & N & \% & N & \% \\
+    Attribute & 205 & 161 & 78.54\% & 44 & 21.46\% \\ 
+    Predicate &  22 & 3 & 13.64\% & 19 & 86.36\% \\ 
+    Relative pronoun &  68 & 65 & 95.59\% & 3 & 4.41\% \\ 
+    Total & 295 & 229 & 77.63\% & 66 & 22.37\% \\
+  \end{tblr}
+  \caption{Numbers and percentages of occurrences of agreement with profession nouns.}
+  \label{tab:prof-summary}
+\end{table}
+
+The preferences found in the corpus are illustrated in the following examples.
 
 % examples!
 % attr: Większość złożyli w końcówce kadencji obecnej burmistrz Stefanii Sulińskiej.
@@ -373,25 +485,28 @@ There were 295 occurrences of agreement with profession nouns, 77.63\% of which 
   \ex
   \begin{xlist}
     \ex\label{ex:prof-attr}
-    \gll Większość złożyli w końcówce kadencji obecne-go/\textbf{obecne-j} burmistrz Stefanii Sulińskiej.\\
-    majority submitted in ending term current-\textsc{m1}/\textbf{current-\textsc{f}} mayor.\textsc{m1} Stefania Sulińska \\
+    \gll Większość złożyli w końcówce kadencji obecne-go/\textbf{obecne-j} burmistrz-Ø Stefanii Sulińskiej.\\
+    majority submitted in ending term current\textsc{-m1.sg.gen}/\textbf{current\textsc{-f.sg.gen}} mayor\textsc{(m1)-sg.nom} Stefania Sulińska \\
     \glt ``The submitted the majority of them at the end of the term of the current mayor, Stefania Sulińska.''\\
+    NCP 300M, sentence ID: 10793552\\
 
     \ex\label{ex:prof-pred}
-    \gll One są gotowe do adaptacji do roku 2008 – \textbf{zapewniał-$\emptyset$}/zapewniał-a minister edukacji Krystyna Łybacka.\\
-    they are ready for adaptation to year 2008 - \textbf{assured-\textsc{m1}}/assured-\textsc{f} minister.\textsc{m1} education Krystyna Łybacka\\
+    \gll One są gotowe do adaptacji do roku 2008 – \textbf{zapewniał-Ø}/zapewniał-a minist-er edukacji Krystyna Łybacka.\\
+    they are ready for adaptation to year 2008 - \textbf{assured\textsc{-pst.3sg.m1}}/assured\textsc{-pst.3sg.f} minister\textsc{(m1)-sg.nom} education Krystyna Łybacka\\
     \glt ``They are ready to be adapted before the year 2008 - assured the minister of education Krystyna Łybacka.''\\
+    NCP 300M, sentence ID: 4040070\\
 
     \ex\label{ex:prof-relpron}
-    \gll Felicity Huffman gra panią naukowiec, któr-y/\textbf{któr-a} w arktycznej stacji zostaje zarażona pasożytem z kosmosu.\\
-    Felicity Huffman plays lady scientist.\textsc{m1} which-\textsc{m1}/\textbf{which-\textsc{f}} in arctic station becomes infected parasite from space\\
+    \gll Felicity Huffman gra panią naukow-iec, któr-y/\textbf{któr-a} w arktycznej stacji zostaje zarażona pasożytem z kosmosu.\\
+    Felicity Huffman plays lady scientist\textsc{(m1)-sg.nom} which\textsc{-m1.sg.nom}/\textbf{which\textsc{-f.sg.nom}} in arctic station becomes infected parasite from space\\
     \glt ``Felicity Huffman plays the scientist, who is infected with a parasite from space in the arctic station.''\\
+    NCP 300M, sentence ID: 18469406\\
   \end{xlist}
 \end{exe}
 
 It is possible that agreement with profession nouns is more likely to be semantic than with other types of nouns, because in those occurrences there were also feminine appositions to the nouns. In those situations it is possible that speakers chose feminine agreement on targets (which for profession nouns is semantic agreement), because they were actually agreeing the gender of the target with the gender of the apposition. To have more insight into the structure of those sentences I marked the order in which the appositions (A), controllers (C) and targets (T) appeared with each occurrence of agreement. Figure \ref{fig:ordering} shows the proportions of semantic to syntactic agreement in occurrences with each possible order of appositions, controllers and targets.
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=\linewidth]{images/semXorder.png}
   \caption{Proportion of syntactic and semantic agreements with ordering of the controller, target and apposition}
@@ -400,9 +515,11 @@ It is possible that agreement with profession nouns is more likely to be semanti
 
 Three of the orders shown in the figure noticeably favor semantic agreement over syntactic: apposition-controller-target, apposition-target-controller and target-apposition-controller. In contrast to the other orders, for these the apposition appears before the controller. Since this seems to be the most important information coming from the order variable, for statistical modeling instead of accounting for the order  we will account for whether the apposition appears first (before the controller) or not.
 
-Seeing that, when the apposition appears before the controller, the agreement is almost always semantic, we can look at how the proportions of semantic agreement change if we assume that we should exclude occurrences with apposition first, because the speakers agree the gender of the target with the gender of apposition and not the semantic gender of the controller. Figure \ref{fig:NOAPP-semantic-in-targets} is identical to Figure \ref{fig:semantic-in-targets}, only with occurrences of profession nouns with appositions first excluded.
+The binomial logistic regression performed on agreement occurrences with profession nouns used the type of agreement target, distance, target placement and apposition placement as predictors of semantic agreement. Distance and target placement were not significant in this model. Contrary to what the Agreement Hierarchy indicates, the odds of attributive agreement being semantic were approximately 16.16 times higher than the odds of predicate agreement being semantic (\textsl{p}<0.05). For relative pronouns the odds were 25.84 times higher than for predicates (\textsl{p}<0.05). There was also a significant effect of apposition placement -- the apposition appearing before the controller increased the likelihood of semantic agreement (\textsl{p}<0.001).
 
-\begin{table}[H]
+Considering the effect of apposition placement on the choice of agreement, we can look at how the proportions of semantic agreement change if we assume that we should exclude occurrences with apposition first, because the speakers agree the gender of the target with the gender of apposition and not the semantic gender of the controller. Figure \ref{fig:NOAPP-semantic-in-targets} is identical to Figure \ref{fig:semantic-in-targets}, only with occurrences of profession nouns with appositions first excluded.
+
+\begin{table}[h]
   \centering
   \begin{tblr}
     {
@@ -425,7 +542,7 @@ Seeing that, when the apposition appears before the controller, the agreement is
   \label{tab:prof-sum-NOAPP}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \small
   \centering
   \includegraphics[width=\linewidth]{images/NOAPPsemXtargetsXnouns.png}
@@ -435,28 +552,17 @@ Seeing that, when the apposition appears before the controller, the agreement is
 
 We can see that the overall proportions of semantic agreement (left side of the figure) are now unambiguously not monotonic, and therefore not compatible with any version of the Agreement Hierarchy constraints. The proportions for the profession nouns only, however, now show a monotonic shift from preference for almost exclusively syntactic agreement with attributes, to close to 50\% syntactic and semantic agreement. 
 
-\subsection{Statistical models}
-For statistical modeling of the corpus data I used the \texttt{glmer} function from the \texttt{lme4} R package and the \texttt{glm} function from the \texttt{stats} package. The first was a binomial generalized linear mixed model, because the outcome was binary: whether semantic agreement was chosen or not. The model used all of the 1722 observations. Fixed effects were the type of agreement target (attribute, predicate or relative pronoun), distance between the target and controller, target placement (preceding or following the controller), type of controller (gendered noun, profession noun or depreciative form) and apposition placement (preceding or following the controller). The corpus contains texts from 13 different types of sources -- this was included as the random effect in the model. The full list of the model's coefficients is presented at the end of this chapter. 
-
-Types of targets and the distance were not significant as predictors of semantic agreement. Target being placed after the controller increased the likelihood of semantic agreement (\textsl{p}<0.001), as well as placing an apposition before the controller (\textsl{p}<0.001). Among the noun types the depreciative forms were the baseline, because the hypothesis was that as split hybrids semantic agreement would be less likely to occurr with them than with the lexical hybrids: gendered and profession nouns. Compared to depreciative forms then, socially gendered nouns turned out to be less likely to have semantic agreement (\textsl{p}<0.001), while profession noun were more likely to have semantic agreement (\textsl{p}<0.001).
-
-The second model was a binomial generalized linear model and used only the occurrences with depreciative forms. The independent variables were the type of agreement target, distance and target placement. Out of these, the only significant effect was that of the target placement -- target following the controller increased the likelihood of semantic agreement (\textsl{p}<0.001).
-
-I also computed a binomial generalized linear model using only the occurrences with socially gendered nouns, with the same independent variables as for the previous model: the type of agreement target, distance and target placement. Here the only significant predictor was the distance -- larger distance increased the likelihood of semantic agreement with gendered nouns (\textsl{p}<0.05).
-
-Finally, there was also a binomial generalized linear model which used only the occurrences with profession nouns. In this model, additionally to the predictors in the previous one, there was the placement of the apposition. Distance and target placement were not significant in this model. Contrary to what the Agreement Hierarchy indicates, the odds of attributive agreement being semantic were approximately 16.16 times higher than the odds of predicate agreement being semantic (\textsl{p}<0.05). For relative pronouns the odds were 25.84 times higher than for predicates (\textsl{p}<0.05). There was also a significant effect of apposition placement -- the apposition appearing before the controller increased the likelihood of semantic agreement (\textsl{p}<0.001).
-
 \section{Discussion}
-When looking at all nouns combined, there was no significant effect of the type of target or the distance between the target and the controller. Instead, the choice between semantic and syntactic agreement could be better predicted with the order of target and controller, the type of noun and the apposition -- whether it was there and whether it preceded the agreement controller.
+When looking at all nouns combined, there was no significant effect of the type of target or the distance between the target and the controller. Instead, the choice between semantic and syntactic agreement could be better predicted with the order of target and controller, the type of noun and the apposition -- whether it was there and whether it preceded the agreement controller. This is a surprising result, because the type of agreement target was hypothesised to be the main factor in the choice between semantic and syntactic agreement. 
 
-As for the effect of the type of noun, based on the Hierarchy of Agreement Sources, the lexical hybrids (profession nouns and semantically gendered nouns) should be more likely to have semantic agreement than split hybrids (depreciative forms). There is a significant difference between the lexical hybrids and split hybrids, but it goes in different directions: semantically gendered nouns are less likely to have semantic agreement than depreciative forms, while profession nouns are more likely to have semantic agreement than depreciative forms. Looking at this, it is inconclusive whether the lexical hybrids are more likely to have semantic agreement. However, if we exclude the profession nouns with appositions preceding the agreement controllers, we see that only 12.68\% of all agreement occurrences are semantic, compared to 20.77\% for depreciaitve forms. It is possible that when appositions precede the controllers, gender of targets is actually agreed with the appositions, and in this case all lexical nouns in this study have less semantic agreement than depreciative forms.
+As for the effect of the type of noun, based on the Hierarchy of Agreement Sources, the lexical hybrids (profession nouns and socially gendered nouns) should be more likely to have semantic agreement than split hybrids (depreciative forms). There is a significant difference between the lexical hybrids and split hybrids, but it goes in different directions: socially gendered nouns are less likely to have semantic agreement than depreciative forms, while profession nouns are more likely to have semantic agreement than depreciative forms. Looking at this, it is inconclusive whether the lexical hybrids are more likely to have semantic agreement. However, if we exclude the profession nouns with appositions preceding the agreement controllers, we see that only 12.68\% of all agreement occurrences are semantic, compared to 20.77\% for depreciaitve forms. It is possible that when appositions precede the controllers, gender of targets is actually agreed with the appositions, and in this case all lexical nouns in this study have less semantic agreement than depreciative forms.
 
-Within the depreciative forms, the only significant factor was the ordering of target and controller. Depreciative forms, as split hybrids, are an example of generalized semantic agreement. It is possible that semantic agreement is more difficult to justify for those forms and because of this, speakers are more sensitive to the target-controller order.
+Within the depreciative forms, the only significant factor was the ordering of target and controller: target following the controller increased the likelihood of semantic agreement. This is in line with the hypothesis about the target and controller order.
 
-Among the agreement occurrences with semantically gendered nouns there is barely any semantic agreement. One reason for this could be the source of occurrences with those nouns: over 50\% of those occurrences come from prose, which is highly stylized and can affect the choice of agreement with those nouns. They are in general rare in everyday usage, which means that they can be less susceptible to the agreement hierarchy.
+Among the agreement occurrences with socially gendered nouns there is barely any semantic agreement. One reason for this could be the source of occurrences with those nouns: over 50\% of those occurrences come from prose, which is highly stylized and can affect the choice of agreement with those nouns. 
 
-Profession nouns are the only group, for which the type of agreement target was a significant predictor of semantic agreement, but not in the way the Agreement Hierarchy predicts -- attributive agreement was more likely to be semantic than predicate agreement. In Figure \ref{fig:NOAPP-semantic-in-targets} we can see however, that if we exclude the profession noun occurrences with appositions preceding the controller, the proportion of semantic agreement changes monotonically with the smallest in attributive agreement and the largest in relative pronoun agreement. There is the possibility that with apposition preceding the controller of agreement causes speakers to choose the target gender based on the apposition and not on the controller. This seems more likely when we look at the proportions of semantic agreement in Figure \ref{fig:ordering} and take into account that apposition placement was a significant predictor of semantic agreement in the profession nouns model -- a feminine apposition appears before the controller, it is 63\% more likely that there will be semantic agreement, than if the apposition was after the controller.
+Profession nouns are the only group, for which the type of agreement target was a significant predictor of semantic agreement, but not in the way the Agreement Hierarchy predicts -- attributive agreement was more likely to be semantic than predicate agreement. In Figure \ref{fig:NOAPP-semantic-in-targets} we can see however, that if we exclude the profession noun occurrences with appositions preceding the controller, the proportion of semantic agreement changes monotonically with the smallest in attributive agreement and the largest in relative pronoun agreement. There is the possibility that with apposition preceding the controller of agreement causes speakers to choose the target gender based on the apposition and not on the controller. This seems more likely when we look at the proportions of semantic agreement in Figure \ref{fig:ordering} and take into account that apposition placement was a significant predictor of semantic agreement in both the general and the profession nouns model -- for profession nouns only when a feminine apposition appears before the controller it is 63\% more likely that there will be semantic agreement, than if the apposition was after the controller.
 
-The main limitation here was that it was a corpus study, therefore it was impossible to control for the variables of interest. There was little data for semantically gendered nouns and a lot for profession nouns, which had to be heavily filtered to be included in the analysis. Even the filtering was not fully satisfactory, since the profession noun occurrences had to have appositions included to make sure that there was in fact hybrid agreement. This in turn causes the interpretation of profession noun results to be unclear.
+The main limitation here was that it was a corpus study, therefore it was impossible to control for the variables of interest. There was little data for socially gendered nouns and a lot for profession nouns, which had to be heavily filtered to be included in the analysis. Even the filtering was not fully satisfactory, since the profession noun occurrences had to have appositions included to make sure that there was in fact hybrid agreement. This in turn causes the interpretation of profession noun results to be unclear.
 
 To continue the research on hybrid agreement in Polish, I decided to conduct two acceptability judgement experiments. I decided to use profession nouns and depreciative forms, so that it is possible to reach more definite conclusions regarding the profession nouns, and so that there is more data about split hybrids, which are a newer and less explored addition to the agreement hierarchy. The experimental study allows me to control the context, so that there is no need for using appositions and it is clear that gender agreement on the target comes from the controller.
