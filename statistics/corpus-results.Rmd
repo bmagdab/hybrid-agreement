@@ -1496,6 +1496,8 @@ exper %>% filter(!(id == "6dly03" | id == "wvb2ar")) -> exper
 demo %>% filter(!(id == "6dly03" | id == "wvb2ar")) -> demo
 ```
 
+Up to here is saved as exp-cleaned.RData
+
 Final demographic profile of participants.
 ```{r}
 demo %>% 
@@ -1513,7 +1515,7 @@ Average acceptability ratings per experiment and per condition.
 ```{r}
 exper %>%
   filter(trial_type == "experimental") %>% 
-  group_by(condition, noun, agreement) %>% 
+  group_by(noun, condition, agreement) %>% 
   summarise("mean rating" = mean(rating),
             sd = sd(rating),
             first = quantile(rating, .25),
@@ -1545,6 +1547,28 @@ exper %>%
                     values = wes_palette(n=2, name="AsteroidCity1")) -> main.plot
 main.plot
 ```
+Tables above for latex:
+```{r}
+exper %>%
+  filter(trial_type == "experimental" & noun == "prof") %>% 
+  group_by(condition, agreement) %>% 
+  summarise("mean rating" = mean(rating),
+            sd = sd(rating)) %>% 
+  tidyr::pivot_wider(names_from = condition,
+                     values_from = c(`mean rating`, sd),
+                     names_vary = "slowest") %>% xtable()
+
+exper %>%
+  filter(trial_type == "experimental" & noun == "depr") %>% 
+  group_by(condition, agreement) %>% 
+  summarise("mean rating" = mean(rating),
+            sd = sd(rating)) %>% 
+  tidyr::pivot_wider(names_from = condition,
+                     values_from = c(`mean rating`, sd),
+                     names_vary = "slowest") %>% xtable()
+```
+
+
 A plot with the ratings of control items, just to compare with the ratings of experimental items:
 ```{r}
 exper %>%
@@ -1807,6 +1831,8 @@ exper %>%
          rating = as.ordered(rating)) -> mod
 ```
 
+Up to here saved as exp-modeling.RData
+
 A general model with data from both experiments:
 ```{r}
 mod %>% 
@@ -1821,7 +1847,7 @@ Model!
 ```{r}
 mod %>% 
   filter(noun == "prof") %>% 
-  clmm(rating ~ agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age)),
+  clmm(rating ~ agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age) + (1|group)),
        data = .) -> prof.mod
 summary(prof.mod)
 ```
@@ -1832,7 +1858,7 @@ Model!
 ```{r}
 mod %>% 
   filter(noun == "depr") %>% 
-  clmm(rating ~ agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age)),
+  clmm(rating ~ agreement*(order + target_type + (1|id) + (1|item) + (1|trial_index) + (1|age) + (1|group)),
        data = .) -> depr.mod
 summary(depr.mod)
 ```
