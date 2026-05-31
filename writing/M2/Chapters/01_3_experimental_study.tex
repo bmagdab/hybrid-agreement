@@ -191,9 +191,72 @@ We analyzed these results with a mixed-effects ordinal regression model using th
 The only significant effect in this model was the effect of noun: items with profession nouns had significantly higher ratings than items with depreciative forms (p<0.001). The following subsections will describe the analyses for the two experiments separately.
 
 \subsection{Experiment 1}
+Experiment 1 used stimuli with profession nouns. Table \ref{tab:exp-prof-summary} shows a summary of the results in this experiment.
 
+% latex table generated in R 4.5.2 by xtable 1.8-8 package
+% Sat May 30 20:32:22 2026
+\begin{table}[h]
+  \centering
+  \begin{tblr}{
+    hlines,vlines,
+    cell{1}{1} = {r=2}{c},
+    cell{1}{2} = {c=2}{c},
+    cell{1}{4} = {c=2}{c},
+    cell{1}{6} = {c=2}{c}
+    }
+    Agreement & Prenominal predicate & & Postnominal predicate & & Relative pronoun & \\
+              & Mean & SD & Mean & SD & Mean & SD \\ 
+    Semantic & 3.51 & 1.53 & 3.91 & 1.41 & 4.24 & 1.04 \\ 
+    Syntactic & 3.68 & 1.38 & 3.61 & 1.40 & 4.05 & 1.24 \\
+  \end{tblr}
+  \caption{Means and standard deviations for acceptability ratings in all conditions in Experiment 1.}
+  \label{tab:exp-prof-summary}
+\end{table}
+
+For prenominal predicates semantic agreement is less acceptable than syntactic, which is expected because target-before-controller ordering should not favor semantic agreement. Then for postnominal predicates the average rating of semantic agreement is higher than for prenominal predicates, which is in line with the hypothesis that semantic agreement with target first is less acceptable than semantic agreement with controller first. Finally, the relative pronoun agreement has higher ratings than either predicate agreement, which can be in line with the hypothesis derived from the Agreement Hierarchy, but relative pronoun agreement has higher ratings with both semantic and syntactic agreement.
+
+In Figure \ref{fig:prof-demo-plot} we can see the differences in acceptability depending on the conditions, age group and gender of the participants.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=.7]{./images/expdemoprof.png}
+  \caption{Average ratings of experimental items in Experiment 1 grouped by participants' age and gender.}
+  \label{fig:prof-demo-plot}
+\end{figure}
+
+In the plot we can see that women in the youngest group have very similar ratings for all conditions with a slight preference towards syntactic agreement, while the middle group always prefers semantic agreement (it should be noted that the 51+ group here consists of only one person). For men, syntactic prenominal predicate agreement is either the same or better than semantic, while for other conditions they prefer semantic agreement. This is in line with Corbett's prediction that target before controller is more likely to be syntactic.
+
+Results from this experiment were also anaylzed with a mixed-effects ordinal regression model, with agreement crossed with order and target type as predictors of acceptability rating and the same random effects as in the general model. 
+
+The list of coefficients from this model can be found in Appendix ?.
 
 \subsection{Experiment 2}
+% latex table generated in R 4.5.2 by xtable 1.8-8 package
+% Sat May 30 20:32:22 2026
+\begin{table}[h]
+  \centering
+  \begin{tblr}{
+    hlines,vlines,
+    cell{1}{1} = {r=2}{c},
+    cell{1}{2} = {c=2}{c},
+    cell{1}{4} = {c=2}{c},
+    cell{1}{6} = {c=2}{c}
+    }
+    Agreement & Postnominal predicate & & Prenominal predicate & & Relative pronoun & \\
+              & Mean & SD & Mean & SD & Mean & SD \\ 
+    Semantic & 1.96 & 1.27 & 1.76 & 1.04 & 1.86 & 1.08 \\ 
+    Syntactic & 1.55 & 0.95 & 1.59 & 0.94 & 1.70 & 1.03 \\ 
+  \end{tblr}
+  \caption{Means and standard deviations for acceptability ratings in all conditions in Experiment 1.}
+  \label{tab:exp-prof-summary}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=.8]{./images/expdemodepr.png}
+  \caption{Average ratings of experimental items in Experiment 2 grouped by participants' age and gender.}
+  \label{fig:depr-demo-plot}
+\end{figure}
 
 % GENERAL MODEL
 % Cumulative Link Mixed Model fitted with the Laplace approximation
@@ -239,25 +302,26 @@ The only significant effect in this model was the effect of noun: items with pro
 % Cumulative Link Mixed Model fitted with the Laplace approximation
 
 % formula: rating ~ agreement * (order + target_type + (1 | id) + (1 | item) +  
-%     (1 | trial_index) + (1 | age))
+%     (1 | trial_index) + (1 | age) + (1 | group))
 % data:    .
 
 
 % Random effects:
 %  Groups      Name        Variance Std.Dev.
 %  trial_index (Intercept) 0.04385  0.2094  
-%  id          (Intercept) 0.62530  0.7908  
+%  id          (Intercept) 0.62532  0.7908  
 %  item        (Intercept) 0.47543  0.6895  
+%  group       (Intercept) 0.00000  0.0000  
 %  age         (Intercept) 0.00000  0.0000  
-% Number of groups:  trial_index 60,  id 29,  item 24,  age 3 
+% Number of groups:  trial_index 60,  id 29,  item 24,  group 6,  age 3 
 
 % Coefficients:
 %                                        Estimate Std. Error z value Pr(>|z|)  
 % agreementsemantic                      -0.09523    0.25584  -0.372   0.7097  
-% orderControllerFirst                   -0.03821    0.25593  -0.149   0.8813  
+% orderControllerFirst                   -0.03820    0.25593  -0.149   0.8814  
 % target_typeRelPron                      0.63759    0.25970   2.455   0.0141 *
 % agreementsemantic:orderControllerFirst  0.60186    0.36529   1.648   0.0994 .
-% agreementsemantic:target_typeRelPron   -0.25599    0.37176  -0.689   0.4911  
+% agreementsemantic:target_typeRelPron   -0.25598    0.37176  -0.689   0.4911  
 % ---
 % Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
@@ -272,31 +336,32 @@ The only significant effect in this model was the effect of noun: items with pro
 % Cumulative Link Mixed Model fitted with the Laplace approximation
 
 % formula: rating ~ agreement * (order + target_type + (1 | id) + (1 | item) +  
-%     (1 | trial_index) + (1 | age))
+%     (1 | trial_index) + (1 | age) + (1 | group))
 % data:    .
 
 
 % Random effects:
 %  Groups      Name        Variance Std.Dev.
-%  trial_index (Intercept) 0.0165   0.1284  
-%  id          (Intercept) 1.6869   1.2988  
-%  item        (Intercept) 0.7912   0.8895  
-%  age         (Intercept) 0.0000   0.0000  
-% Number of groups:  trial_index 60,  id 25,  item 24,  age 3 
+%  trial_index (Intercept) 0.01776  0.1333  
+%  id          (Intercept) 1.12671  1.0615  
+%  item        (Intercept) 0.80517  0.8973  
+%  group       (Intercept) 0.66676  0.8166  
+%  age         (Intercept) 0.00000  0.0000  
+% Number of groups:  trial_index 60,  id 25,  item 24,  group 6,  age 3 
 
 % Coefficients:
 %                                        Estimate Std. Error z value Pr(>|z|)  
-% agreementsemantic                        0.5478     0.3254   1.684   0.0923 .
-% orderControllerFirst                    -0.1938     0.3393  -0.571   0.5679  
-% target_typeRelPron                       0.6181     0.3283   1.883   0.0597 .
-% agreementsemantic:orderControllerFirst   0.4738     0.4643   1.020   0.3075  
-% agreementsemantic:target_typeRelPron    -0.8483     0.4503  -1.884   0.0596 .
+% agreementsemantic                        0.5545     0.3259   1.701   0.0889 .
+% orderControllerFirst                    -0.1881     0.3399  -0.554   0.5799  
+% target_typeRelPron                       0.6164     0.3289   1.874   0.0610 .
+% agreementsemantic:orderControllerFirst   0.4655     0.4652   1.001   0.3170  
+% agreementsemantic:target_typeRelPron    -0.8465     0.4512  -1.876   0.0606 .
 % ---
 % Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 % Threshold coefficients:
 %     Estimate Std. Error z value
-% 1|2   0.8255     0.3989   2.070
-% 2|3   2.6065     0.4186   6.226
-% 3|4   3.5033     0.4352   8.050
-% 4|5   4.9360     0.4889  10.096
+% 1|2   0.7683     0.5074   1.514
+% 2|3   2.5486     0.5226   4.877
+% 3|4   3.4458     0.5358   6.431
+% 4|5   4.8817     0.5801   8.415
