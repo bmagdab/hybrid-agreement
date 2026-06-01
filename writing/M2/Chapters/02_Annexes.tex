@@ -1,9 +1,10 @@
 \phantomsection
 \appendix
-\chapter*{Appendices}\label{chap:Appendices}
 \addcontentsline{toc}{chapter}{Appendices}
+\chapter*{Appendices}\label{chap:Appendices}
+\renewcommand{\thesection}{\Alph{section}}
 
-\section*{Coefficients from statistical modeling of the corpus data}
+\section{Coefficients from statistical modeling of the corpus data}
 \begin{table}[H]
   \centering
   \begin{tblr}
@@ -80,7 +81,36 @@
   \label{tab:coef-depr}
 \end{table}
 
-\section*{Coefficients from statistical modeling of the experimental data}
+\section{Consent page and the practice item in the experiments.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=.5]{./images/consent-page.png}
+  \caption{Screenshot of the consent page, the same for both experiments.}
+\end{figure}
+
+Translation of the text on the page:
+
+{\slshape
+  You are invited to participate in a study about the acceptability of sentences in Polish. As a part of the study you will have to read the displayed sentences and judge whether they sound natural. The study shouldn't take more than 20 minutes, participation is voluntary and you can withdraw at any point. If you want to learn more before beginning the study, click here to read the information letter.
+
+  On the next page you will see more specific instructions. To start the study you have to consent below.
+
+  I consent to participate in the study.
+
+  Continue
+}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=.5]{./images/practice-item.png}
+  \caption{Screenshot of one of the practice items.}
+\end{figure}
+
+\newpage
+\section{Experimental, filler and control items from the experiments}
+\include{Chapters/app-items.tex}
+
+\section{Coefficients from statistical modeling of the experimental data}
 
 \begin{table}[H]
   \centering
