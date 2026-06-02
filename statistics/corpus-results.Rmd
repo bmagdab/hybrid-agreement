@@ -372,7 +372,7 @@ agrs %>%
                                    T ~ target_gender)) -> agrs
 ```
 
-Up to here was saved as cleared.RData
+Up to here was saved as cleaned.RData
 
 # Double agreements in profession nouns
 *SKIP THIS SECTION FOR NOW*
@@ -863,6 +863,41 @@ table(agrs$target_first, agrs$semantic_agr)
 table(agrs$distance, agrs$semantic_agr)
 table(agrs$order, agrs$semantic_agr)
 ```
+
+Tables showing percentages of semantic agreement for each noun and target.
+```{r}
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "profession") %>% 
+  group_by(type_of_agreement, target_first) %>% 
+  summarise(sem_prop = paste0(round(sum(semantic_agr)/n()*100, 2), "%")) %>% 
+  tidyr::pivot_wider(names_from = target_first,
+                     values_from = sem_prop) %>% 
+  relocate("0", .after = "1") %>% xtable()
+
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "gendered") %>% 
+  group_by(type_of_agreement, target_first) %>% 
+  summarise(sem_prop = paste0(round(sum(semantic_agr)/n()*100, 2), "%")) %>% 
+  tidyr::pivot_wider(names_from = target_first,
+                     values_from = sem_prop) %>% 
+  relocate("0", .after = "1") %>% xtable()
+
+agrs %>% 
+  mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
+         type_of_agreement = as.character(type_of_agreement)) %>% 
+  filter(source_cat == "depreciative") %>% 
+  group_by(type_of_agreement, target_first) %>% 
+  summarise(sem_prop = paste0(round(sum(semantic_agr)/n()*100, 2), "%")) %>% 
+  tidyr::pivot_wider(names_from = target_first,
+                     values_from = sem_prop) %>% 
+  relocate("0", .after = "1") %>% xtable()
+```
+
+
 plots!
 ```{r}
 agrs %>% 
