@@ -871,8 +871,9 @@ agrs %>%
   labs(x = "Target of agreement",
        y = "Proportion",
        title = "Proportion of syntactic and semantic agreements in types of targets of agreement") +
-  scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) + 
+  scale_fill_manual(name = "Agreement",
+                    labels = c("Syntactic", "Semantic"),
+                    values = wes_palette(n=2, name="Darjeeling1")) + 
   scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun")) -> semXtargets
 semXtargets
 
@@ -916,8 +917,9 @@ agrs %>%
   labs(x = "Order of target-controller-apposition",
        y = "Proportion", 
        title = "Proportion of syntactic and semantic agreements with different orders") +
-  scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) -> semXorder
+  scale_fill_manual(name = "Agreement",
+                    labels = c("Syntactic", "Semantic"),
+                    values = wes_palette(n=2, name="Darjeeling1")) -> semXorder
 semXorder
 ```
 The first plot references the first hypothesis, which is that the likelihood of semantic agreement follows the pattern attributive < predicate < relative pronoun. This tendency is not visible in the data, attributive and predicate agreement have almost the same proportion, but there is a jump in semantic agreement with relative pronouns.
@@ -952,8 +954,9 @@ agrs %>%
   labs(x = "Target of agreement",
        y = "Proportion",
        title = "Proportion of syntactic and semantic agreements in types of targets of agreement") +
-  scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) + 
+  scale_fill_manual(name = "Agreement",
+                    labels = c("Syntactic", "Semantic"),
+                    values = wes_palette(n=2, name="Darjeeling1")) + 
   scale_x_discrete(labels = c("Attribute", "Predicate", "Relative pronoun")) -> NOAPPsemXtargets
 NOAPPsemXtargets
 
@@ -1084,8 +1087,9 @@ agrs %>%
   labs(x = "Target of agreement",
        y = "Proportion",
        title = "Proportions of syntactic and semantic agreements in noun types and in types of agreement") +
-  scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) + 
+  scale_fill_manual(name = "Agreement",
+                    labels = c("Syntactic", "Semantic"),
+                    values = wes_palette(n=2, name="Darjeeling1")) + 
   scale_x_discrete(labels = as_labeller(c(`attributive` = "Attributive", 
                                           `predicative` = "Predicate", 
                                           `relpron` = "Relative pronoun"))) -> semXtargetsXnouns
@@ -1116,14 +1120,17 @@ agrs %>%
   labs(x = "Target of agreement",
        y = "Proportion",
        title = "Proportions of syntactic and semantic agreements in noun types and in types of agreement") +
-  scale_fill_discrete(name = "Agreement",
-                      labels = c("Syntactic", "Semantic")) + 
+  scale_fill_manual(name = "Agreement",
+                    labels = c("Syntactic", "Semantic"),
+                    values = wes_palette(n=2, name="Darjeeling1")) + 
   scale_x_discrete(
     labels = as_labeller(c(`attributive` = "Attributive", 
                            `predicative` = "Predicate", 
                            `relpron` = "Relative pronoun"))) -> NOAPPsemXtargetsXnouns
 NOAPPsemXtargetsXnouns
 ```
+
+
 ```{r}
 png(file="../writing/M2/images/NOAPPsemXtargetsXnouns.png", 
     width = 20,
@@ -1525,7 +1532,10 @@ exper %>%
 
 exper %>%
   filter(trial_type == "experimental") %>% 
-  mutate(condition == factor(condition)) %>% 
+  mutate(condition = factor(condition),
+         agreement = factor(agreement, 
+                            levels = c("semantic", "syntactic"),
+                            labels = c("Semantic", "Syntactic"))) %>% 
   group_by(condition, noun, agreement) %>% 
   summarise(sd = sd(rating),
             rating = mean(rating)) %>% 
@@ -1543,8 +1553,8 @@ exper %>%
                    labels = c("Prenominal\npredicate", "Postnominal\npredicate", "Relative\npronoun")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
-  scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
-                    values = wes_palette(n=2, name="AsteroidCity1")) -> main.plot
+  scale_fill_manual(name = "Agreement", labels = c("Syntactic", "Semantic"),
+                    values = wes_palette(n=2, name="Darjeeling1")) -> main.plot
 main.plot
 ```
 Tables above for latex:
@@ -1590,7 +1600,7 @@ exper %>%
                    labels = c("Ungram.", "Gram.")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
-  scale_fill_manual(values = wes_palette(n=3, name="AsteroidCity1")[3]) +
+  scale_fill_manual(values = wes_palette(n=3, name="Darjeeling1")[3]) +
   guides(fill = "none") -> contr.plot
 contr.plot
 ```
@@ -1635,7 +1645,7 @@ exper %>%
   scale_fill_manual(name = "Noun types",
                     limits = c("prof", "depr"),
                     labels = c("Profession nouns", "Depreciative forms"),
-                    values = wes_palette(n=5, name="AsteroidCity1")[4:5]) -> diffs.plot
+                    values = wes_palette(n=5, name="Darjeeling1")[4:5]) -> diffs.plot
 diffs.plot
 ```
 Saving this plot:
@@ -1750,7 +1760,11 @@ exper %>%
   filter(noun == "prof" & trial_type == "experimental") %>% 
   group_by(condition, agreement, age, gender) %>% 
   summarise(rating = mean(rating)) %>% 
-  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  ggplot(aes(x = condition, 
+             y = rating, 
+             fill = factor(agreement, 
+                           levels = c("syntactic", "semantic"),
+                           labels = c("Syntactic", "Semantic")))) +
   geom_col(position = "dodge") +
   facet_grid(cols = vars(age),
              rows = vars(gender),
@@ -1766,8 +1780,8 @@ exper %>%
                               "Relative\npronoun")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
-  scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
-                    values = wes_palette(n=4, name="AsteroidCity1")[3:4]) -> demo.prof.plot
+  scale_fill_manual(name = "Agreement",
+                    values = wes_palette(n=2, name="Darjeeling1")) -> demo.prof.plot
 demo.prof.plot
 
 demo %>% 
@@ -1779,7 +1793,11 @@ exper %>%
   filter(noun == "depr" & trial_type == "experimental") %>% 
   group_by(condition, agreement, age, gender) %>% 
   summarise(rating = mean(rating)) %>% 
-  ggplot(aes(x = condition, y = rating, fill = agreement)) +
+  ggplot(aes(x = condition, 
+             y = rating, 
+             fill = factor(agreement, 
+                           levels = c("syntactic", "semantic"),
+                           labels = c("Syntactic", "Semantic")))) +
   geom_col(position = "dodge") +
   facet_grid(cols = vars(age),
              rows = vars(gender),
@@ -1795,8 +1813,8 @@ exper %>%
                               "Relative\npronoun")) +
   scale_y_discrete(name = "Rating",
                    limits = c("1", "2", "3", "4", "5")) +
-  scale_fill_manual(name = "Agreement", labels = c("Semantic", "Syntactic"),
-                    values = wes_palette(n=4, name="AsteroidCity1")[3:4]) -> demo.depr.plot
+  scale_fill_manual(name = "Agreement", 
+                    values = wes_palette(n=2, name="Darjeeling1")) -> demo.depr.plot
 demo.depr.plot
 ```
 PROF NOUNS:
