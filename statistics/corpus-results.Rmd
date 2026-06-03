@@ -871,30 +871,36 @@ agrs %>%
          type_of_agreement = as.character(type_of_agreement)) %>% 
   filter(source_cat == "profession") %>% 
   group_by(type_of_agreement, target_first) %>% 
-  summarise(sem_prop = paste0(round(sum(semantic_agr)/n()*100, 2), "%")) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr)) %>% 
+  mutate(sem_prop = paste0(n, " (", round(sem_n/n*100, 2), "%)")) %>% 
+  select(type_of_agreement, target_first, sem_prop) %>% 
   tidyr::pivot_wider(names_from = target_first,
-                     values_from = sem_prop) %>% 
-  relocate("0", .after = "1") %>% xtable()
+                     values_from = sem_prop) %>% xtable()
 
 agrs %>% 
   mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
          type_of_agreement = as.character(type_of_agreement)) %>% 
   filter(source_cat == "gendered") %>% 
   group_by(type_of_agreement, target_first) %>% 
-  summarise(sem_prop = paste0(round(sum(semantic_agr)/n()*100, 2), "%")) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr)) %>% 
+  mutate(sem_prop = paste0(n, " (", round(sem_n/n*100, 2), "%)")) %>% 
+  select(type_of_agreement, target_first, sem_prop) %>% 
   tidyr::pivot_wider(names_from = target_first,
-                     values_from = sem_prop) %>% 
-  relocate("0", .after = "1") %>% xtable()
+                     values_from = sem_prop) %>% xtable()
 
 agrs %>% 
   mutate(semantic_agr = as.numeric(levels(semantic_agr))[semantic_agr],
          type_of_agreement = as.character(type_of_agreement)) %>% 
   filter(source_cat == "depreciative") %>% 
   group_by(type_of_agreement, target_first) %>% 
-  summarise(sem_prop = paste0(round(sum(semantic_agr)/n()*100, 2), "%")) %>% 
+  summarise(n = n(),
+            sem_n = sum(semantic_agr)) %>% 
+  mutate(sem_prop = paste0(n, " (", round(sem_n/n*100, 2), "%)")) %>% 
+  select(type_of_agreement, target_first, sem_prop) %>% 
   tidyr::pivot_wider(names_from = target_first,
-                     values_from = sem_prop) %>% 
-  relocate("0", .after = "1") %>% xtable()
+                     values_from = sem_prop) %>% xtable()
 ```
 
 
