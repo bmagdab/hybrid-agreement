@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <!--this is part of the default html structure-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--loading the jspsych script and its visual style-->
+    <script src="../jspsych/dist/jspsych.js"></script>
+    <link href="../jspsych/dist/jspsych.css" rel="stylesheet" type="text/css"/>
+
+    <!--loading the stimuli-->
+    <script src="stimuli.js"></script>
+
+    <!--plugin for the welcome page with a checkbox-->
+    <script src="../jspsych/dist/plugin-external-html.js"></script>
+
+    <!--plugin for the "start experiment" page-->
+    <script src="../jspsych/dist/plugin-html-button-response.js"></script>
+    
+    <!--plugin for likert trials-->
+    <script src="../jspsych/dist/plugin-survey-likert.js"></script>
+
+    <!--plugin for the demographic survey at the end and its visual style-->
+    <script src="../jspsych/dist/plugin-survey-text.js"></script>
+
+    <!--plugin for sending the data to nextcloud-->
+		<script src="../jspsych/dist/plugin-nextcloud-filedrop.js"></script>
+
+    <!--plugin for the final screen-->
+    <script src="../jspsych/dist/plugin-html-keyboard-response.js"></script>
+    
+    <title>Ocena zdań</title>
+    <style>
+      p {
+	  display: block;
+	  text-align: left;
+		margin-inline: 20%;
+      }
+      .jspsych-survey-likert-statement {
+	  max-width: 60vw;
+	  margin-left: auto;
+	  margin-right: auto;
+      } /* so that items wrap in the middle instead of taking up the whole width of the page*/
+      p.jspsych-survey-text { text-align: center }
+    </style>
+  </head>
+  <body></body>
+  <script>
+    const jsPsych = initJsPsych({show_progress_bar: true, message_progress_bar: 'Postęp badania'});
+
+    // capture info from Prolific
+    var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+
+    jsPsych.data.addProperties({
+	subject_id: subject_id,
+	study_id: study_id,
+	session_id: session_id
+    });
+    
+    var timeline = [];
+
+    var likert_scale = [
+	"całkowicie nienaturalne", 
+	"", 
+	"", 
+	"", 
+	"całkowicie naturalne"
+    ];
+
+    var check_consent = function(elem) { //function taken from the jspsych documentation so that I have a consent checkbox on the welcome page
+	if (document.getElementById('consent_checkbox').checked) {
+            return true;
+	}
+	else {
+            alert('Jeśli chcesz wziąć udział w badaniu, musisz zaznaczyć pole obok zdania "Zgadzam się na udział w badaniu."');
+            return false;
+	}
+	return false;
+    };
+    
+    var welcome = {
+	type: jsPsychExternalHtml,
+	url: "../welcome.html",
+	cont_btn: "start",
+	check_fn: check_consent
+    };
+    timeline.push(welcome);
+
+    var participant_id = jsPsych.randomization.randomID(6);
+    
+    var instructions = {
+	type: jsPsychHtmlButtonResponse,
+	stimulus: '<p>Twoim zadaniem będzie ocenienie jak naturalnie brzmią wyświetlane zdania. Za każdym razem wyświetlane będą dwa zdania, ale twojej ocenie podlega tylko drugie. Jeśli nie masz pewności co to znaczy że zdanie brzmi naturalnie, zastanów się czy mógłbyś takie zdanie usłyszeć lub powiedzieć w danym kontekście. Oceny zdań będziesz dokonywać na pięciopunktowej skali, od "całkowicie nienaturalne" do "całkowicie naturalne". Po każdym ocenionym zdaniu zobaczysz pytanie kontrolne.</p> <p>Zanim przejdziemy do badania, zobaczysz 3 pytania testowe które pozwolą Ci oswoić się z zadaniem. Po części testowej przejdziesz do badania, które składa się z 60 pytań. W trakcie badania nie można wracać do poprzednich pytań i nie ma limitu czasu na odpowiedź, ale odpowiadaj intuicyjnie, bez zbyt wnikliwego zastanawiania się.</p>',
+	choices: ["Zacznij sesję próbną"]
+    };
+     timeline.push(instructions);
+
+    function judgement(stim) {
+	return {
+	    timeline: [
+		{
+		    type: jsPsychSurveyLikert,
+		    preamble: "Przeczytaj poniższe zdania i oceń jak naturalnie brzmi <em><b>drugie</b></em> z nich.",
+		    button_label: "Następne pytanie",
+		    scale_width: window.screen.width*0.6,
+		    questions: [
+			{
+			    prompt: stim.prompt,
+			    labels: likert_scale,
+			    required: true
+			}
+		    ],
+		    data: { stimulus: stim.sentence, item: stim.word, condition: stim.condition, group: stim.group, id: participant_id }
+		},
+		{
+		    type: jsPsychHtmlButtonResponse,
+		    prompt: "",
+		    stimulus: stim.question,
+		    choices: ["Tak", "Nie"],
+		    data: { correct: stim.answer, item: stim.word, condition: stim.condition, group: stim.group, id: participant_id }
+		}
+	    ]
+	}
+    }; //general shape of the experimental trial with the prompt from the stimuli and with saving the necessary data for the csv
+
+    var test_stimuli = [
+	{ prompt: "Nie wiem czy można przesunąć drzwi do łazienki. Majster przyjdzie w czwartek ocenić co da się zrobić.", word: "", condition: "", question: "Czy w zdaniu był wspomniany czwartek?" },
+	{ prompt: "Na podwórku jest idealne miejsce na drzemkę. Korona drzewa rzuca cień na hamak.", word: "", condition: "", question: "Czy wspomniano o leżaku?" },
+	{ prompt: "Często kłócę się z rodzeństwem, ale wczoraj byłem pomocny. Mój brat przyniósł mi pracę domową, którą powiedziałem mu jak rozwiązać.", word: "", condition: "", question: "Czy w zdaniu była mowa o sprawdzianie?" }
+    ];
+
+    var test_trials = jsPsych.randomization.shuffle(test_stimuli).map(judgement) //this maps the experimental trial to the randomized list of stimuli to be presented
+    timeline.push(test_trials);
+    
+    var start_exp = {
+	type: jsPsychHtmlButtonResponse,
+	choices: ['Zacznij badanie.'],
+	stimulus: "Koniec sesji treningowej. Żeby zacząć badanie, kliknij poniższy przycisk."
+    };
+    timeline.push(start_exp);
+
+    var item_group = jsPsych.randomization.randomInt(1, 6);
+    var control_group = jsPsych.randomization.randomInt(7, 8);
+    
+    function chooseGroup(stim) {
+	return stim.group == item_group || stim.group == control_group || stim.group == 9
+    };
+    
+    var chosen_stimuli = all_stimuli.filter(chooseGroup);
+    
+    var stimulus_trials = jsPsych.randomization.shuffle(chosen_stimuli).map(judgement); //this maps the experimental trial to the randomized list of stimuli to be presented
+    timeline.push(stimulus_trials);
+
+    var demographic_survey = {
+	type: jsPsychSurveyText,
+	preamble: "<p style='text-align: center'>To już prawie koniec badania. Proszę jeszcze o odpowiedzenie na kilka pytań na Twój temat.</p>",
+	button_label: "Zakończ badanie",
+	questions: [
+	    { prompt: "Ile masz lat?", name: "age", required: true },
+	    { prompt: "Jaka jest Twoja płeć?", name: "gender", required: true },
+	    { prompt: "Jaki jest Twój pierwszy język? Możesz podać więcej niż jeden.", name: "languages", required: true },
+	    { prompt: "W jakim kraju się wychowywałeś/aś? Możesz podać więcej niż jeden.", name: "country", required: true }
+	],
+	data: { id: participant_id }
+    }
+    timeline.push(demographic_survey)
+
+		var saving = {
+	type: jsPsychNextcloudFiledropPlugin,
+	url: "https://cloud.llf-paris.fr/nextcloud",
+	folder: "WZWcsK6EHwEa9gm",
+	generate_download_url_on_error: true
+    };
+    timeline.push(saving) //this saves the data after all trials have passed and before the ending screen
+
+    var ending = {
+	type: jsPsychHtmlKeyboardResponse,
+	stimulus: "<p>To koniec badania. Dziękuję za udział!</p><p>W razie jakichkolwiek pytań lub uwag, proszę o kontakt na adres <a href='mailto:mb-experiments@proton.me'>mb-experiments@proton.me</a></p><p>Aby wrócić do Prolific kliknij <a href='https://app.prolific.com/submissions/complete?cc=CSUKD5QJ' target='_blank'>tutaj.</a></p>",
+	choices: "NO_KEYS"
+    };
+    timeline.push(ending);
+    
+    jsPsych.run(timeline);
+  </script>
+</html>
