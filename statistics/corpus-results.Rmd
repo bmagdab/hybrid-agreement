@@ -1575,8 +1575,8 @@ exper %>%
   filter(trial_type == "experimental") %>% 
   mutate(condition = factor(condition),
          agreement = factor(agreement, 
-                            levels = c("semantic", "syntactic"),
-                            labels = c("Semantic", "Syntactic"))) %>% 
+                            levels = c("syntactic", "semantic"),
+                            labels = c("Syntactic", "Semantic"))) %>% 
   group_by(condition, noun, agreement) %>% 
   summarise(sd = sd(rating),
             rating = mean(rating)) %>% 
